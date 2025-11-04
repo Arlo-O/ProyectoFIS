@@ -87,13 +87,14 @@ def create_director_dashboard(master, nav_commands):
     modules_grid.grid_columnconfigure(1, weight=1)
     modules_grid.grid_columnconfigure(2, weight=1)
 
-    # Fila 1 (Módulos de gestión)
-    create_dashboard_button(modules_grid, "Gestión de Grupos", "👥", "groups_manager", nav_commands).grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-    create_dashboard_button(modules_grid, "Generación de Citación", "📝", "citation_generator", nav_commands).grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-    create_dashboard_button(modules_grid, "Gestión de Logros", "⭐", "achievements_manager", nav_commands).grid(row=0, column=2, sticky="nsew", padx=10, pady=10)
+    # Fila 1 (Módulos de gestión académica)
+    create_dashboard_button(modules_grid, "Gestión de Logros", "⭐", "achievements_manager", nav_commands).grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+    create_dashboard_button(modules_grid, "Gestión de Estudiantes", "�‍🎓", "student_manager", nav_commands).grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+    create_dashboard_button(modules_grid, "Gestión de Grupos", "👥", "groups_manager", nav_commands).grid(row=0, column=2, sticky="nsew", padx=10, pady=10)
     
-    # Fila 2 (Otros módulos del Directivo)
-    create_dashboard_button(modules_grid, "Gestión de Matrículas", "📋", "enrollment_manager", nav_commands).grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
-    create_dashboard_button(modules_grid, "Reportes Detallados", "📈", "reports", nav_commands).grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
+    # Fila 2 (Módulos de comunicación y seguimiento)
+    create_dashboard_button(modules_grid, "Citaciones y Entrevistas", "📝", "citation_generator", nav_commands).grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
+    create_dashboard_button(modules_grid, "Gestión de Notificaciones", "�", "notifications_manager", nav_commands).grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
+    create_dashboard_button(modules_grid, "Reportes y Estadísticas", "📈", "reports", nav_commands).grid(row=1, column=2, sticky="nsew", padx=10, pady=10)
     
     return dashboard_frame

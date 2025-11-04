@@ -84,7 +84,17 @@ def create_base_step(master, step_number, title_text, nav_commands):
     if step_number < 4:
         ttk.Button(nav_frame, text="Siguiente", style="Pre.TButton", command=nav_commands['next']).pack(side="right")
     elif step_number == 4:
-        ttk.Button(nav_frame, text="Enviar Preinscripción", style="Login.TButton", command=lambda: print("Enviando formulario")).pack(side="right")
+        def on_submit():
+            from dialogs import show_confirmation_dialog
+            def redirect_home():
+                nav_commands['home']()
+            show_confirmation_dialog(
+                step_frame,
+                "Preinscripción Enviada",
+                "Su formulario de preinscripción ha sido enviado exitosamente. Nos pondremos en contacto pronto.",
+                on_confirm=redirect_home
+            )
+        ttk.Button(nav_frame, text="Enviar Preinscripción", style="Login.TButton", command=on_submit).pack(side="right")
 
     # Devolvemos las referencias del scroll para la corrección
     return step_frame, fields_frame, canvas, fields_frame_container 

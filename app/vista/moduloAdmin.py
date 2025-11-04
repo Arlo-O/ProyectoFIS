@@ -1,4 +1,4 @@
-# Archivo: admin_module.py
+# Archivo: moduloAdmin.py
 
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -9,174 +9,210 @@ def create_sidebar_button(parent, text, icon, module_name, nav_commands, is_acti
     """Crea un botón de navegación lateral."""
     bg_color = COLOR_ACCENT_DARK if is_active else COLOR_SIDEBAR_ADMIN
     active_color = COLOR_ACCENT_DARK
-    
+
     btn_frame = tk.Frame(parent, bg=bg_color)
-    
+
     btn = tk.Button(btn_frame, text=f"{icon}   {text}", anchor="w", bd=0, padx=10, pady=8, highlightthickness=0,
-                    bg=bg_color, 
+                    bg=bg_color,
                     fg=COLOR_HEADER_PRE if is_active else COLOR_TEXT_LIGHT,
                     font=FONT_P_BOLD,
                     command=lambda: nav_commands['show_frame'](module_name) if module_name else None)
     btn.pack(fill="x")
     btn_frame.pack(fill="x", pady=(0, 2))
-    
+
     # Manejo de Hover simple para Tkinter
     btn.bind("<Enter>", lambda e: btn.config(bg=active_color))
     btn.bind("<Leave>", lambda e: btn.config(bg=bg_color))
-    
+
     return btn
 
 def create_info_card(parent, title, value, icon, color):
-    """Crea una tarjeta de información clave (Estudiantes, Profesores, etc.)."""
-    card = tk.Frame(parent, bg="#ffffff", padx=15, pady=15, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
-    
-    icon_label = tk.Label(card, text=icon, font=("Helvetica", 24), fg=color, bg="#ffffff")
+    """Crea una tarjeta de información clave (resumen simple)."""
+    card = tk.Frame(parent, bg="#ffffff", padx=12, pady=12, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
+
+    icon_label = tk.Label(card, text=icon, font=("Helvetica", 22), fg=color, bg="#ffffff")
     icon_label.pack(side="left")
-    
+
     text_frame = tk.Frame(card, bg="#ffffff")
-    text_frame.pack(side="right", padx=(10, 0))
-    
+    text_frame.pack(side="right", padx=(8, 0))
+
     tk.Label(text_frame, text=value, font=FONT_H1, fg=color, bg="#ffffff").pack(anchor="w")
     tk.Label(text_frame, text=title, font=FONT_P, fg=COLOR_TEXT_MUTED, bg="#ffffff").pack(anchor="w")
-    
+
     return card
 
-# --- FUNCIÓN PRINCIPAL: DASHBOARD ADMINISTRADOR ---
+
+# --- MÓDULO: GESTIÓN DE USUARIOS (ADMIN) ---
 def create_admin_dashboard(master, nav_commands):
-    """Crea la interfaz del Dashboard Administrador."""
-    
+    """Interfaz exclusiva para gestión de usuarios. Mantiene la estética original."""
+
     dashboard_frame = tk.Frame(master)
-    dashboard_frame.grid_columnconfigure(0, weight=0) 
-    dashboard_frame.grid_columnconfigure(1, weight=1) 
+    dashboard_frame.grid_columnconfigure(0, weight=0)
+    dashboard_frame.grid_columnconfigure(1, weight=1)
     dashboard_frame.grid_rowconfigure(0, weight=1)
-    
-    # 1. BARRA LATERAL (SIDEBAR)
+
+    # SIDEBAR
     sidebar = tk.Frame(dashboard_frame, bg=COLOR_SIDEBAR_ADMIN, width=220)
     sidebar.grid(row=0, column=0, sticky="nsew")
     sidebar.pack_propagate(False)
 
-    # Header de la Sidebar
-    tk.Label(sidebar, text="Gestión Académica", bg=COLOR_DARK_BG, fg=COLOR_TEXT_LIGHT, font=FONT_H1).pack(fill="x", ipady=10)
+    tk.Label(sidebar, text="Gestión Usuarios", bg=COLOR_DARK_BG, fg=COLOR_TEXT_LIGHT, font=FONT_H1).pack(fill="x", ipady=10)
     tk.Label(sidebar, text="Administrador", bg=COLOR_SIDEBAR_ADMIN, fg=COLOR_HEADER_PRE, font=FONT_H3).pack(fill="x")
-    tk.Label(sidebar, text="Bienvenido, Administrador Principal", bg=COLOR_SIDEBAR_ADMIN, fg=COLOR_TEXT_LIGHT, font=FONT_P).pack(fill="x", pady=(0, 10))
+    tk.Label(sidebar, text="Panel: Gestión de Usuarios", bg=COLOR_SIDEBAR_ADMIN, fg=COLOR_TEXT_LIGHT, font=FONT_P).pack(fill="x", pady=(0, 10))
 
-    # Nav Buttons
-    tk.Label(sidebar, text="GESTIÓN PRINCIPAL", bg=COLOR_SIDEBAR_ADMIN, fg="#a0a0a0", font=FONT_SMALL).pack(fill="x", padx=10, pady=(15, 5), anchor="w")
-    create_sidebar_button(sidebar, "Dashboard Principal", "🏠", "dashboard", nav_commands, is_active=True)
-    create_sidebar_button(sidebar, "Generar Citaciones", "📝", "citation_generator", nav_commands)
-    create_sidebar_button(sidebar, "Gestión de Grupos", "👥", "groups_manager", nav_commands)
-    create_sidebar_button(sidebar, "Categorías/Logros", "⭐", "achievements_manager", nav_commands)
-    
-    tk.Label(sidebar, text="REPORTES", bg=COLOR_SIDEBAR_ADMIN, fg="#a0a0a0", font=FONT_SMALL).pack(fill="x", padx=10, pady=(15, 5), anchor="w")
-    create_sidebar_button(sidebar, "Reportes Académicos", "📈", "reports_admin", nav_commands)
-    
-    tk.Label(sidebar, text="SISTEMA", bg=COLOR_SIDEBAR_ADMIN, fg="#a0a0a0", font=FONT_SMALL).pack(fill="x", padx=10, pady=(15, 5), anchor="w")
-    create_sidebar_button(sidebar, "Configuración", "⚙️", "config_admin", nav_commands)
-    create_sidebar_button(sidebar, "Notificaciones", "🔔", "notifications_admin", nav_commands)
-    
-    # Footer (Cerrar Sesión)
+    # Sólo opciones relacionadas con usuarios
+    tk.Label(sidebar, text="USUARIOS", bg=COLOR_SIDEBAR_ADMIN, fg="#a0a0a0", font=FONT_SMALL).pack(fill="x", padx=10, pady=(10, 5), anchor="w")
+    create_sidebar_button(sidebar, "Gestión de Usuarios", "👤", "users_manager", nav_commands, is_active=True)
+
     tk.Frame(sidebar, height=1, bg="#444a57").pack(fill="x", pady=10, padx=10, side="bottom")
-    tk.Button(sidebar, text="❌ Cerrar Sesión", bg=COLOR_SIDEBAR_ADMIN, fg="#ff5555", font=FONT_P_BOLD, bd=0, 
+    tk.Button(sidebar, text="❌ Cerrar Sesión", bg=COLOR_SIDEBAR_ADMIN, fg="#ff5555", font=FONT_P_BOLD, bd=0,
               highlightthickness=0, command=nav_commands['home']).pack(fill="x", side="bottom", pady=10, padx=10)
 
-
-    # 2. CONTENIDO PRINCIPAL
+    # CONTENIDO PRINCIPAL
     main_content = tk.Frame(dashboard_frame, bg="#f5f7fa")
     main_content.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
     main_content.grid_columnconfigure(0, weight=1)
-    
-    # Header del contenido
-    header_content = tk.Frame(main_content, bg="#f5f7fa")
-    header_content.pack(fill="x", pady=(0, 20))
-    tk.Label(header_content, text="Panel Administrativo", font=FONT_H1, bg="#f5f7fa", fg=COLOR_TEXT_DARK).pack(side="left", anchor="w")
-    tk.Label(header_content, text="Colegio Pequeño - Sistema de Gestión Académica", font=FONT_P, bg="#f5f7fa", fg=COLOR_TEXT_MUTED).pack(side="right", anchor="e")
 
-    # --- Tarjetas de Resumen (Top Row) ---
+    # Header
+    header_content = tk.Frame(main_content, bg="#f5f7fa")
+    header_content.pack(fill="x", pady=(0, 12))
+    tk.Label(header_content, text="Gestión de Usuarios", font=FONT_H1, bg="#f5f7fa", fg=COLOR_TEXT_DARK).pack(side="left", anchor="w")
+    tk.Label(header_content, text="Usuarios del sistema: crear, editar y eliminar", font=FONT_P, bg="#f5f7fa", fg=COLOR_TEXT_MUTED).pack(side="right", anchor="e")
+
+    # Resumen rápido
     summary_row = tk.Frame(main_content, bg="#f5f7fa")
-    summary_row.pack(fill="x", pady=(0, 20))
-    
+    summary_row.pack(fill="x", pady=(0, 12))
     summary_row.grid_columnconfigure(0, weight=1)
     summary_row.grid_columnconfigure(1, weight=1)
     summary_row.grid_columnconfigure(2, weight=1)
-    summary_row.grid_columnconfigure(3, weight=1)
-    summary_row.grid_columnconfigure(4, weight=1)
-    
-    create_info_card(summary_row, "Total Estudiantes", "47", "🧑🏻‍🎓", "#007bff").grid(row=0, column=0, sticky="ew", padx=5)
-    create_info_card(summary_row, "Profesores", "8", "🧑🏻‍🏫", "#28a745").grid(row=0, column=1, sticky="ew", padx=5)
-    create_info_card(summary_row, "Grupos Activos", "6", "🧡", COLOR_HEADER_PRE).grid(row=0, column=2, sticky="ew", padx=5)
-    create_info_card(summary_row, "Cupos Disponibles", "13", "🗒️", "#808080").grid(row=0, column=3, sticky="ew", padx=5)
-    
-    # --- Gestión Principal (Mid Row) ---
-    management_row = tk.Frame(main_content, bg="#f5f7fa")
-    management_row.pack(fill="x", pady=(0, 20))
-    
-    management_row.grid_columnconfigure(0, weight=1)
-    management_row.grid_columnconfigure(1, weight=1)
-    management_row.grid_columnconfigure(2, weight=1)
 
-    # Card 1: Gestión de Citaciones
-    card_cita = tk.Frame(management_row, bg="#ffffff", padx=15, pady=15, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
-    card_cita.grid(row=0, column=0, sticky="nsew", padx=10)
-    tk.Label(card_cita, text="Gestion de Citaciones (GCR)", font=FONT_H3, fg=COLOR_ACCENT_ADMIN, bg="#ffffff").pack(anchor="w", pady=(0, 5))
-    tk.Label(card_cita, text="Generar citaciones grupales o individuales a acudientes.", font=FONT_P, fg=COLOR_TEXT_MUTED, bg="#ffffff", wraplength=200, justify="left").pack(anchor="w", pady=(0, 15))
-    ttk.Button(card_cita, text="Abrir Módulo", style="AdminBlue.TButton", command=lambda: nav_commands['show_frame']("citation_generator")).pack(fill="x", ipady=5)
+    create_info_card(summary_row, "Total Usuarios", "63", "👥", COLOR_ACCENT_ADMIN).grid(row=0, column=0, sticky="ew", padx=4)
+    create_info_card(summary_row, "Administradores", "3", "🛡️", COLOR_HEADER_PRE).grid(row=0, column=1, sticky="ew", padx=4)
+    create_info_card(summary_row, "Profesores", "20", "📚", COLOR_ACCENT_TEACHER).grid(row=0, column=2, sticky="ew", padx=4)
 
-    # Card 2: Gestión de Grupos
-    card_grupos = tk.Frame(management_row, bg="#ffffff", padx=15, pady=15, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
-    card_grupos.grid(row=0, column=1, sticky="nsew", padx=10)
-    tk.Label(card_grupos, text="Gestión de Grupos", font=FONT_H3, fg=COLOR_ACCENT_ADMIN, bg="#ffffff").pack(anchor="w", pady=(0, 5))
-    tk.Label(card_grupos, text="Administrar grupos, cupos y asignación de estudiantes.", font=FONT_P, fg=COLOR_TEXT_MUTED, bg="#ffffff", wraplength=200, justify="left").pack(anchor="w", pady=(0, 15))
-    ttk.Button(card_grupos, text="Gestionar", style="AdminBlue.TButton", command=lambda: nav_commands['show_frame']("groups_manager")).pack(fill="x", ipady=5)
+    # Área de lista y acciones
+    content_card = tk.Frame(main_content, bg="#ffffff", padx=12, pady=12, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
+    content_card.pack(fill="both", expand=True)
 
-    # Card 3: Categorías/Logros
-    card_logros = tk.Frame(management_row, bg="#ffffff", padx=15, pady=15, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
-    card_logros.grid(row=0, column=2, sticky="nsew", padx=10)
-    tk.Label(card_logros, text="Categorías de Logros (GLE)", font=FONT_H3, fg=COLOR_ACCENT_TEACHER, bg="#ffffff").pack(anchor="w", pady=(0, 5))
-    tk.Label(card_logros, text="Crear y gestionar categorías y subcategorías de evaluación.", font=FONT_P, fg=COLOR_TEXT_MUTED, bg="#ffffff", wraplength=200, justify="left").pack(anchor="w", pady=(0, 15))
-    ttk.Button(card_logros, text="Gestionar", style="AdminGreen.TButton", command=lambda: nav_commands['show_frame']("achievements_manager")).pack(fill="x", ipady=5)
+    # Toolbar superior (buscar, botones)
+    toolbar = tk.Frame(content_card, bg="#ffffff")
+    toolbar.pack(fill="x", pady=(0, 8))
 
-    # --- Tareas Pendientes (Bottom Row) ---
-    bottom_row = tk.Frame(main_content, bg="#f5f7fa")
-    bottom_row.pack(fill="x")
-    bottom_row.grid_columnconfigure(0, weight=1)
-    bottom_row.grid_columnconfigure(1, weight=1)
+    search_var = tk.StringVar()
+    tk.Entry(toolbar, textvariable=search_var, font=FONT_P, width=30).pack(side="left", padx=(0, 8))
+    tk.Button(toolbar, text="Buscar", bg=COLOR_ACCENT_ADMIN, fg=COLOR_TEXT_LIGHT, font=FONT_P_BOLD, bd=0).pack(side="left")
 
-    # Card 4: Preinscripciones Pendientes
-    card_pre = tk.Frame(bottom_row, bg="#ffffff", padx=15, pady=15, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
-    card_pre.grid(row=0, column=0, sticky="nsew", padx=10)
-    tk.Label(card_pre, text="Preinscripciones Pendientes de Revisión", font=FONT_H3, fg=COLOR_HEADER_PRE, bg="#ffffff").pack(anchor="w", pady=(0, 10))
-    
-    # Lista simulada
-    def create_pre_item(parent, name, group, status_color, status_text):
-        item = tk.Frame(parent, bg="#ffffff", pady=5)
-        item.pack(fill="x")
-        tk.Label(item, text=name, font=FONT_P_BOLD, bg="#ffffff", fg=COLOR_TEXT_DARK).pack(anchor="w")
-        tk.Label(item, text=f"{group} - 3 años", font=FONT_SMALL, bg="#ffffff", fg=COLOR_TEXT_MUTED).pack(anchor="w")
-        tk.Label(item, text=status_text, font=FONT_SMALL, bg=status_color, fg=COLOR_TEXT_LIGHT, padx=5).pack(side="right")
-    
-    create_pre_item(card_pre, "Sofia Ramirez Torres", "Párvulos", "orange", "Nueva")
-    create_pre_item(card_pre, "Mateo Vargas López", "Caminadores", "orange", "Nueva")
-    create_pre_item(card_pre, "Isabella Moreno Cruz", "Prejardín", "red", "En Revisión")
-    
-    tk.Button(card_pre, text="Ver todas (5 pendientes)", bg=COLOR_HEADER_PRE, fg=COLOR_TEXT_LIGHT, font=FONT_P_BOLD, bd=0).pack(fill="x", ipady=5, pady=(15, 0))
+    # Botones CRUD
+    btn_frame = tk.Frame(toolbar, bg="#ffffff")
+    btn_frame.pack(side="right")
+    ttk.Button(btn_frame, text="Nuevo Usuario", style="AdminBlue.TButton", command=lambda: open_add_user_modal(content_card, tree)).pack(side="left", padx=6)
+    ttk.Button(btn_frame, text="Editar", style="AdminBlue.TButton", command=lambda: open_edit_user_modal(content_card, tree)).pack(side="left", padx=6)
+    ttk.Button(btn_frame, text="Eliminar", style="Danger.TButton", command=lambda: delete_selected_user(tree)).pack(side="left", padx=6)
 
-    # Card 5: Citaciones Programadas (Simplificado)
-    card_cita_prog = tk.Frame(bottom_row, bg="#ffffff", padx=15, pady=15, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
-    card_cita_prog.grid(row=0, column=1, sticky="nsew", padx=10)
-    tk.Label(card_cita_prog, text="Citaciones Programadas", font=FONT_H3, fg=COLOR_ACCENT_ADMIN, bg="#ffffff").pack(anchor="w", pady=(0, 10))
-    
-    # Lista simulada
-    def create_cita_item(parent, reason, date, status_color, status_text):
-        item = tk.Frame(parent, bg="#ffffff", pady=5)
-        item.pack(fill="x")
-        tk.Label(item, text=reason, font=FONT_P_BOLD, bg="#ffffff", fg=COLOR_TEXT_DARK).pack(anchor="w")
-        tk.Label(item, text=date, font=FONT_SMALL, bg="#ffffff", fg=COLOR_TEXT_MUTED).pack(anchor="w")
-        tk.Label(item, text=status_text, font=FONT_SMALL, bg=status_color, fg=COLOR_TEXT_LIGHT, padx=5).pack(side="right")
-    
-    create_cita_item(card_cita_prog, "Reunión Padres - Prejardín B", "15 Oct 2025 - 3:00 PM", "#28a745", "Confirmada")
-    create_cita_item(card_cita_prog, "Citación individual - Acudiente Silva", "18 Oct 2025 - 4:30 PM", "orange", "Pendiente")
-    create_cita_item(card_cita_prog, "Entrega Boletines - Caminadores A", "20 Oct 2025 - 2:00 PM", "orange", "Pendiente")
+    # Treeview de usuarios
+    columns = ("id", "name", "role", "email", "status")
+    tree = ttk.Treeview(content_card, columns=columns, show="headings", selectmode="browse")
+    tree.heading("id", text="ID")
+    tree.heading("name", text="Nombre")
+    tree.heading("role", text="Rol")
+    tree.heading("email", text="Email")
+    tree.heading("status", text="Estado")
 
-    tk.Button(card_cita_prog, text="Crear nueva citación", bg=COLOR_ACCENT_ADMIN, fg=COLOR_TEXT_LIGHT, font=FONT_P_BOLD, bd=0).pack(fill="x", ipady=5, pady=(15, 0))
-    
+    tree.column("id", width=50, anchor="center")
+    tree.column("name", width=200)
+    tree.column("role", width=120, anchor="center")
+    tree.column("email", width=200)
+    tree.column("status", width=100, anchor="center")
+
+    tree.pack(fill="both", expand=True)
+
+    # Datos de ejemplo (simulados)
+    sample_users = [
+        (1, "María Pérez", "Administrador", "maria.perez@colegio.edu", "Activo"),
+        (2, "Juan Gómez", "Profesor", "juan.gomez@colegio.edu", "Activo"),
+        (3, "Lucía Martínez", "Estudiante", "lucia.m@colegio.edu", "Inactivo"),
+    ]
+
+    for u in sample_users:
+        tree.insert("", "end", values=u)
+
+    # --- Funciones auxiliares CRUD (simuladas, UI only) ---
+    def open_add_user_modal(parent, treeview):
+        modal = tk.Toplevel(parent)
+        modal.transient(parent)
+        modal.grab_set()
+        modal.title("Crear Usuario")
+
+        tk.Label(modal, text="Crear Nuevo Usuario", font=FONT_H3).pack(pady=(10, 6))
+
+        frm = tk.Frame(modal)
+        frm.pack(padx=12, pady=8)
+
+        tk.Label(frm, text="Nombre:").grid(row=0, column=0, sticky="e")
+        name_e = tk.Entry(frm, width=30)
+        name_e.grid(row=0, column=1, pady=4)
+
+        tk.Label(frm, text="Email:").grid(row=1, column=0, sticky="e")
+        email_e = tk.Entry(frm, width=30)
+        email_e.grid(row=1, column=1, pady=4)
+
+        tk.Label(frm, text="Rol:").grid(row=2, column=0, sticky="e")
+        role_e = ttk.Combobox(frm, values=["Administrador", "Profesor", "Estudiante"], state="readonly")
+        role_e.grid(row=2, column=1, pady=4)
+        role_e.current(2)
+
+        def save_new():
+            # Inserción simulada en la vista
+            new_id = len(treeview.get_children()) + 1
+            treeview.insert("", "end", values=(new_id, name_e.get() or "-", role_e.get() or "Estudiante", email_e.get() or "-", "Activo"))
+            modal.destroy()
+
+        tk.Button(modal, text="Guardar", bg=COLOR_ACCENT_ADMIN, fg=COLOR_TEXT_LIGHT, bd=0, command=save_new).pack(pady=(8, 12))
+
+    def open_edit_user_modal(parent, treeview):
+        sel = treeview.selection()
+        if not sel:
+            return
+        item = treeview.item(sel)
+        vals = item.get("values", ())
+
+        modal = tk.Toplevel(parent)
+        modal.transient(parent)
+        modal.grab_set()
+        modal.title("Editar Usuario")
+
+        tk.Label(modal, text="Editar Usuario", font=FONT_H3).pack(pady=(10, 6))
+        frm = tk.Frame(modal)
+        frm.pack(padx=12, pady=8)
+
+        tk.Label(frm, text="Nombre:").grid(row=0, column=0, sticky="e")
+        name_e = tk.Entry(frm, width=30)
+        name_e.insert(0, vals[1])
+        name_e.grid(row=0, column=1, pady=4)
+
+        tk.Label(frm, text="Email:").grid(row=1, column=0, sticky="e")
+        email_e = tk.Entry(frm, width=30)
+        email_e.insert(0, vals[3])
+        email_e.grid(row=1, column=1, pady=4)
+
+        tk.Label(frm, text="Rol:").grid(row=2, column=0, sticky="e")
+        role_e = ttk.Combobox(frm, values=["Administrador", "Profesor", "Estudiante"], state="readonly")
+        role_e.grid(row=2, column=1, pady=4)
+        try:
+            role_e.current(["Administrador", "Profesor", "Estudiante"].index(vals[2]))
+        except Exception:
+            role_e.current(2)
+
+        def save_edit():
+            treeview.item(sel, values=(vals[0], name_e.get() or vals[1], role_e.get() or vals[2], email_e.get() or vals[3], vals[4]))
+            modal.destroy()
+
+        tk.Button(modal, text="Guardar cambios", bg=COLOR_ACCENT_ADMIN, fg=COLOR_TEXT_LIGHT, bd=0, command=save_edit).pack(pady=(8, 12))
+
+    def delete_selected_user(treeview):
+        sel = treeview.selection()
+        if not sel:
+            return
+        treeview.delete(sel)
+
     return dashboard_frame

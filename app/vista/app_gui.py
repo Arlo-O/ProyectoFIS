@@ -14,11 +14,15 @@ from session_manager import set_current_role
 from formGui import create_step1, create_step2, create_step3, create_step4
 from moduloAdmin import create_admin_dashboard
 from moduloDirectivo import create_director_dashboard
-from moduloProfesor import create_teacher_dashboard
+from moduloProfesor import create_teacher_dashboard, create_assignment_teacher, create_observer_teacher
 from moduloAcudiente import create_parent_dashboard
 from moduloCitacion import create_citation_generator
 from moduloGrupos import create_groups_manager
 from moduloLogros import create_achievements_manager
+from moduloEstudiantes import create_student_manager
+from moduloEvaluaciones import create_evaluations_manager
+from moduloCursosAsignados import create_assigned_courses
+from moduloBoletines import create_report_generator
 
 
 # --- Variables Globales de Estado ---
@@ -192,13 +196,13 @@ def create_login_column(parent, login_command):
     login_main.pack_propagate(False) 
     
     # --- INFO DE USUARIOS PARA PRUEBA ---
-    info_frame = tk.Frame(login_main, bg="#f0f0f0", padx=10, pady=5)
-    info_frame.pack(fill="x", pady=(0, 20))
-    info_text = "Usuarios para prueba:\n"
-    for user, data in USER_CREDENTIALS.items():
-        info_text += f"• {user}: {data['password']} ({data['role'].capitalize()})\n"
+    # info_frame = tk.Frame(login_main, bg="#f0f0f0", padx=10, pady=5)
+    # info_frame.pack(fill="x", pady=(0, 20))
+    # info_text = "Usuarios para prueba:\n"
+    # for user, data in USER_CREDENTIALS.items():
+    #     info_text += f"• {user}: {data['password']} ({data['role'].capitalize()})\n"
     
-    tk.Label(info_frame, text=info_text, bg="#f0f0f0", fg=COLOR_TEXT_DARK, font=FONT_P, justify="left", anchor="w").pack(fill="x")
+    # tk.Label(info_frame, text=info_text, bg="#f0f0f0", fg=COLOR_TEXT_DARK, font=FONT_P, justify="left", anchor="w").pack(fill="x")
     
     tk.Label(login_main, text="Autenticación de Usuario", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_DARK, font=FONT_H2).pack(anchor="w", pady=(0, 20))
     
@@ -310,6 +314,16 @@ def initialize_app():
     frames["groups_manager"] = create_groups_manager(root_content_frame, nav_commands)
     frames["citation_generator"] = create_citation_generator(root_content_frame, nav_commands)
     frames["achievements_manager"] = create_achievements_manager(root_content_frame, nav_commands)
+    
+    # Módulos específicos del profesor
+    frames["assigned_courses"] = create_assigned_courses(root_content_frame, nav_commands)
+    frames["evaluations_manager"] = create_evaluations_manager(root_content_frame, nav_commands)
+    frames["generate_reports"] = create_report_generator(root_content_frame, nav_commands)
+    frames["student_observer"] = create_observer_teacher(root_content_frame, nav_commands)
+    frames["assignment_teacher"] = create_assignment_teacher(root_content_frame, nav_commands)
+    
+    # Módulos específicos del directivo
+    frames["student_manager"] = create_student_manager(root_content_frame, nav_commands)
     
     # Asegura que todos los frames estén registrados en la cuadrícula pero ocultos
     for frame in frames.values():

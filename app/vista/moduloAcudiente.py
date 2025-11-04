@@ -112,12 +112,12 @@ def create_parent_dashboard(master, nav_commands):
     # Card 2: Boletines PDF
     create_parent_card(management_row, "Boletines PDF", 
                        "Descargar boletines de períodos anteriores.", "Descargar", 
-                       COLOR_HEADER_PRE, lambda: print("Descargando boletines...")).grid(row=0, column=1, sticky="nsew", padx=10)
+                       COLOR_HEADER_PRE, lambda: nav_commands['show_frame']("generate_reports")).grid(row=0, column=1, sticky="nsew", padx=10)
     
     # Card 3: Comunicaciones
     card_comms = create_parent_card(management_row, "Comunicaciones", 
                        "Mensajes y citaciones del colegio.", "Ver", 
-                       COLOR_HEADER_PRE, lambda: print("Ver comunicaciones..."))
+                       COLOR_HEADER_PRE, lambda: nav_commands['show_frame']("student_observer"))
     card_comms.grid(row=0, column=2, sticky="nsew", padx=10)
     tk.Label(card_comms, text="2 nuevos", bg="#ffffff", fg="red", font=FONT_SMALL).place(relx=0.9, rely=0.1, anchor="ne")
 
