@@ -1,4 +1,20 @@
-# Archivo: citation_module.py
+"""
+Archivo: moduloCitacion.py
+Generación de Citaciones a Acudientes (Caso de Uso 42).
+
+Módulo funcional para directivos que permite generar citaciones
+formales para reuniones con acudientes/padres.
+
+Funcionalidades:
+- Formulario completo de citación (fecha, hora, lugar, motivo)
+- Selección de destinatarios (grupos completos o individuales)
+- Envío masivo o selectivo
+- Generación de documento formal
+- Registro de citaciones enviadas
+
+Acceso: Directivo (director)
+Caso de Uso: CU-42 (Generar citación a reunión)
+"""
 
 import tkinter as tk
 import tkinter.ttk as ttk

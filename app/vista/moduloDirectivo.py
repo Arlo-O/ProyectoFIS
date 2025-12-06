@@ -1,10 +1,32 @@
-# Archivo: director_module.py
+"""
+Archivo: moduloDirectivo.py
+Dashboard y funcionalidades para el rol DIRECTIVO (director).
+
+Panel administrativo para el directivo académico del colegio, quien gestiona
+los aspectos académicos y administrativos de la institución.
+
+Funcionalidades principales:
+- Gestión de logros académicos y categorías
+- Gestión de estudiantes (inscripción, actualización, consulta)
+- Gestión de grupos académicos
+- Generación de citaciones y entrevistas
+- Gestión de notificaciones a acudientes
+- Reportes y estadísticas académicas
+
+Estructura visual:
+- Sidebar: Navegación y perfil del directivo
+- Área principal: Grid de tarjetas con acceso a módulos funcionales
+
+Rol asociado: 'director' (Directivo académico)
+"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 
-# --- FUNCIÓN AUXILIAR DE WIDGETS (Se mantiene) ---
+# ======================================================================
+# FUNCIONES AUXILIARES DE WIDGETS
+# ======================================================================
 def create_dashboard_button(parent, text, icon, module_name, nav_commands):
     """Crea un botón de módulo en el dashboard."""
     frame = tk.Frame(parent, bg="#ffffff", padx=20, pady=20, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
@@ -59,7 +81,9 @@ def create_director_dashboard(master, nav_commands):
         return btn
 
     create_side_nav_button(sidebar, "Dashboard", "🏠", is_active=True)
-    create_side_nav_button(sidebar, "Reportes", "📈")
+    
+    # TODO: Implementar módulo de reportes
+    # create_side_nav_button(sidebar, "Reportes", "📈")
     
     # Footer (Cerrar Sesión)
     tk.Frame(sidebar, height=1, bg="#444a57").pack(fill="x", pady=10, padx=10, side="bottom")
@@ -89,12 +113,16 @@ def create_director_dashboard(master, nav_commands):
 
     # Fila 1 (Módulos de gestión académica)
     create_dashboard_button(modules_grid, "Gestión de Logros", "⭐", "achievements_manager", nav_commands).grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-    create_dashboard_button(modules_grid, "Gestión de Estudiantes", "�‍🎓", "student_manager", nav_commands).grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+    create_dashboard_button(modules_grid, "Gestión de Estudiantes", "‍🎓", "student_manager", nav_commands).grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
     create_dashboard_button(modules_grid, "Gestión de Grupos", "👥", "groups_manager", nav_commands).grid(row=0, column=2, sticky="nsew", padx=10, pady=10)
     
     # Fila 2 (Módulos de comunicación y seguimiento)
     create_dashboard_button(modules_grid, "Citaciones y Entrevistas", "📝", "citation_generator", nav_commands).grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
-    create_dashboard_button(modules_grid, "Gestión de Notificaciones", "�", "notifications_manager", nav_commands).grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
-    create_dashboard_button(modules_grid, "Reportes y Estadísticas", "📈", "reports", nav_commands).grid(row=1, column=2, sticky="nsew", padx=10, pady=10)
+    
+    # TODO: Implementar módulo de notificaciones
+    # create_dashboard_button(modules_grid, "Gestión de Notificaciones", "📧", "notifications_manager", nav_commands).grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
+    
+    # TODO: Implementar módulo de reportes
+    # create_dashboard_button(modules_grid, "Reportes y Estadísticas", "📈", "reports", nav_commands).grid(row=1, column=2, sticky="nsew", padx=10, pady=10)
     
     return dashboard_frame

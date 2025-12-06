@@ -1,3 +1,21 @@
+"""
+Archivo: moduloBoletines.py
+Generación de Boletines Académicos (Caso de Uso 27).
+
+Módulo funcional para profesores que permite generar boletines
+semestrales en PDF con el progreso académico de los estudiantes.
+
+Funcionalidades:
+- Selección de grupo y periodo académico
+- Vista previa de boletines antes de generar
+- Generación individual de boletines en PDF
+- Generación masiva (todos los estudiantes del grupo)
+- Estado de generación (pendiente/generado)
+
+Acceso: Profesor (teacher)
+Caso de Uso: CU-27 (Generar boletín semestral)
+"""
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *

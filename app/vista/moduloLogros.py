@@ -1,9 +1,33 @@
+"""
+Archivo: moduloLogros.py
+Gestión de Logros y Categorías Académicas (Casos de Uso 35, 40).
+
+Módulo funcional para directivos que permite gestionar el catálogo completo
+de logros académicos y sus categorías.
+
+Funcionalidades:
+- Visualización de categorías de logros (Desarrollo Cognitivo, Psicomotor, etc.)
+- Creación de nuevas categorías principales
+- Gestión de subcategorías dentro de cada categoría
+- Edición y eliminación de categorías/logros
+- Reportes de logros por categoría
+
+Estructura de categorías:
+- Categoría Principal (ej: "Desarrollo del Lenguaje")
+  - Subcategorías (ej: "Vocabulario básico", "Comunicación verbal")
+
+Acceso: Directivo (director)
+Casos de Uso: CU-35 (Crear categorías), CU-40 (Gestionar logros por categoría)
+"""
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 from session_manager import get_dashboard_command
 
-# --- FUNCIÓN AUXILIAR DE WIDGETS ---
+# ======================================================================
+# FUNCIONES AUXILIARES DE WIDGETS
+# ======================================================================
 
 def create_category_box(parent, title, subcategories):
     """Crea una caja para una categoría principal."""

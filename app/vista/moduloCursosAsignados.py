@@ -1,3 +1,21 @@
+"""
+Archivo: moduloCursosAsignados.py
+Visualización de Cursos/Grupos Asignados al Profesor.
+
+Módulo funcional para profesores que muestra todos los grupos/cursos
+asignados con acceso rápido a sus funcionalidades.
+
+Funcionalidades:
+- Visualización de cursos asignados en tarjetas
+- Información de cada curso (estudiantes, horario)
+- Acceso rápido a:
+  - Lista de estudiantes
+  - Logros del grupo
+  - Evaluaciones
+
+Acceso: Profesor (teacher)
+"""
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *

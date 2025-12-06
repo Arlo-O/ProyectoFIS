@@ -1,11 +1,33 @@
-# Archivo: parent_module.py
+"""
+Archivo: moduloAcudiente.py
+Dashboard y funcionalidades para el rol ACUDIENTE (parent).
+
+Panel de consulta para padres/acudientes con acceso de solo lectura
+a la información académica de sus hijos/representados.
+
+Funcionalidades principales:
+- Consulta de logros académicos del estudiante (CRE - Caso de Uso 33)
+- Descarga de boletines en PDF
+- Visualización de comunicaciones del colegio
+- Consulta de horarios y eventos
+- Visualización de asistencia
+- Historial de logros recientes
+
+Módulos incluidos:
+1. create_parent_dashboard: Panel principal del acudiente
+2. create_consult_parent: Consulta detallada de logros (CRE)
+
+Rol asociado: 'parent' (Acudiente/Padre/Madre)
+"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 from session_manager import get_dashboard_command
 
-# --- FUNCIÓN AUXILIAR DE WIDGETS ---
+# ======================================================================
+# FUNCIONES AUXILIARES DE WIDGETS
+# ======================================================================
 def create_sidebar_button_parent(parent, text, icon, module_name, nav_commands, is_active=False):
     """Crea un botón de navegación lateral para el acudiente."""
     bg_color = COLOR_ACCENT_DARK if is_active else COLOR_SIDEBAR_PARENT
@@ -65,12 +87,15 @@ def create_parent_dashboard(master, nav_commands):
     
     tk.Label(sidebar, text="CONSULTAS", bg=COLOR_SIDEBAR_PARENT, fg="#f5f5f5", font=FONT_SMALL).pack(fill="x", padx=10, pady=(15, 5), anchor="w")
     create_sidebar_button_parent(sidebar, "Consultar Logros (CRE)", "⭐", "consult_parent", nav_commands)
-    create_sidebar_button_parent(sidebar, "Descargar Boletines", "📄", "download_bulletins_parent", nav_commands)
+    
+    # TODO: Implementar descarga de boletines
+    # create_sidebar_button_parent(sidebar, "Descargar Boletines", "📄", "download_bulletins_parent", nav_commands)
 
-    tk.Label(sidebar, text="INFORMACIÓN", bg=COLOR_SIDEBAR_PARENT, fg="#f5f5f5", font=FONT_SMALL).pack(fill="x", padx=10, pady=(15, 5), anchor="w")
-    create_sidebar_button_parent(sidebar, "Horarios y Eventos", "📅", "events_parent", nav_commands)
-    create_sidebar_button_parent(sidebar, "Comunicaciones", "📧", "comms_parent", nav_commands)
-    create_sidebar_button_parent(sidebar, "Asistencia", "✔️", "attendance_parent", nav_commands)
+    # TODO: Implementar módulos informativos
+    # tk.Label(sidebar, text="INFORMACIÓN", bg=COLOR_SIDEBAR_PARENT, fg="#f5f5f5", font=FONT_SMALL).pack(fill="x", padx=10, pady=(15, 5), anchor="w")
+    # create_sidebar_button_parent(sidebar, "Horarios y Eventos", "📅", "events_parent", nav_commands)
+    # create_sidebar_button_parent(sidebar, "Comunicaciones", "📧", "comms_parent", nav_commands)
+    # create_sidebar_button_parent(sidebar, "Asistencia", "✔️", "attendance_parent", nav_commands)
     
     # Footer (Cerrar Sesión)
     tk.Frame(sidebar, height=1, bg="#a0a0a0").pack(fill="x", pady=10, padx=10, side="bottom")
@@ -101,25 +126,27 @@ def create_parent_dashboard(master, nav_commands):
     management_row = tk.Frame(main_content, bg="#f5f7fa")
     management_row.pack(fill="x", pady=(0, 20))
     management_row.grid_columnconfigure(0, weight=1)
-    management_row.grid_columnconfigure(1, weight=1)
-    management_row.grid_columnconfigure(2, weight=1)
+    # management_row.grid_columnconfigure(1, weight=1)
+    # management_row.grid_columnconfigure(2, weight=1)
     
-    # Card 1: Consultar Logros
+    # Card 1: Consultar Logros (FUNCIONAL)
     create_parent_card(management_row, "Consultar Logros (CRE)", 
                        "Ver progreso académico y psicosocial de Emma.", "Abrir Módulo", 
                        COLOR_HEADER_PRE, lambda: nav_commands['show_frame']("consult_parent")).grid(row=0, column=0, sticky="nsew", padx=10)
     
-    # Card 2: Boletines PDF
-    create_parent_card(management_row, "Boletines PDF", 
-                       "Descargar boletines de períodos anteriores.", "Descargar", 
-                       COLOR_HEADER_PRE, lambda: nav_commands['show_frame']("generate_reports")).grid(row=0, column=1, sticky="nsew", padx=10)
+    # TODO: Implementar descarga de boletines
+    # Card 2: Boletines PDF (NO IMPLEMENTADO)
+    # create_parent_card(management_row, "Boletines PDF", 
+    #                    "Descargar boletines de períodos anteriores.", "Descargar", 
+    #                    COLOR_HEADER_PRE, lambda: nav_commands['show_frame']("generate_reports")).grid(row=0, column=1, sticky="nsew", padx=10)
     
-    # Card 3: Comunicaciones
-    card_comms = create_parent_card(management_row, "Comunicaciones", 
-                       "Mensajes y citaciones del colegio.", "Ver", 
-                       COLOR_HEADER_PRE, lambda: nav_commands['show_frame']("student_observer"))
-    card_comms.grid(row=0, column=2, sticky="nsew", padx=10)
-    tk.Label(card_comms, text="2 nuevos", bg="#ffffff", fg="red", font=FONT_SMALL).place(relx=0.9, rely=0.1, anchor="ne")
+    # TODO: Implementar módulo de comunicaciones
+    # Card 3: Comunicaciones (NO IMPLEMENTADO)
+    # card_comms = create_parent_card(management_row, "Comunicaciones", 
+    #                    "Mensajes y citaciones del colegio.", "Ver", 
+    #                    COLOR_HEADER_PRE, lambda: nav_commands['show_frame']("student_observer"))
+    # card_comms.grid(row=0, column=2, sticky="nsew", padx=10)
+    # tk.Label(card_comms, text="2 nuevos", bg="#ffffff", fg="red", font=FONT_SMALL).place(relx=0.9, rely=0.1, anchor="ne")
 
     # --- Logros Recientes y Eventos (Bottom Row) ---
     bottom_row = tk.Frame(main_content, bg="#f5f7fa")
@@ -175,10 +202,10 @@ def create_consult_parent(master, nav_commands):
     header_frame.pack(fill="x", side="top")
     header_frame.pack_propagate(False)
 
-    # Evaluar el comando al hacer click para que tome el rol actual
+    # CORRECCIÓN CRÍTICA: Usar parent_home directamente, no get_dashboard_command
     tk.Button(header_frame, text="← Volver al Dashboard", bg=COLOR_HEADER_PRE, fg=COLOR_TEXT_LIGHT, 
               font=FONT_P_BOLD, bd=0, highlightthickness=0, 
-              command=lambda: get_dashboard_command(nav_commands)()).pack(side="left", padx=20)
+              command=nav_commands['parent_home']).pack(side="left", padx=20)
 
     tk.Label(header_frame, text="Panel de Consulta de Acudiente (CRE) - Caso de Uso 33", 
              bg=COLOR_HEADER_PRE, fg=COLOR_TEXT_LIGHT, font=FONT_H1).pack(side="left", padx=50)

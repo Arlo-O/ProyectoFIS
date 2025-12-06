@@ -1,10 +1,37 @@
-# Archivo: moduloAdmin.py
+"""
+Archivo: moduloAdmin.py
+Dashboard y funcionalidades para el rol ADMINISTRADOR (admin).
+
+Este módulo define la interfaz gráfica completa para el usuario con rol 'admin',
+quien tiene permisos para gestionar todos los usuarios del sistema.
+
+Funcionalidades principales:
+- Visualizar lista completa de usuarios del sistema
+- Crear nuevos usuarios (Administradores, Profesores, Estudiantes, etc.)
+- Editar información de usuarios existentes
+- Eliminar usuarios del sistema
+- Buscar usuarios por criterios
+- Ver estadísticas rápidas (total usuarios, por rol, etc.)
+
+Estructura visual:
+- Sidebar izquierdo: Navegación y opciones del administrador
+- Área principal: Tabla de usuarios con toolbar de acciones (CRUD)
+- Cards superiores: Métricas rápidas (total usuarios, administradores, profesores)
+
+IMPORTANTE: Actualmente las operaciones CRUD son simuladas (solo UI). 
+Para conectar con el backend real, se deben integrar los servicios de 
+persistencia en las funciones de modal (open_add_user_modal, etc.)
+
+Rol asociado: 'admin' (Administrador del sistema)
+"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 
-# --- FUNCIÓN AUXILIAR DE WIDGETS ---
+# ======================================================================
+# FUNCIONES AUXILIARES DE WIDGETS
+# ======================================================================
 def create_sidebar_button(parent, text, icon, module_name, nav_commands, is_active=False):
     """Crea un botón de navegación lateral."""
     bg_color = COLOR_ACCENT_DARK if is_active else COLOR_SIDEBAR_ADMIN

@@ -1,3 +1,21 @@
+"""
+Archivo: moduloEstudiantes.py
+Gestión de Estudiantes del Colegio.
+
+Módulo funcional para directivos que gestiona toda la información de estudiantes.
+
+Funcionalidades:
+- Visualización y búsqueda de estudiantes activos
+- Gestión de hojas de vida académicas
+- Historial académico completo
+- Registro de observaciones
+- Seguimiento de logros por estudiante
+- Gestión de aspirantes (preinscripciones)
+- Exportación de listados
+
+Acceso: Directivo (director)
+"""
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *

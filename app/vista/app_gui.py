@@ -1,21 +1,44 @@
-# Archivo: app_gui.py
+"""
+Archivo: app_gui.py
+Punto de entrada principal de la interfaz gráfica del Sistema de Gestión Académica.
 
+Este módulo coordina toda la aplicación GUI usando Tkinter. Gestiona la navegación entre
+diferentes pantallas (login, dashboards, formularios) y mantiene el estado global de la sesión.
+
+Estructura principal:
+- Login/Preinscripción: Pantalla de inicio con autenticación y registro
+- Dashboards por rol: Admin, Directivo, Profesor, Acudiente
+- Módulos funcionales: Grupos, Logros, Estudiantes, Evaluaciones, etc.
+
+Autor: Sistema de Gestión Académica
+Versión: 2.0
+"""
+
+# Importaciones estándar de Python
 import tkinter as tk
 from tkinter import messagebox
 import tkinter.ttk as ttk
-from config import *
-from gui_styles import configure_styles 
-from session_manager import set_current_role 
+
+# Importaciones de configuración local
+from config import *                  # Constantes de colores, fuentes, etc.
+from gui_styles import configure_styles  # Configuración de estilos TTK
+from session_manager import set_current_role  # Gestión de sesión de usuario
 
 # ======================================================================
-# --- IMPORTACIÓN DE MÓDULOS DE INTERFAZ (Se asumen existentes) ---
+# IMPORTACIÓN DE MÓDULOS DE INTERFAZ
 # ======================================================================
-# Nota: Debes asegurar que estos archivos existan y contengan las funciones.
+# Cada módulo exporta funciones create_*() que retornan frames de Tkinter
+
+# Formulario de preinscripción (4 pasos)
 from formGui import create_step1, create_step2, create_step3, create_step4
+
+# Dashboards por tipo de usuario
 from moduloAdmin import create_admin_dashboard
 from moduloDirectivo import create_director_dashboard
 from moduloProfesor import create_teacher_dashboard, create_assignment_teacher, create_observer_teacher
-from moduloAcudiente import create_parent_dashboard
+from moduloAcudiente import create_parent_dashboard, create_consult_parent
+
+# Módulos funcionales compartidos
 from moduloCitacion import create_citation_generator
 from moduloGrupos import create_groups_manager
 from moduloLogros import create_achievements_manager
@@ -24,72 +47,129 @@ from moduloEvaluaciones import create_evaluations_manager
 from moduloCursosAsignados import create_assigned_courses
 from moduloBoletines import create_report_generator
 
+# ======================================================================
+# VARIABLES GLOBALES DE ESTADO
+# ======================================================================
 
-# --- Variables Globales de Estado ---
+# Ventana principal de Tkinter
 root = None
-frames = {}
-step_index = -1
-step_canvases = {} 
 
-# --- Credenciales Predeterminadas ---
+# Diccionario que almacena todos los frames (pantallas) de la aplicación
+# Clave: nombre del frame (ej: "login", "dashboard", "step1")
+# Valor: objeto Frame de Tkinter
+frames = {}
+
+# Índice del paso actual en el formulario de preinscripción (-1 = no en formulario)
+step_index = -1
+
+# Diccionario que almacena canvas de scroll para cada paso del formulario
+step_canvases = {}
+
+# ======================================================================
+# CREDENCIALES DE PRUEBA
+# ======================================================================
+# IMPORTANTE: En producción, estas credenciales deben venir de la base de datos
+# y las contraseñas deben estar encriptadas
+
 USER_CREDENTIALS = {
-    "admin": {"password": "admin123", "role": "admin"},
-    "directivo": {"password": "dir123", "role": "director"},
-    "profesor": {"password": "prof123", "role": "teacher"},
-    "acudiente": {"password": "acu123", "role": "parent"},
+    "admin": {"password": "admin123", "role": "admin"},       # Administrador del sistema
+    "directivo": {"password": "dir123", "role": "director"},   # Directivo académico
+    "profesor": {"password": "prof123", "role": "teacher"},    # Profesor
+    "acudiente": {"password": "acu123", "role": "parent"},     # Padre/Acudiente
 }
 
-# --- Referencias a los campos de entrada de Login ---
-user_entry_ref = None
-pass_entry_ref = None
+# ======================================================================
+# REFERENCIAS GLOBALES A WIDGETS DE LOGIN
+# ======================================================================
+# Estas referencias permiten acceder a los campos de entrada desde funciones globales
+
+user_entry_ref = None  # Campo de entrada para el nombre de usuario
+pass_entry_ref = None  # Campo de entrada para la contraseña
 
 # ======================================================================
 # --- Funciones de Utilidad ---
 # ======================================================================
 
 def setup_placeholder(entry, placeholder, is_password=False):
-    """Configura el comportamiento de placeholder para un widget Entry."""
+    """
+    Configura el comportamiento de placeholder (texto de ayuda) para un campo Entry.
+    
+    El placeholder se muestra en gris cuando el campo está vacío y desaparece cuando
+    el usuario hace clic en el campo. Si el campo está marcado como contraseña,
+    el texto se oculta con asteriscos (*) al escribir.
+    
+    Parámetros:
+        entry (tk.Entry): Widget Entry al que se le aplicará el placeholder
+        placeholder (str): Texto de ayuda que se mostrará cuando el campo esté vacío
+        is_password (bool): Si es True, oculta el texto escrito con asteriscos
+    """
+    # Guardar configuración del placeholder en el propio widget
     entry.placeholder = placeholder
     entry.is_password = is_password
     
     def on_focus_in(event):
+        """Maneja el evento cuando el usuario hace clic en el campo."""
         if entry.get() == entry.placeholder:
-            entry.delete(0, tk.END)
-            entry.config(fg=COLOR_TEXT_DARK)
+            entry.delete(0, tk.END)  # Limpiar el placeholder
+            entry.config(fg=COLOR_TEXT_DARK)  # Cambiar a color de texto normal
             if entry.is_password:
-                entry.config(show="*")
+                entry.config(show="*")  # Ocultar caracteres si es contraseña
                 
     def on_focus_out(event):
-        if not entry.get():
-            entry.insert(0, entry.placeholder)
-            entry.config(fg=COLOR_TEXT_PLACEHOLDER)
+        """Maneja el evento cuando el usuario sale del campo."""
+        if not entry.get():  # Si el campo quedó vacío
+            entry.insert(0, entry.placeholder)  # Restaurar el placeholder
+            entry.config(fg=COLOR_TEXT_PLACEHOLDER)  # Color gris para placeholder
             if entry.is_password:
-                entry.config(show="")
+                entry.config(show="")  # Mostrar texto del placeholder sin ocultar
 
+    # Configurar el estado inicial (mostrar placeholder)
     on_focus_out(None)
+    
+    # Vincular eventos de foco
     entry.bind("<FocusIn>", on_focus_in)
     entry.bind("<FocusOut>", on_focus_out)
 
 def show_frame(name):
-    """Muestra un frame y actualiza el índice global. Asegura scroll al inicio."""
+    """
+    Muestra un frame (pantalla) específico y oculta todos los demás.
+    
+    Esta es la función principal de navegación de la aplicación. Gestiona el cambio
+    entre diferentes pantallas y actualiza el estado global según la pantalla mostrada.
+    
+    Parámetros:
+        name (str): Nombre del frame a mostrar (ej: "login", "dashboard", "step1")
+    
+    Comportamiento especial:
+    - Si es "login": Resetea el índice de pasos del formulario
+    - Si es un paso del formulario ("step1", "step2", etc.): Actualiza el índice y
+      resetea el scroll al inicio del canvas
+    """
     global step_index
+    
     frame = frames.get(name)
     if frame:
+        # Ocultar todos los frames
         for other_frame in frames.values():
             other_frame.grid_remove()
-        frame.grid(row=0, column=0, sticky="nsew") # Asegura que se muestre correctamente
         
+        # Mostrar el frame seleccionado con expansión completa (sticky="nsew")
+        frame.grid(row=0, column=0, sticky="nsew")
+        
+        # Actualizar el índice de pasos según el frame mostrado
         if name == "login":
-            step_index = -1
+            step_index = -1  # No estamos en el formulario de preinscripción
         elif name.startswith("step"):
+            # Extraer número del paso (step1 -> 0, step2 -> 1, etc.)
             new_index = int(name.replace("step", "")) - 1
             step_index = new_index
             
+            # Si es un paso con scroll, resetear el canvas al inicio
             if name in step_canvases:
                 canvas = step_canvases[name]['canvas']
-                root.update_idletasks()
-                canvas.config(scrollregion=canvas.bbox("all"))
-                canvas.yview_moveto(0)
+                root.update_idletasks()  # Forzar actualización de geometría
+                canvas.config(scrollregion=canvas.bbox("all"))  # Actualizar región de scroll
+                canvas.yview_moveto(0)  # Scroll al inicio (top)
 
 def start_preinscription():
     """Inicia el formulario en el Paso 1."""
@@ -262,8 +342,9 @@ def initialize_app():
     
     root = tk.Tk()
     root.title("Sistema de Gestión Académica")
-    root.geometry("900x700")
-    root.resizable(False, False)
+    root.geometry("1024x768")
+    root.minsize(900, 700)
+    root.resizable(True, True)
     
     configure_styles(root)
     
@@ -319,11 +400,16 @@ def initialize_app():
     frames["assigned_courses"] = create_assigned_courses(root_content_frame, nav_commands)
     frames["evaluations_manager"] = create_evaluations_manager(root_content_frame, nav_commands)
     frames["generate_reports"] = create_report_generator(root_content_frame, nav_commands)
+    frames["teacher_reports"] = create_report_generator(root_content_frame, nav_commands)  # Alias para teacher_reports
     frames["student_observer"] = create_observer_teacher(root_content_frame, nav_commands)
+    frames["observer_teacher"] = create_observer_teacher(root_content_frame, nav_commands)  # Alias para observer_teacher
     frames["assignment_teacher"] = create_assignment_teacher(root_content_frame, nav_commands)
     
     # Módulos específicos del directivo
     frames["student_manager"] = create_student_manager(root_content_frame, nav_commands)
+    
+    # Módulos específicos del acudiente
+    frames["consult_parent"] = create_consult_parent(root_content_frame, nav_commands)
     
     # Asegura que todos los frames estén registrados en la cuadrícula pero ocultos
     for frame in frames.values():

@@ -1,4 +1,20 @@
-# Archivo: groups_module.py
+"""
+Archivo: moduloGrupos.py
+Gestión de Grupos Académicos (Casos de Uso 20-22).
+
+Módulo funcional compartido para directivos que gestionan grupos/cursos
+académicos del colegio.
+
+Funcionalidades:
+- Visualización de todos los grupos activos en tarjetas
+- Creación de nuevos grupos
+- Edición de grupos existentes (nombre, profesor, cupos)
+- Asignación de estudiantes a grupos
+- Vista de capacidad y ocupación de cada grupo
+
+Acceso: Directivo (director)
+Casos de Uso: CU-20 (Consultar grupos), CU-21 (Gestionar grupos), CU-22 (Asignar estudiantes)
+"""
 
 import tkinter as tk
 import tkinter.ttk as ttk

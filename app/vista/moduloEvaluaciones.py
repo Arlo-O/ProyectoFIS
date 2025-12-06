@@ -1,3 +1,21 @@
+"""
+Archivo: moduloEvaluaciones.py
+Gestión de Evaluaciones de Logros.
+
+Módulo funcional para profesores que permite registrar y gestionar
+evaluaciones de logros académicos de sus estudiantes.
+
+Funcionalidades:
+- Visualización de evaluaciones por grupo y periodo
+- Registro de nuevas evaluaciones de logros
+- Edición de evaluaciones existentes
+- Filtrado por grupo y periodo académico
+- Detalle completo de cada evaluación
+
+Acceso: Profesor (teacher)
+Relacionado con: Caso de Uso 41 (Asignar calificación de logro)
+"""
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *

@@ -1,11 +1,35 @@
-# Archivo: teacher_module.py
+"""
+Archivo: moduloProfesor.py
+Dashboard y funcionalidades para el rol PROFESOR (teacher).
+
+Panel completo para profesores con herramientas de gestión académica,
+evaluación de estudiantes y generación de reportes.
+
+Funcionalidades principales:
+- Dashboard con resumen de su grupo/curso asignado
+- Asignación de logros académicos (GLE - Caso de Uso 41)
+- Observador de estudiantes (registro de comportamiento)
+- Generación de boletines semestrales (CRE)
+- Lista de estudiantes de su grupo
+- Registro de asistencia
+- Historial académico de estudiantes
+
+Módulos incluidos:
+1. create_teacher_dashboard: Panel principal del profesor
+2. create_assignment_teacher: Matriz de asignación de logros (GLE)
+3. create_observer_teacher: Observador de estudiantes
+
+Rol asociado: 'teacher' (Profesor)
+"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 from session_manager import get_dashboard_command
 
-# --- FUNCIÓN AUXILIAR DE WIDGETS ---
+# ======================================================================
+# FUNCIONES AUXILIARES DE WIDGETS
+# ======================================================================
 def create_sidebar_button_teacher(parent, text, icon, module_name, nav_commands, is_active=False):
     """Crea un botón de navegación lateral para el profesor."""
     bg_color = COLOR_ACCENT_DARK if is_active else COLOR_SIDEBAR_TEACHER
@@ -67,9 +91,11 @@ def create_teacher_dashboard(master, nav_commands):
     create_sidebar_button_teacher(sidebar, "Generar Boletines (CRE)", "📄", "teacher_reports", nav_commands) # Generar Reportes
 
     tk.Label(sidebar, text="MI GRUPO", bg=COLOR_SIDEBAR_TEACHER, fg="#a0a0a0", font=FONT_SMALL).pack(fill="x", padx=10, pady=(15, 5), anchor="w")
-    create_sidebar_button_teacher(sidebar, "Lista de Estudiantes", "🧑🏻‍🎓", "student_list_teacher", nav_commands)
-    create_sidebar_button_teacher(sidebar, "Registro Asistencia", "📅", "attendance_teacher", nav_commands)
-    create_sidebar_button_teacher(sidebar, "Historial de Logros", "⭐", "achievements_history_teacher", nav_commands)
+    
+    # TODO: Implementar módulos de gestión de grupo
+    # create_sidebar_button_teacher(sidebar, "Lista de Estudiantes", "🧑🏻‍🎓", "student_list_teacher", nav_commands)
+    # create_sidebar_button_teacher(sidebar, "Registro Asistencia", "📅", "attendance_teacher", nav_commands)
+    # create_sidebar_button_teacher(sidebar, "Historial de Logros", "⭐", "achievements_history_teacher", nav_commands)
     
     # Footer (Cerrar Sesión)
     tk.Frame(sidebar, height=1, bg="#444a57").pack(fill="x", pady=10, padx=10, side="bottom")
