@@ -1,20 +1,3 @@
-"""
-Archivo: moduloGrupos.py
-Gestión de Grupos Académicos (Casos de Uso 20-22).
-
-Módulo funcional compartido para directivos que gestionan grupos/cursos
-académicos del colegio.
-
-Funcionalidades:
-- Visualización de todos los grupos activos en tarjetas
-- Creación de nuevos grupos
-- Edición de grupos existentes (nombre, profesor, cupos)
-- Asignación de estudiantes a grupos
-- Vista de capacidad y ocupación de cada grupo
-
-Acceso: Directivo (director)
-Casos de Uso: CU-20 (Consultar grupos), CU-21 (Gestionar grupos), CU-22 (Asignar estudiantes)
-"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -22,22 +5,17 @@ from config import *
 from session_manager import get_dashboard_command
 
 def create_groups_manager(master, nav_commands):
-    """Crea la interfaz de Gestión de Grupos Académicos."""
-    
     groups_frame = tk.Frame(master, bg="#f5f7fa")
     groups_frame.grid_columnconfigure(0, weight=0)
     groups_frame.grid_columnconfigure(1, weight=1)
     groups_frame.grid_rowconfigure(0, weight=1)
 
-    # 1. SIDEBAR DE NAVEGACIÓN
     sidebar = tk.Frame(groups_frame, bg=COLOR_SIDEBAR_ADMIN, width=200)
     sidebar.grid(row=0, column=0, sticky="nsew")
     sidebar.pack_propagate(False)
 
     tk.Label(sidebar, text="Gestión de Grupos", bg=COLOR_DARK_BG, fg=COLOR_TEXT_LIGHT, font=FONT_H1).pack(fill="x", ipady=10)
     tk.Label(sidebar, text="Administración", bg=COLOR_SIDEBAR_ADMIN, fg=COLOR_HEADER_PRE, font=FONT_P).pack(fill="x", pady=(0, 10))
-    
-    # Botones de navegación interna
     def create_nav_btn(parent, text, icon, is_active=False):
         btn_bg = COLOR_ACCENT_DARK if is_active else COLOR_SIDEBAR_ADMIN
         btn = tk.Button(parent, text=f"{icon}  {text}", anchor="w", bd=0, padx=10, pady=10, highlightthickness=0,
@@ -48,7 +26,6 @@ def create_groups_manager(master, nav_commands):
     create_nav_btn(sidebar, "Lista de Grupos", "📋", is_active=True)
     create_nav_btn(sidebar, "Asignar Estudiantes", "🧑🏻‍🎓")
 
-    # Botón Volver al Dashboard — evaluar al click para tomar rol actual
     tk.Button(sidebar, text="← Volver al Dashboard", bg=COLOR_ACCENT_ADMIN, fg=COLOR_TEXT_LIGHT, font=FONT_P_BOLD, bd=0, 
               highlightthickness=0, command=lambda: get_dashboard_command(nav_commands)()).pack(fill="x", side="bottom", pady=20, padx=10)
 

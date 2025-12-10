@@ -1,7 +1,7 @@
 from typing import Type, TypeVar, Generic, List, Optional
 from sqlalchemy.orm import Session
 
-# Importaciones de modelos de usuarios
+# Modelos de usuarios
 from app.modelos.usuarios.usuario import Usuario
 from app.modelos.usuarios.estudiante import Estudiante
 from app.modelos.usuarios.profesor import Profesor
@@ -10,7 +10,7 @@ from app.modelos.usuarios.aspirante import Aspirante
 from app.modelos.usuarios.directivo import Directivo
 from app.modelos.usuarios.administrador import Administrador
 
-# Importaciones de modelos académicos
+# Modelos académicos
 from app.modelos.academico.grupo import Grupo
 from app.modelos.academico.grado import Grado
 from app.modelos.academico.periodoAcademico import PeriodoAcademico
@@ -18,18 +18,19 @@ from app.modelos.academico.hojaVidaAcademica import HojaVidaAcademica
 from app.modelos.academico.observador import Observador
 from app.modelos.academico.anotacion import Anotacion
 
-# Importaciones de modelos de logros
+# Modelos de logros
 from app.modelos.logros.logro import Logro
 from app.modelos.logros.categoriaLogro import CategoriaLogro
 from app.modelos.logros.evaluacionLogro import EvaluacionLogro
 from app.modelos.logros.boletin import Boletin
 
-# Importaciones de modelos de gestión
+# Modelos de gestión
 from app.modelos.gestion.citacion import Citacion
 from app.modelos.gestion.notificacion import Notificacion
 from app.modelos.gestion.entrevista import Entrevista
 from app.modelos.gestion.respuestaFormPre import RespuestaFormPre
 
+# Tipo genérico para los repositorios
 T = TypeVar('T')
 
 class Repository(Generic[T]):

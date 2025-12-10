@@ -1,32 +1,13 @@
-"""
-Archivo: moduloCursosAsignados.py
-Visualización de Cursos/Grupos Asignados al Profesor.
-
-Módulo funcional para profesores que muestra todos los grupos/cursos
-asignados con acceso rápido a sus funcionalidades.
-
-Funcionalidades:
-- Visualización de cursos asignados en tarjetas
-- Información de cada curso (estudiantes, horario)
-- Acceso rápido a:
-  - Lista de estudiantes
-  - Logros del grupo
-  - Evaluaciones
-
-Acceso: Profesor (teacher)
-"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 
 def create_assigned_courses(master, nav_commands):
-    """Crea la interfaz de cursos asignados al profesor."""
     frame = tk.Frame(master)
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_rowconfigure(1, weight=1)
     
-    # Header
     header = tk.Frame(frame, bg=COLOR_HEADER_PRE)
     header.grid(row=0, column=0, sticky="ew")
     
@@ -37,15 +18,12 @@ def create_assigned_courses(master, nav_commands):
     tk.Label(header, text="Mis Cursos Asignados", bg=COLOR_HEADER_PRE,
              fg=COLOR_TEXT_PRE, font=FONT_H1).pack(side="left", padx=20, pady=15)
     
-    # Contenido Principal
     content = tk.Frame(frame, bg="#ffffff")
     content.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
     
-    # Lista de cursos
     courses_frame = tk.Frame(content, bg="#ffffff")
     courses_frame.pack(fill="both", expand=True)
     
-    # Card para cada curso
     def create_course_card(title, students, schedule):
         card = tk.Frame(courses_frame, bg="#ffffff", relief="solid", bd=1)
         card.pack(fill="x", pady=10, padx=20)

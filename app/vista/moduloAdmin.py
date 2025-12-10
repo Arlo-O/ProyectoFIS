@@ -1,39 +1,11 @@
-"""
-Archivo: moduloAdmin.py
-Dashboard y funcionalidades para el rol ADMINISTRADOR (admin).
 
-Este módulo define la interfaz gráfica completa para el usuario con rol 'admin',
-quien tiene permisos para gestionar todos los usuarios del sistema.
-
-Funcionalidades principales:
-- Visualizar lista completa de usuarios del sistema
-- Crear nuevos usuarios (Administradores, Profesores, Estudiantes, etc.)
-- Editar información de usuarios existentes
-- Eliminar usuarios del sistema
-- Buscar usuarios por criterios
-- Ver estadísticas rápidas (total usuarios, por rol, etc.)
-
-Estructura visual:
-- Sidebar izquierdo: Navegación y opciones del administrador
-- Área principal: Tabla de usuarios con toolbar de acciones (CRUD)
-- Cards superiores: Métricas rápidas (total usuarios, administradores, profesores)
-
-IMPORTANTE: Actualmente las operaciones CRUD son simuladas (solo UI). 
-Para conectar con el backend real, se deben integrar los servicios de 
-persistencia en las funciones de modal (open_add_user_modal, etc.)
-
-Rol asociado: 'admin' (Administrador del sistema)
-"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 
-# ======================================================================
-# FUNCIONES AUXILIARES DE WIDGETS
-# ======================================================================
+
 def create_sidebar_button(parent, text, icon, module_name, nav_commands, is_active=False):
-    """Crea un botón de navegación lateral."""
     bg_color = COLOR_ACCENT_DARK if is_active else COLOR_SIDEBAR_ADMIN
     active_color = COLOR_ACCENT_DARK
 
@@ -47,14 +19,12 @@ def create_sidebar_button(parent, text, icon, module_name, nav_commands, is_acti
     btn.pack(fill="x")
     btn_frame.pack(fill="x", pady=(0, 2))
 
-    # Manejo de Hover simple para Tkinter
     btn.bind("<Enter>", lambda e: btn.config(bg=active_color))
     btn.bind("<Leave>", lambda e: btn.config(bg=bg_color))
 
     return btn
 
 def create_info_card(parent, title, value, icon, color):
-    """Crea una tarjeta de información clave (resumen simple)."""
     card = tk.Frame(parent, bg="#ffffff", padx=12, pady=12, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
 
     icon_label = tk.Label(card, text=icon, font=("Helvetica", 22), fg=color, bg="#ffffff")
@@ -68,8 +38,6 @@ def create_info_card(parent, title, value, icon, color):
 
     return card
 
-
-# --- MÓDULO: GESTIÓN DE USUARIOS (ADMIN) ---
 def create_admin_dashboard(master, nav_commands):
     """Interfaz exclusiva para gestión de usuarios. Mantiene la estética original."""
 

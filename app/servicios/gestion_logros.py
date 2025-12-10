@@ -11,31 +11,21 @@ class ServicioGestionLogros:
         self.reportes = ServicioReportes()
         self.valid_grades = ["Superior", "Alto", "Básico", "Bajo"]
 
-    def consultar_logros(self) -> List[Logro]:
+    def obtener_logros(self) -> List[Logro]:
+        """Obtiene todos los logros de la base de datos."""
         with self.uow:
             return self.uow.logros.get_all()
 
-    def consultar_logros_por_categoria(self, id_categoria: int) -> List[Logro]:
+    def obtener_logros_por_categoria(self, id_categoria: int) -> List[Logro]:
+        """Obtiene los logros de una categoría específica."""
         with self.uow:
-            # Assuming we can filter by category. 
-            # Since repository is generic, we might need to fetch all and filter in memory 
-            # or add a specific method to repository. 
-            # For now, in-memory filtering is acceptable for prototype.
-            # Logro has no direct category attribute in the model shown previously?
-            # Let's check Logro model. If it doesn't have category, I can't filter.
-            # But CU-40 says "Gestionar logros por categoría".
-            # I'll assume Logro has a category relationship.
-            # If not, I'll need to add it.
-            # Let's check Logro model first.
-            # Wait, I can't check it in the middle of replace.
-            # I will implement assuming it exists or I will check it in next step.
-            # Actually, CategoriaLogro has a list of Logros. So I can fetch category and get its achievements.
             categoria = self.uow.categorias_logro.get(id_categoria)
             if categoria:
                 return categoria.logros
             return []
 
     def crear_logro(self, titulo: str, descripcion: str, id_creador: int, id_categoria: Optional[int] = None) -> Optional[Logro]:
+        """Crea un nuevo logro en la base de datos."""
         with self.uow:
             creador = self.uow.directivos.get(id_creador)
             if creador:
@@ -53,6 +43,7 @@ class ServicioGestionLogros:
             return None
 
     def crear_categoria_logro(self, nombre: str, descripcion: str, id_creador: int) -> Optional['CategoriaLogro']:
+        """Crea una nueva categoría de logros."""
         from app.modelos.categoriaLogro import CategoriaLogro
         with self.uow:
             creador = self.uow.directivos.get(id_creador)
@@ -65,7 +56,7 @@ class ServicioGestionLogros:
 
     def calificar_logro(self, id_logro: int, id_estudiante: int, id_profesor: int, 
                         id_periodo: int, puntuacion: str, comentarios: str) -> Optional[EvaluacionLogro]:
-        
+        """Califica un logro de un estudiante."""
         if puntuacion not in self.valid_grades:
             print(f"Error: Puntuación inválida. Debe ser una de {self.valid_grades}")
             return None
@@ -86,14 +77,15 @@ class ServicioGestionLogros:
                     fechaRegistro=datetime.now(),
                     comentarios=[comentarios] if comentarios else []
                 )
-                # Add to student's list
+                # Agregar a la lista de evaluaciones del estudiante
                 estudiante.agregarCalificacion(evaluacion)
                 self.uow.evaluaciones.add(evaluacion) 
                 self.uow.commit()
                 return evaluacion
             return None
 
-    def consultar_logros_academicos(self, id_estudiante: int) -> List[EvaluacionLogro]:
+    def obtener_historia_academica(self, id_estudiante: int) -> List[EvaluacionLogro]:
+        """Obtiene el historial de logros de un estudiante."""
         with self.uow:
             estudiante = self.uow.estudiantes.get(id_estudiante)
             if estudiante:
@@ -101,6 +93,9 @@ class ServicioGestionLogros:
             return []
 
     def descargar_reporte_logros(self, id_estudiante: int) -> str:
+        """
+        Genera un reporte PDF con la historia académica de un estudiante.
+        """
         with self.uow:
             estudiante = self.uow.estudiantes.get(id_estudiante)
             if not estudiante:

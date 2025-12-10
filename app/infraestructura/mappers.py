@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .db import mapper_registry
 
-# Importaciones de modelos de usuarios
+# Modelos de usuarios
 from app.modelos.usuarios.persona import Persona
 from app.modelos.usuarios.usuario import Usuario
 from app.modelos.usuarios.estudiante import Estudiante
@@ -14,7 +14,7 @@ from app.modelos.usuarios.administrador import Administrador
 from app.modelos.usuarios.rol import Rol
 from app.modelos.usuarios.permiso import Permiso
 
-# Importaciones de modelos académicos
+# Modelos académicos
 from app.modelos.academico.grupo import Grupo
 from app.modelos.academico.grado import Grado
 from app.modelos.academico.periodoAcademico import PeriodoAcademico
@@ -22,19 +22,19 @@ from app.modelos.academico.hojaVidaAcademica import HojaVidaAcademica
 from app.modelos.academico.observador import Observador
 from app.modelos.academico.anotacion import Anotacion
 
-# Importaciones de modelos de logros
+# Modelos de logros
 from app.modelos.logros.logro import Logro
 from app.modelos.logros.categoriaLogro import CategoriaLogro
 from app.modelos.logros.evaluacionLogro import EvaluacionLogro
 from app.modelos.logros.boletin import Boletin
 
-# Importaciones de modelos de gestión
+# Modelos de gestión
 from app.modelos.gestion.citacion import Citacion
 from app.modelos.gestion.notificacion import Notificacion
 from app.modelos.gestion.entrevista import Entrevista
 from app.modelos.gestion.respuestaFormPre import RespuestaFormPre
 
-# Define tables
+# Tablas de la base de datos
 
 persona_table = Table(
     "persona",

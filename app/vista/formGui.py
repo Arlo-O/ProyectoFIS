@@ -1,13 +1,10 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from config import * # Asegúrate de que config.py tiene las constantes
+from config import * 
 
-# ======================================================================
-# --- FUNCIÓN BASE con Scroll Vertical ---
-# ======================================================================
+
 
 def create_base_step(master, step_number, title_text, nav_commands):
-    # ... (Código para Header, Título, Barra de Progreso - Inalterado) ...
     step_frame = tk.Frame(master, bg="#ffffff")
     
     header_frame = tk.Frame(step_frame, bg=COLOR_HEADER_PRE, height=80)
@@ -33,9 +30,6 @@ def create_base_step(master, step_number, title_text, nav_commands):
     progress_bar.create_rectangle(20, 0, 20, 5, fill=COLOR_HEADER_PRE, outline="")
     progress_bar.bind('<Configure>', update_progress_bar)
     
-    # -----------------------------------------------------
-    # IMPLEMENTACIÓN DEL SCROLL
-    # -----------------------------------------------------
     
     scroll_container = tk.Frame(step_frame)
     scroll_container.pack(fill="both", expand=True, padx=20, pady=(0, 0))
@@ -60,11 +54,9 @@ def create_base_step(master, step_number, title_text, nav_commands):
     fields_frame_container.bind("<Configure>", on_frame_configure)
     canvas.bind("<Configure>", on_canvas_configure)
 
-    # --- CONTENIDO DEL FORMULARIO (La Caja Blanca) ---
     form_box = tk.Frame(fields_frame_container, bg="#ffffff", highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
     form_box.pack(pady=20, padx=20, fill="x", expand=True)
     
-    # Forzar la actualización de la geometría
     master.update_idletasks()
 
     tk.Label(form_box, text=f" Paso {step_number}: {title_text}", bg="#fcf0e5", fg=COLOR_HEADER_PRE, font=FONT_P_BOLD, anchor="w").pack(fill="x", ipady=10, padx=0)
@@ -74,7 +66,6 @@ def create_base_step(master, step_number, title_text, nav_commands):
     fields_frame.grid_columnconfigure(0, weight=1)
     fields_frame.grid_columnconfigure(1, weight=1)
 
-    # --- NAVEGACIÓN INFERIOR (Parte Fija) ---
     nav_frame = tk.Frame(step_frame, bg="#ffffff", padx=50, pady=20)
     nav_frame.pack(fill="x", side="bottom")
 
@@ -96,12 +87,8 @@ def create_base_step(master, step_number, title_text, nav_commands):
             )
         ttk.Button(nav_frame, text="Enviar Preinscripción", style="Login.TButton", command=on_submit).pack(side="right")
 
-    # Devolvemos las referencias del scroll para la corrección
     return step_frame, fields_frame, canvas, fields_frame_container 
 
-# ======================================================================
-# --- PASO 1: Datos del Estudiante ---
-# ======================================================================
 def create_step1(master, nav_commands):
     step_frame, parent, canvas, fields_frame_container = create_base_step(master, 1, "Datos del Estudiante", nav_commands)
     
@@ -118,9 +105,8 @@ def create_step1(master, nav_commands):
 
     return step_frame, parent, canvas, fields_frame_container
 
-# ======================================================================
-# --- PASO 2: Datos de los Acudientes ---
-# ======================================================================
+
+
 def create_step2(master, nav_commands):
     step_frame, parent, canvas, fields_frame_container = create_base_step(master, 2, "Datos de los Acudientes", nav_commands)
     
@@ -154,9 +140,6 @@ def create_step2(master, nav_commands):
     
     return step_frame, parent, canvas, fields_frame_container
 
-# ======================================================================
-# --- PASO 3: Información Médica y de Emergencia ---
-# ======================================================================
 def create_step3(master, nav_commands):
     step_frame, parent, canvas, fields_frame_container = create_base_step(master, 3, "Información Médica y de Emergencia", nav_commands)
     
@@ -178,9 +161,7 @@ def create_step3(master, nav_commands):
 
     return step_frame, parent, canvas, fields_frame_container
 
-# ======================================================================
-# --- PASO 4: Confirmación y Términos ---
-# ======================================================================
+
 def create_step4(master, nav_commands):
     step_frame, parent, canvas, fields_frame_container = create_base_step(master, 4, "Confirmación y Términos", nav_commands)
     

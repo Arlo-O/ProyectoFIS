@@ -14,17 +14,20 @@ class ServicioGestionAcademica:
         with self.uow:
             return self.uow.grupos.get_all()
 
-    def crear_grupo(self, nombre: str, id_director: int, id_creador: int) -> Optional[Grupo]:
+    def crear_grupo(self, nombre: str, cupo_maximo: int, cupo_minimo: int, director_id: int, creador_id: int) -> Tuple[bool, str, Optional[Dict]]:
+        #Crea un nuevo grupo en el sistema.
+        
+     
         with self.uow:
-            director = self.uow.profesores.get(id_director)
-            creador = self.uow.directivos.get(id_creador)
+            director = self.uow.profesores.get(director_id)
+            creador = self.uow.directivos.get(creador_id)
             
             if director and creador:
-                grupo = Grupo(idGrupo=None, nombreGrupo=nombre, directorGrupo=director, creador=creador)
+                grupo = Grupo(idGrupo=None, nombreGrupo=nombre, directorGrupo=director, creador=creador, cupoMaximo=cupo_maximo, cupoMinimo=cupo_minimo)
                 self.uow.grupos.add(grupo)
                 self.uow.commit()
-                return grupo
-            return None
+                return (True, "Grupo creado con éxito", {"id_grupo": grupo.idGrupo})
+            return (False, "Error al crear grupo", None)
 
     def cerrar_grupo(self, id_grupo: int) -> bool:
         with self.uow:
@@ -41,18 +44,14 @@ class ServicioGestionAcademica:
             estudiante = self.uow.estudiantes.get(id_estudiante)
             
             if grupo and estudiante:
-                # 1. Validate Quota
-                # Assuming grupo.estudiantes is available via relationship
                 current_students = len(grupo.estudiantes) if hasattr(grupo, 'estudiantes') else 0
                 if grupo.cupoMaximo and current_students >= grupo.cupoMaximo:
                     print(f"Error: Cupo máximo alcanzado para el grupo {grupo.nombreGrupo}")
                     return False
 
                 # 2. Validate Age (Example logic: Párvulos 2-3, Caminadores 1-2, Prejardín 3-4)
-                # This logic should ideally be based on the Grade (Grado) associated with the Group
-                # For now, implementing a generic check or placeholder
                 edad = (datetime.now() - estudiante.fechaNacimiento).days / 365.25
-                if edad < 1: # Example minimum age
+                if edad < 1:
                      print(f"Error: Estudiante muy joven ({edad:.1f} años)")
                      return False
 
@@ -69,9 +68,6 @@ class ServicioGestionAcademica:
             if not estudiante or not periodo:
                 return "Estudiante o Periodo no encontrado"
             
-            # Fetch evaluations for the student in this period
-            # This requires a method in repository or filtering
-            # For prototype, assuming we can get them from student object if loaded
             calificaciones = [
                 e for e in estudiante.obtenerHistoriaAcademica() 
                 if e.periodo.idPeriodo == id_periodo
@@ -99,5 +95,4 @@ class ServicioGestionAcademica:
             estudiante = self.uow.estudiantes.get(id_estudiante)
             if not estudiante:
                 return "Estudiante no encontrado"
-            # Placeholder
             return f"Historial académico de {estudiante.obtenerNombreCompleto()}"

@@ -24,6 +24,7 @@ from .repositories import (
     RespuestaFormPreRepository
 )
 
+# Unidad de trabajo para gestionar transacciones y repositorios
 class UnitOfWork:
     def __init__(self):
         self.session_factory = SessionLocal
@@ -54,11 +55,13 @@ class UnitOfWork:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type:
-            self.session.rollback()
-        else:
-            self.session.commit()
-        self.session.close()
+        try:
+            if exc_type is not None:
+                self.rollback()
+            else:
+                self.commit()
+        finally:
+            self.session.close()
 
     def commit(self):
         self.session.commit()

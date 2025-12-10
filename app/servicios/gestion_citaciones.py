@@ -26,7 +26,6 @@ class ServicioGestionCitaciones:
                 self.uow.citaciones.add(citacion)
                 self.uow.commit()
                 
-                # Send Notification
                 self.notificaciones.enviar_correo(
                     destinatarios=correos,
                     asunto=f"Citación: {motivo}",
@@ -37,15 +36,5 @@ class ServicioGestionCitaciones:
             return None
 
     def consultar_historial_citaciones(self, id_estudiante: int) -> List[Citacion]:
-        # Logic to find citations for a student.
-        # Citacion model doesn't link to Estudiante directly anymore in class (it has correoDestinatarios).
-        # But table has id_estudiante?
-        # In mappers.py I mapped id_estudiante but Citacion class doesn't have it.
-        # I should probably rely on Notificacion or similar.
-        # Or I should add id_estudiante back to Citacion if it's per student.
-        # Dictionary says Citacion has correoDestinatarios.
-        # It seems Citacion is generic.
-        # But usually Citacion is for a student.
-        # I'll return empty list for now or fetch all.
         with self.uow:
             return self.uow.citaciones.get_all()

@@ -1,32 +1,14 @@
-"""
-Archivo: moduloBoletines.py
-Generación de Boletines Académicos (Caso de Uso 27).
 
-Módulo funcional para profesores que permite generar boletines
-semestrales en PDF con el progreso académico de los estudiantes.
-
-Funcionalidades:
-- Selección de grupo y periodo académico
-- Vista previa de boletines antes de generar
-- Generación individual de boletines en PDF
-- Generación masiva (todos los estudiantes del grupo)
-- Estado de generación (pendiente/generado)
-
-Acceso: Profesor (teacher)
-Caso de Uso: CU-27 (Generar boletín semestral)
-"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 
 def create_report_generator(master, nav_commands):
-    """Crea la interfaz de generación de boletines."""
     frame = tk.Frame(master)
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_rowconfigure(1, weight=1)
     
-    # Header
     header = tk.Frame(frame, bg=COLOR_HEADER_PRE)
     header.grid(row=0, column=0, sticky="ew")
     
@@ -37,11 +19,9 @@ def create_report_generator(master, nav_commands):
     tk.Label(header, text="Generación de Boletines", bg=COLOR_HEADER_PRE,
              fg=COLOR_TEXT_PRE, font=FONT_H1).pack(side="left", padx=20, pady=15)
     
-    # Contenido Principal
     content = tk.Frame(frame, bg="#ffffff")
     content.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
     
-    # Filtros superiores
     filter_frame = tk.Frame(content, bg="#ffffff")
     filter_frame.pack(fill="x", pady=(0, 20))
     

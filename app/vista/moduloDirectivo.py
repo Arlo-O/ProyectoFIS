@@ -1,34 +1,10 @@
-"""
-Archivo: moduloDirectivo.py
-Dashboard y funcionalidades para el rol DIRECTIVO (director).
 
-Panel administrativo para el directivo académico del colegio, quien gestiona
-los aspectos académicos y administrativos de la institución.
-
-Funcionalidades principales:
-- Gestión de logros académicos y categorías
-- Gestión de estudiantes (inscripción, actualización, consulta)
-- Gestión de grupos académicos
-- Generación de citaciones y entrevistas
-- Gestión de notificaciones a acudientes
-- Reportes y estadísticas académicas
-
-Estructura visual:
-- Sidebar: Navegación y perfil del directivo
-- Área principal: Grid de tarjetas con acceso a módulos funcionales
-
-Rol asociado: 'director' (Directivo académico)
-"""
 
 import tkinter as tk
 import tkinter.ttk as ttk
 from config import *
 
-# ======================================================================
-# FUNCIONES AUXILIARES DE WIDGETS
-# ======================================================================
 def create_dashboard_button(parent, text, icon, module_name, nav_commands):
-    """Crea un botón de módulo en el dashboard."""
     frame = tk.Frame(parent, bg="#ffffff", padx=20, pady=20, relief="solid", bd=1, highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
     
     tk.Label(frame, text=icon, font=("Helvetica", 36), bg="#ffffff").pack(pady=(0, 10))
@@ -47,12 +23,7 @@ def create_dashboard_button(parent, text, icon, module_name, nav_commands):
     
     return frame
 
-# ======================================================================
-# --- FUNCIÓN PRINCIPAL: DASHBOARD DIRECTIVO ---
-# ======================================================================
-
 def create_director_dashboard(master, nav_commands):
-    """Crea la interfaz del Dashboard Directivo."""
     
     dashboard_frame = tk.Frame(master)
     dashboard_frame.grid_columnconfigure(0, weight=0) 
