@@ -3,7 +3,7 @@ Configuración de estilos personalizados TTK para la interfaz gráfica.
 """
 
 import tkinter.ttk as ttk
-from config import (
+from .config import (
     COLOR_BTN_LOGIN, COLOR_BTN_LOGIN_HOVER, COLOR_TEXT_LOGIN,
     COLOR_BTN_PRE, COLOR_BTN_PRE_HOVER, COLOR_TEXT_PRE,
     FONT_P_BOLD, COLOR_TEXT_LIGHT
@@ -77,4 +77,4 @@ def configure_styles(root):
         background=[('active', '#1e7e34')]
     )
     
-    print("✅ Estilos TTK configurados correctamente")
+    print("[OK] Estilos TTK configurados correctamente")

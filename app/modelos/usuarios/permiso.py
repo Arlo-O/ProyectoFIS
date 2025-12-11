@@ -1,28 +1,15 @@
-from typing import Optional
-
+from datetime import datetime
 
 class Permiso:
-    def __init__(self, id_permiso: int, nombre_permiso: str, descripcion: str = ""):
-        self.__id_permiso = id_permiso
-        self.__nombre_permiso = nombre_permiso
-        self.__descripcion = descripcion
-
-    @property
-    def id_permiso(self) -> int:
-        return self.__id_permiso
-
-    @property
-    def nombre_permiso(self) -> str:
-        return self.__nombre_permiso
-
-    @nombre_permiso.setter
-    def nombre_permiso(self, value: str) -> None:
-        self.__nombre_permiso = value
-
-    @property
-    def descripcion(self) -> str:
-        return self.__descripcion
-
-    @descripcion.setter
-    def descripcion(self, value: str) -> None:
-        self.__descripcion = value
+    """Permiso que puede asignarse a roles"""
+    
+    def __init__(self, id_permiso: int, nombre: str, descripcion: str = None,
+                 fecha_creacion: datetime = None, fecha_actualizacion: datetime = None):
+        self.id_permiso = id_permiso
+        self.nombre = nombre
+        self.descripcion = descripcion
+        self.fecha_creacion = fecha_creacion or datetime.utcnow()
+        self.fecha_actualizacion = fecha_actualizacion or datetime.utcnow()
+        
+        # Relationships
+        self.roles = []

@@ -1,60 +1,32 @@
-from datetime import datetime
-from typing import Optional
 
+from datetime import datetime
 
 class Persona:
-    def __init__(self, numero_identificacion: str, tipo_identificacion: str, 
-                 primer_nombre: str, segundo_nombre: Optional[str] = None,
-                 primer_apellido: str = "", segundo_apellido: Optional[str] = None,
-                 fecha_nacimiento: datetime = None, telefono: Optional[str] = None,
-                 direccion: Optional[str] = None, genero: Optional[str] = None):
-        self._numero_identificacion = numero_identificacion
-        self._tipo_identificacion = tipo_identificacion
-        self._primer_nombre = primer_nombre
-        self._segundo_nombre = segundo_nombre
-        self._primer_apellido = primer_apellido
-        self._segundo_apellido = segundo_apellido
-        self._fecha_nacimiento = fecha_nacimiento
-        self._telefono = telefono
-        self._direccion = direccion
-        self._genero = genero
+    """Clase base para toda persona en el sistema (JOINED TABLE INHERITANCE)"""
+    
+    def __init__(self, id_persona: int, tipo_identificacion: str, 
+                 numero_identificacion: str, primer_nombre: str, 
+                 segundo_nombre: str, primer_apellido: str, 
+                 segundo_apellido: str, fecha_nacimiento: datetime = None,
+                 genero: str = None, direccion: str = None, telefono: str = None):
+        self.id_persona = id_persona
+        self.tipo_identificacion = tipo_identificacion
+        self.numero_identificacion = numero_identificacion
+        self.primer_nombre = primer_nombre
+        self.segundo_nombre = segundo_nombre
+        self.primer_apellido = primer_apellido
+        self.segundo_apellido = segundo_apellido
+        self.fecha_nacimiento = fecha_nacimiento
+        self.genero = genero
+        self.direccion = direccion
+        self.telefono = telefono
 
-    @property
-    def numero_identificacion(self) -> str:
-        return self._numero_identificacion
-
-    @property
-    def tipo_identificacion(self) -> str:
-        return self._tipo_identificacion
-
-    @property
-    def primer_nombre(self) -> str:
-        return self._primer_nombre
-
-    @property
-    def segundo_nombre(self) -> Optional[str]:
-        return self._segundo_nombre
-
-    @property
-    def primer_apellido(self) -> str:
-        return self._primer_apellido
-
-    @property
-    def segundo_apellido(self) -> Optional[str]:
-        return self._segundo_apellido
-
-    @property
-    def fecha_nacimiento(self) -> Optional[datetime]:
-        return self._fecha_nacimiento
-
-    @property
-    def telefono(self) -> Optional[str]:
-        return self._telefono
-
-    @property
-    def direccion(self) -> Optional[str]:
-        return self._direccion
-
-    @property
-    def genero(self) -> Optional[str]:
-        return self._genero
+    def nombre_completo(self) -> str:
+        """Retorna el nombre completo de la persona"""
+        nombres = [self.primer_nombre, self.segundo_nombre]
+        apellidos = [self.primer_apellido, self.segundo_apellido]
+        
+        nombres_str = " ".join([n for n in nombres if n])
+        apellidos_str = " ".join([a for a in apellidos if a])
+        
+        return f"{nombres_str} {apellidos_str}".strip()

@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from config import *
+from tkinter import messagebox
+from .config import *
 
 
 def create_base_step(master, step_number, title_text, nav_commands):
@@ -119,7 +120,7 @@ def create_base_step(master, step_number, title_text, nav_commands):
     elif step_number == 4:
         def on_submit():
             try:
-                from dialogs import show_confirmation_dialog
+                from .dialogs import show_confirmation_dialog
                 def redirect_home():
                     nav_commands['home']()
                 show_confirmation_dialog(
@@ -129,7 +130,7 @@ def create_base_step(master, step_number, title_text, nav_commands):
                     on_confirm=redirect_home
                 )
             except ImportError:
-                tk.messagebox.showinfo("Éxito", "Preinscripción enviada correctamente")
+                messagebox.showinfo("Éxito", "Preinscripción enviada correctamente")
         
         ttk.Button(nav_frame, text="Enviar Preinscripción", style="Login.TButton", command=on_submit).pack(side="right")
 

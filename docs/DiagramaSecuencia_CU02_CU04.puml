@@ -1,0 +1,97 @@
+@startuml
+title Diagrama de Secuencia - CU-02 Iniciar sesión (incluye CU-04 Controlar acceso por roles)
+
+actor Usuario
+participant "app.vista.app_gui::login_to_dashboard()" as AppGUI
+participant "app.vista.login_form::LoginForm" as LoginForm
+participant "app.vista.auth_service::AuthenticationService" as AuthService
+participant "app.infraestructura.uow::UnitOfWork / uow()" as UoW
+participant "app.infraestructura.repositories::UsuarioRepository" as UsuarioRepo
+participant "app.infraestructura.db::SessionLocal" as Session
+participant "app.infraestructura.db::mapper_registry (start_mappers)" as Mapper
+participant "app.vista.session_manager::set_user_info" as SessionMgr
+
+Usuario -> AppGUI: click 'Acceder' (Iniciar sesión)
+activate AppGUI
+AppGUI -> LoginForm: get_credentials()
+LoginForm --> AppGUI: email, password
+
+AppGUI -> AuthService: validate_credentials(email,password)
+AuthService --> AppGUI: is_valid / error_msg
+alt formato válido
+    AppGUI -> AuthService: authenticate(email,password)
+    activate AuthService
+
+    AuthService -> UoW: create UnitOfWork()
+    activate UoW
+    UoW -> Session: SessionLocal()  (crea sesión)
+    activate Session
+    note right of UoW
+      UnitOfWork.__enter__ crea repositorios usando la sesión
+    end note
+    UoW -> UsuarioRepo: new UsuarioRepository(session)
+    activate UsuarioRepo
+
+    UsuarioRepo -> Session: query(Usuario).filter_by(correo_electronico=email).first()
+    activate Session
+    note right of Session
+      Session ejecuta SELECT contra PostgreSQL
+      e internamente mapea fila -> Usuario instance
+    end note
+    Session -> Mapper: mapear fila SQL -> Usuario instance
+    activate Mapper
+    Mapper --> Session: Usuario instance / None
+    deactivate Mapper
+    Session --> UsuarioRepo: Usuario instance / None
+    deactivate Session
+    UsuarioRepo --> AuthService: Usuario instance / None
+    deactivate UsuarioRepo
+
+    alt usuario encontrado
+        AuthService -> AuthService: comparar usuario.contrasena == password
+        alt contraseña coincide
+            AuthService --> AppGUI: return usuario (obj Usuario)
+        else contraseña incorrecta
+            AuthService --> AppGUI: return None
+        end
+    else usuario no encontrado
+        AuthService --> AppGUI: return None
+    end
+
+    alt commit
+        UoW -> Session: commit()
+        Session --> UoW: OK
+    else rollback
+        UoW -> Session: rollback()
+        Session --> UoW: OK
+    end
+
+    UoW -> Session: close()
+    deactivate Session
+    UoW -> AuthService: destroy repositories / __exit__
+    deactivate UoW
+    deactivate AuthService
+
+else formato inválido
+    AppGUI --> Usuario: mostrar error de validación
+end
+
+alt autenticación exitosa
+    AppGUI -> AppGUI: obtener usuario.rol (relationship)
+    note right of AppGUI
+      CU-04 (include): Controlar acceso por roles
+      - lee `usuario.rol.nombre_rol` (se obtiene vía relación mapeada)
+      - llama `app.vista.session_manager.set_user_info(...)`
+      - mapea rol -> frame/dashboard
+    end note
+
+    AppGUI -> SessionMgr: set_user_info(user_id, name, email, role, ...)
+    SessionMgr --> AppGUI: OK
+
+    AppGUI -> AppGUI: role_map[role_name] -> show_frame(target_frame)
+    AppGUI --> Usuario: navegar al dashboard correspondiente
+else autenticación fallida
+    AppGUI --> Usuario: mostrar mensaje 'Credenciales incorrectas.'
+end
+
+@enduml
