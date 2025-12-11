@@ -3,15 +3,24 @@
 import tkinter as tk
 from tkinter import messagebox
 import tkinter.ttk as ttk
+import sys
+import os
 from config import *
 from gui_styles import configure_styles 
 from session_manager import set_current_role 
+from pathlib import Path
+
+# Añadir la ruta del módulo app para importar controladores
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from database import SessionLocal
+from controladores.controlador_login import ControladorLogin
 
 # ======================================================================
 # --- IMPORTACIÓN DE MÓDULOS DE INTERFAZ (Se asumen existentes) ---
 # ======================================================================
 # Nota: Debes asegurar que estos archivos existan y contengan las funciones.
-from formGui import create_step1, create_step2, create_step3, create_step4
+from formGui import create_complete_form
 from moduloAdmin import create_admin_dashboard
 from moduloDirectivo import create_director_dashboard
 from moduloProfesor import create_teacher_dashboard, create_assignment_teacher, create_observer_teacher
@@ -81,10 +90,8 @@ def show_frame(name):
         
         if name == "login":
             step_index = -1
-        elif name.startswith("step"):
-            new_index = int(name.replace("step", "")) - 1
-            step_index = new_index
-            
+        elif name == "preinscription_form":
+            # Scroll al inicio del formulario
             if name in step_canvases:
                 canvas = step_canvases[name]['canvas']
                 root.update_idletasks()
@@ -92,73 +99,90 @@ def show_frame(name):
                 canvas.yview_moveto(0)
 
 def start_preinscription():
-    """Inicia el formulario en el Paso 1."""
-    show_frame("step1")
+    """Inicia el formulario único completo."""
+    show_frame("preinscription_form")
 
 def next_step():
-    """Avanza al siguiente paso del formulario."""
-    global step_index
-    if step_index < 3: 
-        show_frame(f"step{step_index + 2}")
+    """Ya no es necesario en el nuevo diseño de formulario único con scroll."""
+    pass
 
 def prev_step():
-    """Regresa al paso anterior del formulario o al login (si estamos en el paso 1)."""
-    global step_index
-    if step_index > 0:
-        show_frame(f"step{step_index}")
-    elif step_index == 0:
-        show_frame("login")
+    """Ya no es necesario en el nuevo diseño de formulario único con scroll."""
+    pass
 
 # ======================================================================
-# --- LÓGICA DE LOGIN (CORREGIDA) ---
+# --- LÓGICA DE LOGIN (INTEGRADA CON CONTROLADOR) ---
 # ======================================================================
 
 def login_to_dashboard():
-    """Verifica credenciales, establece el rol y navega al panel correspondiente."""
+    """Verifica credenciales usando el controlador, establece el rol y navega."""
     global user_entry_ref, pass_entry_ref
     
     if user_entry_ref is None or pass_entry_ref is None:
         messagebox.showerror("Error", "La interfaz no se ha inicializado correctamente.")
         return
 
-    user = user_entry_ref.get().lower()
-    password = pass_entry_ref.get()
+    username = user_entry_ref.get().strip()
+    password = pass_entry_ref.get().strip()
 
-    if user == user_entry_ref.placeholder.lower() or password == pass_entry_ref.placeholder:
+    if not username or not password:
         messagebox.showerror("Error de Login", "Por favor, ingrese usuario y contraseña.")
         return
     
-    if user in USER_CREDENTIALS and USER_CREDENTIALS[user]["password"] == password:
-        role = USER_CREDENTIALS[user]["role"]
+    if username == user_entry_ref.placeholder or password == pass_entry_ref.placeholder:
+        messagebox.showerror("Error de Login", "Por favor, ingrese usuario y contraseña.")
+        return
+    
+    try:
+        # Crear sesión y controlador
+        db = SessionLocal()
+        controlador = ControladorLogin(db)
         
-        # 🛑 1. Establecer el rol en el gestor de sesión
-        set_current_role(role) 
+        # Autenticar usuario
+        resultado = controlador.autenticar_usuario(username, password)
         
-        # Mapeo de roles a frames
-        role_map = {
-            "admin": "dashboard",
-            "director": "director_dashboard",
-            "teacher": "teacher_dashboard",
-            "parent": "parent_dashboard",
-        }
-        
-        target_frame = role_map.get(role)
-        if target_frame:
+        if resultado['exitoso']:
+            # Obtener el nombre del rol
+            rol_nombre = resultado['rol'].nombreRol if resultado['rol'] else 'teacher'
+            
+            # Establecer rol en sesión
+            set_current_role(rol_nombre)
+            
+            # Mapeo de roles a frames
+            role_map = {
+                'admin': 'dashboard',
+                'administrator': 'dashboard',
+                'directivo': 'director_dashboard',
+                'director': 'director_dashboard',
+                'profesor': 'teacher_dashboard',
+                'teacher': 'teacher_dashboard',
+                'acudiente': 'parent_dashboard',
+                'parent': 'parent_dashboard',
+                'observador': 'teacher_dashboard',
+                'observer': 'teacher_dashboard',
+            }
+            
+            target_frame = role_map.get(rol_nombre.lower(), 'teacher_dashboard')
+            
+            messagebox.showinfo("Login Exitoso", resultado['mensaje'])
             show_frame(target_frame)
             
-            # Limpiar campos y restaurar placeholders
+            # Limpiar campos
             user_entry_ref.delete(0, tk.END)
             pass_entry_ref.delete(0, tk.END)
             user_entry_ref.insert(0, user_entry_ref.placeholder)
             pass_entry_ref.insert(0, pass_entry_ref.placeholder)
             user_entry_ref.config(fg=COLOR_TEXT_PLACEHOLDER)
             pass_entry_ref.config(fg=COLOR_TEXT_PLACEHOLDER, show="")
-            
         else:
-            messagebox.showerror("Error de Rol", "Rol de usuario no reconocido.")
-            
-    else:
-        messagebox.showerror("Error de Login", "Credenciales incorrectas.")
+            messagebox.showerror("Error de Login", resultado['mensaje'])
+        
+        db.close()
+        
+    except Exception as e:
+        messagebox.showerror("Error", f"Error en el sistema de autenticación: {str(e)}")
+        print(f"Error detallado: {e}")
+
 
 
 # ======================================================================
@@ -287,22 +311,14 @@ def initialize_app():
         'show_frame': show_frame  
     }
 
-    # 2. Frames de Preinscripción
-    step_data = [
-        ("step1", create_step1),
-        ("step2", create_step2),
-        ("step3", create_step3),
-        ("step4", create_step4)
-    ]
-
-    for name, creator_func in step_data:
-        try:
-            frame, _, canvas, content_frame = creator_func(root_content_frame, nav_commands)
-            frames[name] = frame
-            step_canvases[name] = {'canvas': canvas, 'content_frame': content_frame}
-        except Exception:
-            # En un entorno real, manejarías la excepción. Aquí se omite por brevedad.
-            pass
+    # 2. Frame de Preinscripción (Formulario Único)
+    try:
+        form_frame, canvas = create_complete_form(root_content_frame, nav_commands)
+        frames["preinscription_form"] = form_frame
+        step_canvases["preinscription_form"] = {'canvas': canvas}
+    except Exception as e:
+        print(f"Error creando formulario de preinscripción: {e}")
+        # En un entorno real, manejarías la excepción.
         
     # 3. Frames de Dashboard y Módulos por Rol
     frames["dashboard"] = create_admin_dashboard(root_content_frame, nav_commands)

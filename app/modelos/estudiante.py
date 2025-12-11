@@ -10,7 +10,7 @@ class Estudiante(Persona):
         self.__idEstudiante: int = idEstudiante
         self.__grado: str = grado
         self.__observaciones: list = observaciones or []
-        self.__acudientes: list = []
+        self.__boletines: list = []
 
     @property
     def idEstudiante(self) -> int:
@@ -35,9 +35,15 @@ class Estudiante(Persona):
     def agregarObservacion(self, observacion: str) -> None:
         self.__observaciones.append(observacion)
 
-    def asignarAcudiente(self, acudiente) -> None:
-        if acudiente not in self.__acudientes:
-            self.__acudientes.append(acudiente)
+    def agregarBoletin(self, boletin) -> None:
+        if boletin not in self.__boletines:
+            self.__boletines.append(boletin)
 
-    def obtenerAcudientes(self) -> list:
-        return self.__acudientes.copy()
+    def removerBoletin(self, boletin) -> None:
+        try:
+            self.__boletines.remove(boletin)
+        except ValueError:
+            pass
+
+    def obtenerBoletines(self) -> list:
+        return self.__boletines.copy()

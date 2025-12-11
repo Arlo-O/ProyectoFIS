@@ -1,7 +1,7 @@
 class Boletin:
-    def __init__(self, idBoletin: int = None, idEstudiante: int = None, periodo: str = None, calificaciones: dict = None):
+    def __init__(self, idBoletin: int = None, estudiante = None, periodo: str = None, calificaciones: dict = None):
         self.__idBoletin: int = idBoletin
-        self.__idEstudiante: int = idEstudiante
+        self.__estudiante = estudiante
         self.__periodo: str = periodo
         self.__calificaciones: dict = calificaciones or {}
 
@@ -10,8 +10,8 @@ class Boletin:
         return self.__idBoletin
 
     @property
-    def idEstudiante(self) -> int:
-        return self.__idEstudiante
+    def estudiante(self):
+        return self.__estudiante
 
     @property
     def periodo(self) -> str:
@@ -30,4 +30,5 @@ class Boletin:
         return sum(self.__calificaciones.values()) / len(self.__calificaciones)
 
     def resumen(self) -> str:
-        return f"Boletín {self.__idBoletin} - Estudiante {self.__idEstudiante} - Promedio {self.promedio():.2f}"
+        nombreEstudiante = self.__estudiante.primerNombre if self.__estudiante else "Desconocido"
+        return f"Boletín {self.__idBoletin} - Estudiante {nombreEstudiante} - Promedio {self.promedio():.2f}"

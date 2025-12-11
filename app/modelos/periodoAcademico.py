@@ -7,6 +7,7 @@ class PeriodoAcademico:
         self.__fechaInicio: datetime = fechaInicio
         self.__fechaFin: datetime = fechaFin
         self.__activo: bool = activo
+        self.__evaluacionesLogro: list = []
 
     @property
     def idPeriodo(self) -> int:
@@ -39,3 +40,16 @@ class PeriodoAcademico:
         if self.__fechaInicio and self.__fechaFin:
             return (self.__fechaFin - self.__fechaInicio).days
         return 0
+
+    def agregarEvaluacionLogro(self, evaluacionLogro) -> None:
+        if evaluacionLogro not in self.__evaluacionesLogro:
+            self.__evaluacionesLogro.append(evaluacionLogro)
+
+    def removerEvaluacionLogro(self, evaluacionLogro) -> None:
+        try:
+            self.__evaluacionesLogro.remove(evaluacionLogro)
+        except ValueError:
+            pass
+
+    def obtenerEvaluacionesLogro(self) -> list:
+        return self.__evaluacionesLogro.copy()

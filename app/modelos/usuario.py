@@ -2,18 +2,23 @@ from datetime import datetime
 from rol import Rol
 
 class Usuario:
-    def __init__(self, idUsuario: int, correoElectronico: str, rol: Rol, contrasena: str):
+    def __init__(self, idUsuario: int, username: str, correoElectronico: str, rol: Rol, contrasena: str):
         self.__idUsuario = idUsuario
+        self.__username = username
+        self.__correoElectronico = correoElectronico
         self.__contrasenaEncriptada: str = contrasena
         self.__fechaCreacion: datetime = datetime.now()
         self.__ultimoIngreso: datetime = None
         self.__rol: Rol = rol
         self.__activo: bool = True
-        self.__correoElectronico = correoElectronico
 
     @property
     def idUsuario(self) -> int:
         return self.__idUsuario
+    
+    @property
+    def username(self) -> str:
+        return self.__username
     
     @property
     def rol(self) -> Rol:
@@ -39,12 +44,16 @@ class Usuario:
     def contrasenaEncriptada(self) -> str:
         return self.__contrasenaEncriptada
 
+    @username.setter
+    def username(self, nuevoUsername: str) -> None:
+        self.__username = nuevoUsername
+
     @contrasenaEncriptada.setter
-    def contrasenaEcnriptada(self, nuevaContrasena: Rol) -> None:
+    def contrasenaEncriptada(self, nuevaContrasena: str) -> None:
         self.__contrasenaEncriptada = nuevaContrasena
 
     @ulitmoIngreso.setter
-    def rol(self, nuevoIngreso: datetime) -> None:
+    def ultimoIngreso(self, nuevoIngreso: datetime) -> None:
         self.__ultimoIngreso = nuevoIngreso
 
     @rol.setter

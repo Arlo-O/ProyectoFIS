@@ -1,0 +1,79 @@
+INSTRUCCIONES DE USO - SISTEMA DE AUTENTICACIÓN
+
+1. INSTALACIÓN DE DEPENDENCIAS
+   
+   Instala bcrypt para cifrado de contraseñas:
+   pip install bcrypt
+
+2. INICIALIZAR LA BASE DE DATOS
+
+   Ejecuta el script de inicialización:
+   python app/scripts/inicializar_db.py
+   
+   Esto creará:
+   - Tablas en la base de datos
+   - 4 roles (Administrador, Directivo, Profesor, Acudiente)
+   - 4 usuarios de prueba
+
+3. USUARIOS DE PRUEBA
+
+   Las credenciales creadas son:
+   
+   Usuario: admin
+   Contraseña: admin123
+   Rol: Administrador
+   
+   Usuario: directivo
+   Contraseña: directivo123
+   Rol: Directivo
+   
+   Usuario: profesor
+   Contraseña: profesor123
+   Rol: Profesor
+   
+   Usuario: acudiente
+   Contraseña: acudiente123
+   Rol: Acudiente
+
+4. ESTRUCTURA IMPLEMENTADA
+
+   CONTROLADORES:
+   - app/controladores/controlador_login.py: Lógica de autenticación
+   
+   SERVICIOS:
+   - app/servicios/servicio_autenticacion.py: Cifrado y validación de contraseñas
+   
+   MODELOS ORM:
+   - app/modelos/orm_models.py: Mapeo de entidades a tablas SQL
+   
+   REPOSITORIOS:
+   - app/repositorios/repositorio_usuario.py: Acceso a datos de usuarios
+   
+   VISTA:
+   - app/vista/app_gui.py: Interfaz de login (integrada con controlador)
+
+5. FLUJO DE AUTENTICACIÓN
+
+   1. Usuario ingresa username y contraseña en la vista
+   2. Controlador verifica:
+      - Si cuenta está bloqueada por intentos fallidos
+      - Si usuario existe en la BD
+      - Si usuario está activo
+      - Si contraseña cifrada coincide
+   3. Si credenciales son válidas:
+      - Se obtiene el rol del usuario
+      - Se redirige al módulo correspondiente
+   4. Si hay error:
+      - Se bloquea cuenta después de 3 intentos fallidos por 15 minutos
+      - Se muestra mensaje de error
+
+6. BASE DE DATOS
+
+   Conexión:
+   - Host: localhost
+   - Puerto: 5432
+   - Usuario: fis_user
+   - Contraseña: fis_password
+   - Base de datos: fis_db
+
+   Asegúrate de que PostgreSQL esté ejecutándose y la BD creada.
