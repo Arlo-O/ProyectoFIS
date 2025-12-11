@@ -1,66 +1,54 @@
-from typing import List, Optional, TYPE_CHECKING
+
 from datetime import datetime
-from .usuario import Usuario
-
-
-if TYPE_CHECKING:
-    from .acudiente import Acudiente
-    from ..academico.grupo import Grupo
-    from ..academico.hojaVidaAcademica import HojaVidaAcademica
-    from ..academico.observador import Observador
-    from ..logros.evaluacionLogro import EvaluacionLogro
-    from ..logros.boletin import Boletin
-
+from .usuario import Usuario  # ✅ Importar Usuario (que ya importa Persona)
 
 class Estudiante(Usuario):
-    def __init__(self, id_estudiante: int, fecha_ingreso: Optional[datetime] = None, 
-                 codigo_matricula: str = ""):
-        super().__init__()
-        self.__id_estudiante = id_estudiante
-        self.__fecha_ingreso = fecha_ingreso
-        self.__codigo_matricula = codigo_matricula
-        self.__acudientes: List['Acudiente'] = []
-        self.__grupo: Optional['Grupo'] = None
-        self.__hoja_vida: Optional['HojaVidaAcademica'] = None
-        self.__observador: Optional['Observador'] = None
-        self.__evaluaciones_logro: List['EvaluacionLogro'] = []
-
-    @property
-    def id_estudiante(self) -> int:
-        return self.__id_estudiante
-
-    @property
-    def fecha_ingreso(self) -> Optional[datetime]:
-        return self.__fecha_ingreso
-
-    @property
-    def codigo_matricula(self) -> str:
-        return self.__codigo_matricula
-
-    @codigo_matricula.setter
-    def codigo_matricula(self, value: str) -> None:
-        self.__codigo_matricula = value
-
-    @property
-    def grupo(self) -> Optional['Grupo']:
-        return self.__grupo
-
-    @grupo.setter
-    def grupo(self, value: Optional['Grupo']) -> None:
-        self.__grupo = value
-
-    @property
-    def hoja_vida(self) -> Optional['HojaVidaAcademica']:
-        return self.__hoja_vida
-
-    @property
-    def observador(self) -> Optional['Observador']:
-        return self.__observador
-
-    @property
-    def acudientes(self) -> List['Acudiente']:
-        return self.__acudientes.copy()
-
-    @property
-    def evaluaciones_logro(self) -> List['EvaluacionLogro']:
-        return self.__evaluaciones_logro.copy()
+    """Estudiante que hereda de Usuario"""
+    
+    def __init__(self, id_estudiante: int, codigo_matricula: str = None,
+                 fecha_ingreso: datetime = None, grado_actual: str = None,
+                 id_grupo: int = None,
+                 # Parámetros de Usuario
+                 id_usuario: int = None, correo_electronico: str = None,
+                 contrasena: str = None, id_rol: int = None, activo: bool = True,
+                 ultimo_ingreso: datetime = None,
+                 # Parámetros de Persona
+                 id_persona: int = None, tipo_identificacion: str = None,
+                 numero_identificacion: str = None, primer_nombre: str = None,
+                 segundo_nombre: str = None, primer_apellido: str = None,
+                 segundo_apellido: str = None, fecha_nacimiento: datetime = None,
+                 genero: str = None, direccion: str = None, telefono: str = None):
+        
+        super().__init__(
+            id_usuario=id_usuario,
+            correo_electronico=correo_electronico,
+            contrasena=contrasena,
+            id_rol=id_rol,
+            activo=activo,
+            ultimo_ingreso=ultimo_ingreso,
+            id_persona=id_persona,
+            tipo_identificacion=tipo_identificacion,
+            numero_identificacion=numero_identificacion,
+            primer_nombre=primer_nombre,
+            segundo_nombre=segundo_nombre,
+            primer_apellido=primer_apellido,
+            segundo_apellido=segundo_apellido,
+            fecha_nacimiento=fecha_nacimiento,
+            genero=genero,
+            direccion=direccion,
+            telefono=telefono
+        )
+        
+        self.id_estudiante = id_estudiante
+        self.codigo_matricula = codigo_matricula
+        self.fecha_ingreso = fecha_ingreso
+        self.grado_actual = grado_actual
+        self.id_grupo = id_grupo
+        
+        # Relationships
+        self.grupo = None
+        self.acudientes = []
+        self.hoja_vida = None
+        self.observador = None
+        self.evaluaciones = []
+        self.boletines = []

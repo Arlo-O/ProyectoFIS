@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from config import *
+from .config import *
 
 
 def create_sidebar_button_parent(parent, text, icon, module_name, nav_commands, is_active=False):

@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from config import *
+from .config import *
 
 
 def create_dashboard_button(parent, text, icon, module_name, nav_commands):

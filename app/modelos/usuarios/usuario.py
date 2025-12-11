@@ -1,58 +1,41 @@
-from datetime import datetime
-from typing import Optional
-from .persona import Persona
-from .rol import Rol
 
+from datetime import datetime
+from .persona import Persona  # ✅ IMPORT FALTANTE
 
 class Usuario(Persona):
-    def __init__(self, id_usuario: int, contrasena: str, correo_electronico: str, 
-                 id_rol: Optional[int] = None, activo: bool = True,
-                 fecha_creacion: Optional[datetime] = None, ultimo_ingreso: Optional[datetime] = None):
-        super().__init__()
-        self.__id_usuario = id_usuario
-        self.__contrasena = contrasena
-        self.__correo_electronico = correo_electronico
-        self.__id_rol = id_rol
-        self.__activo = activo
-        self.__fecha_creacion = fecha_creacion
-        self.__ultimo_ingreso = ultimo_ingreso
-
-    @property
-    def id_usuario(self) -> int:
-        return self.__id_usuario
-
-    @property
-    def contrasena(self) -> str:
-        return self.__contrasena
-
-    @property
-    def correo_electronico(self) -> str:
-        return self.__correo_electronico
-
-    @correo_electronico.setter
-    def correo_electronico(self, value: str) -> None:
-        self.__correo_electronico = value
-
-    @property
-    def id_rol(self) -> Optional[int]:
-        return self.__id_rol
-
-    @property
-    def activo(self) -> bool:
-        return self.__activo
-
-    @activo.setter
-    def activo(self, value: bool) -> None:
-        self.__activo = value
-
-    @property
-    def fecha_creacion(self) -> Optional[datetime]:
-        return self.__fecha_creacion
-
-    @property
-    def ultimo_ingreso(self) -> Optional[datetime]:
-        return self.__ultimo_ingreso
-
-    @ultimo_ingreso.setter
-    def ultimo_ingreso(self, value: Optional[datetime]) -> None:
-        self.__ultimo_ingreso = value
+    """Clase Usuario que hereda de Persona (JOINED TABLE INHERITANCE)"""
+    
+    def __init__(self, id_usuario: int, correo_electronico: str, 
+                 contrasena: str, id_rol: int = None, activo: bool = True,
+                 ultimo_ingreso: datetime = None, fecha_creacion: datetime = None,
+                 # Parámetros de Persona
+                 id_persona: int = None, tipo_identificacion: str = None,
+                 numero_identificacion: str = None, primer_nombre: str = None,
+                 segundo_nombre: str = None, primer_apellido: str = None,
+                 segundo_apellido: str = None, fecha_nacimiento: datetime = None,
+                 genero: str = None, direccion: str = None, telefono: str = None):
+        
+        super().__init__(
+            id_persona=id_persona,
+            tipo_identificacion=tipo_identificacion,
+            numero_identificacion=numero_identificacion,
+            primer_nombre=primer_nombre,
+            segundo_nombre=segundo_nombre,
+            primer_apellido=primer_apellido,
+            segundo_apellido=segundo_apellido,
+            fecha_nacimiento=fecha_nacimiento,
+            genero=genero,
+            direccion=direccion,
+            telefono=telefono
+        )
+        
+        self.id_usuario = id_usuario
+        self.correo_electronico = correo_electronico
+        self.contrasena = contrasena
+        self.id_rol = id_rol
+        self.activo = activo
+        self.ultimo_ingreso = ultimo_ingreso
+        self.fecha_creacion = fecha_creacion or datetime.utcnow()
+        
+        # Relationships
+        self.rol = None

@@ -1,40 +1,45 @@
-from typing import List, TYPE_CHECKING
+
+from datetime import datetime
 from .usuario import Usuario
 
-
-if TYPE_CHECKING:
-    from .persona import Persona
-    from .estudiante import Estudiante
-
-
 class Acudiente(Usuario):
-    def __init__(self, id_acudiente: int, parentesco: str = "", es_aspirante: bool = False):
-        super().__init__()
-        self.__id_acudiente = id_acudiente
-        self.__parentesco = parentesco
-        self.__es_aspirante = es_aspirante
-        self.__estudiantes: List['Estudiante'] = []
-
-    @property
-    def id_acudiente(self) -> int:
-        return self.__id_acudiente
-
-    @property
-    def parentesco(self) -> str:
-        return self.__parentesco
-
-    @parentesco.setter
-    def parentesco(self, value: str) -> None:
-        self.__parentesco = value
-
-    @property
-    def es_aspirante(self) -> bool:
-        return self.__es_aspirante
-
-    @es_aspirante.setter
-    def es_aspirante(self, value: bool) -> None:
-        self.__es_aspirante = value
-
-    @property
-    def estudiantes(self) -> List['Estudiante']:
-        return self.__estudiantes.copy()
+    """Acudiente que hereda de Usuario"""
+    
+    def __init__(self, id_acudiente: int, parentesco: str = None,
+                 # Parámetros de Usuario
+                 id_usuario: int = None, correo_electronico: str = None,
+                 contrasena: str = None, id_rol: int = None, activo: bool = True,
+                 ultimo_ingreso: datetime = None,
+                 # Parámetros de Persona
+                 id_persona: int = None, tipo_identificacion: str = None,
+                 numero_identificacion: str = None, primer_nombre: str = None,
+                 segundo_nombre: str = None, primer_apellido: str = None,
+                 segundo_apellido: str = None, fecha_nacimiento: datetime = None,
+                 genero: str = None, direccion: str = None, telefono: str = None):
+        
+        super().__init__(
+            id_usuario=id_usuario,
+            correo_electronico=correo_electronico,
+            contrasena=contrasena,
+            id_rol=id_rol,
+            activo=activo,
+            ultimo_ingreso=ultimo_ingreso,
+            id_persona=id_persona,
+            tipo_identificacion=tipo_identificacion,
+            numero_identificacion=numero_identificacion,
+            primer_nombre=primer_nombre,
+            segundo_nombre=segundo_nombre,
+            primer_apellido=primer_apellido,
+            segundo_apellido=segundo_apellido,
+            fecha_nacimiento=fecha_nacimiento,
+            genero=genero,
+            direccion=direccion,
+            telefono=telefono
+        )
+        
+        self.id_acudiente = id_acudiente
+        self.parentesco = parentesco
+        
+        # Relationships
+        self.estudiantes = []
+        self.notificaciones = []

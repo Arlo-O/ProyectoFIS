@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from config import *
+from .config import *
 
 try:
     from app.servicios.gestion_academica import ServicioGestionAcademica

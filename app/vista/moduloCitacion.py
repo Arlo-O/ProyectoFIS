@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from config import *
+from .config import *
 
 
 def create_citation_generator(master, nav_commands):

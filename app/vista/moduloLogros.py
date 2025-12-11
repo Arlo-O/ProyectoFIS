@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from config import *
+from .config import *
 
 
 def create_category_box(parent, title, subcategories):

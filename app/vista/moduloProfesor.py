@@ -2,8 +2,8 @@
 
 import tkinter as tk
 import tkinter.ttk as ttk
-from config import *
-from session_manager import get_dashboard_command
+from .config import *
+from .session_manager import get_dashboard_command
 
 
 def create_sidebar_button_teacher(parent, text, icon, module_name, nav_commands, is_active=False):

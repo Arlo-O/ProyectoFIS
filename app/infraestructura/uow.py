@@ -97,6 +97,7 @@ class UnitOfWork:
 def uow():
     uow_instance = UnitOfWork()
     try:
+        uow_instance.__enter__()
         yield uow_instance
     finally:
         uow_instance.__exit__(None, None, None)

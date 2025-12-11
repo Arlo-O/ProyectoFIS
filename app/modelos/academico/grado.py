@@ -1,32 +1,30 @@
 from typing import List, TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from .grupo import Grupo
 
 
 class Grado:
-    def __init__(self, id_grado: int, nombre: str):
-        self.__id_grado = id_grado
-        self.__nombre = nombre
-        self.__grupos: List['Grupo'] = []
-
-    @property
-    def id_grado(self) -> int:
-        return self.__id_grado
-
-    @property
-    def nombre(self) -> str:
-        return self.__nombre
-
-    @property
-    def grupos(self) -> List['Grupo']:
-        return self.__grupos.copy()
+    """Modelo de dominio para Grado"""
+    
+    def __init__(self, nombre: str, id_grado: int = None):
+        # ✅ ATRIBUTOS PÚBLICOS (sin __)
+        self.id_grado = id_grado
+        self.nombre = nombre
+        self.grupos: List['Grupo'] = []
 
     def agregar_grupo(self, grupo: 'Grupo') -> None:
-        if grupo not in self.__grupos:
-            self.__grupos.append(grupo)
+        """Agrega un grupo al grado"""
+        if grupo not in self.grupos:
+            self.grupos.append(grupo)
 
     def eliminar_grupo(self, grupo: 'Grupo') -> None:
-        if grupo in self.__grupos:
-            self.__grupos.remove(grupo)
+        """Elimina un grupo del grado"""
+        if grupo in self.grupos:
+            self.grupos.remove(grupo)
+    
+    def __repr__(self) -> str:
+        return f"<Grado(id={self.id_grado}, nombre='{self.nombre}')>"
+    
+    def __str__(self) -> str:
+        return self.nombre
