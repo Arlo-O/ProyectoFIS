@@ -1,39 +1,73 @@
 import tkinter as tk
-from tkinter import messagebox
+from typing import Optional, Callable
 
-def show_confirmation_dialog(parent, title="Confirmación", message="Operación completada con éxito", on_confirm=None):
-    """
-    Muestra un diálogo de confirmación personalizado.
+
+def show_confirmation_dialog(
+    parent: tk.Tk | tk.Toplevel,
+    title: str = "Confirmación",
+    message: str = "Operación completada con éxito",
+    on_confirm: Optional[Callable[[], None]] = None
+) -> None:
+    """Muestra un diálogo de confirmación centrado."""
     
-    Args:
-        parent: Ventana padre del diálogo
-        title: Título del diálogo
-        message: Mensaje a mostrar
-        on_confirm: Función a ejecutar al confirmar
-    """
-    dialog = tk.Toplevel(parent)
-    dialog.title(title)
-    dialog.transient(parent)
-    dialog.grab_set()
+    d = tk.Toplevel(parent)
+    d.title(title)
+    d.transient(parent)
+    d.grab_set()
+    d.resizable(False, False)
     
-    # Centrar el diálogo
-    dialog.geometry("400x200")
-    window_width = dialog.winfo_reqwidth()
-    window_height = dialog.winfo_reqheight()
-    position_right = int(parent.winfo_screenwidth()/2 - window_width/2)
-    position_down = int(parent.winfo_screenheight()/2 - window_height/2)
-    dialog.geometry(f"+{position_right}+{position_down}")
+    # Centrar ventana
+    d.geometry("400x200")
+    d.update_idletasks()
+    w = d.winfo_width()
+    h = d.winfo_height()
+    x = (d.winfo_screenwidth() // 2) - (w // 2)
+    y = (d.winfo_screenheight() // 2) - (h // 2)
+    d.geometry(f"{w}x{h}+{x}+{y}")
     
     # Contenido
-    tk.Label(dialog, text=message, wraplength=350, pady=20).pack(expand=True)
+    tk.Label(
+        d, 
+        text=message, 
+        wraplength=350, 
+        pady=30,
+        font=("Helvetica", 11)
+    ).pack(expand=True)
     
-    def on_accept():
-        dialog.destroy()
+    def cerrar():
+        d.destroy()
         if on_confirm:
             on_confirm()
     
-    tk.Button(dialog, text="Aceptar", command=on_accept, width=15).pack(pady=20)
+    tk.Button(
+        d,
+        text="Aceptar",
+        command=cerrar,
+        width=12,
+        font=("Helvetica", 10, "bold"),
+        bg="#4a90e2",
+        fg="white",
+        relief="flat",
+        padx=20,
+        pady=8
+    ).pack(pady=20)
     
-    # Hacer el diálogo modal
-    dialog.focus_set()
-    dialog.wait_window()
+    d.wait_window()
+
+
+def show_error_dialog(
+    parent: tk.Tk | tk.Toplevel,
+    title: str = "Error",
+    message: str = "Ocurrió un error inesperado"
+) -> None:
+    """Muestra un diálogo de error."""
+    show_confirmation_dialog(parent, title, message, bg="#dc3545", fg="white")
+
+
+def show_success_dialog(
+    parent: tk.Tk | tk.Toplevel,
+    title: str = "Éxito",
+    message: str = "Operación completada correctamente"
+) -> None:
+    """Muestra un diálogo de éxito."""
+    show_confirmation_dialog(parent, title, message)

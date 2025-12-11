@@ -1,54 +1,73 @@
-# Archivo: app_gui.py
-
 import tkinter as tk
 from tkinter import messagebox
 import tkinter.ttk as ttk
-from config import *
-from gui_styles import configure_styles 
-from session_manager import set_current_role 
+import os
+import sys
+from typing import Optional
+from dotenv import load_dotenv
 
-# ======================================================================
-# --- IMPORTACIÓN DE MÓDULOS DE INTERFAZ (Se asumen existentes) ---
-# ======================================================================
-# Nota: Debes asegurar que estos archivos existan y contengan las funciones.
-from formGui import create_step1, create_step2, create_step3, create_step4
-from moduloAdmin import create_admin_dashboard
-from moduloDirectivo import create_director_dashboard
-from moduloProfesor import create_teacher_dashboard, create_assignment_teacher, create_observer_teacher
-from moduloAcudiente import create_parent_dashboard
-from moduloCitacion import create_citation_generator
-from moduloGrupos import create_groups_manager
-from moduloLogros import create_achievements_manager
-from moduloEstudiantes import create_student_manager
-from moduloEvaluaciones import create_evaluations_manager
-from moduloCursosAsignados import create_assigned_courses
-from moduloBoletines import create_report_generator
+load_dotenv()
+
+try:
+    from .config import *
+    from .gui_styles import configure_styles
+    from .session_manager import set_current_role, set_user_info
+    from .login_form import LoginForm
+    from .auth_service import AuthenticationService
+    from .formGui import create_step1, create_step2, create_step3, create_step4
+    from .moduloAdmin import create_admin_dashboard
+    from .moduloDirectivo import create_director_dashboard
+    from .moduloProfesor import create_teacher_dashboard, create_assignment_teacher, create_observer_teacher
+    from .moduloAcudiente import create_parent_dashboard, create_consult_parent
+    from .moduloCitacion import create_citation_generator
+    from .moduloGrupos import create_groups_manager
+    from .moduloLogros import create_achievements_manager
+    from .moduloEstudiantes import create_student_manager
+    from .moduloEvaluaciones import create_evaluations_manager
+    from .moduloCursosAsignados import create_assigned_courses
+    from .moduloBoletines import create_report_generator
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from config import *
+    from gui_styles import configure_styles
+    from session_manager import set_current_role, set_user_info
+    from login_form import LoginForm
+    from auth_service import AuthenticationService
+    from formGui import create_step1, create_step2, create_step3, create_step4
+    from moduloAdmin import create_admin_dashboard
+    from moduloDirectivo import create_director_dashboard
+    from moduloProfesor import create_teacher_dashboard, create_assignment_teacher, create_observer_teacher
+    from moduloAcudiente import create_parent_dashboard, create_consult_parent
+    from moduloCitacion import create_citation_generator
+    from moduloGrupos import create_groups_manager
+    from moduloLogros import create_achievements_manager
+    from moduloEstudiantes import create_student_manager
+    from moduloEvaluaciones import create_evaluations_manager
+    from moduloCursosAsignados import create_assigned_courses
+    from moduloBoletines import create_report_generator
 
 
-# --- Variables Globales de Estado ---
 root = None
 frames = {}
 step_index = -1
-step_canvases = {} 
+step_canvases = {}
+login_form: Optional[LoginForm] = None
+auth_service: AuthenticationService = AuthenticationService()
 
-# --- Credenciales Predeterminadas ---
-USER_CREDENTIALS = {
-    "admin": {"password": "admin123", "role": "admin"},
-    "directivo": {"password": "dir123", "role": "director"},
-    "profesor": {"password": "prof123", "role": "teacher"},
-    "acudiente": {"password": "acu123", "role": "parent"},
-}
+# Cargar usuarios de prueba desde .env (solo desarrollo)
+IS_DEVELOPMENT = os.getenv("ENVIRONMENT", "development").lower() == "development"
 
-# --- Referencias a los campos de entrada de Login ---
-user_entry_ref = None
-pass_entry_ref = None
+TEST_USERS_DISPLAY = []
+if IS_DEVELOPMENT:
+    TEST_USERS_DISPLAY = [
+        (f"{os.getenv('TEST_ADMIN_EMAIL', 'admin@colegio.edu')} / {os.getenv('TEST_ADMIN_PASSWORD', 'admin123')}", "Administrador"),
+        (f"{os.getenv('TEST_DIRECTOR_EMAIL', 'director@colegio.edu')} / {os.getenv('TEST_DIRECTOR_PASSWORD', 'dir123')}", "Director"),
+        (f"{os.getenv('TEST_TEACHER_EMAIL', 'profesor@colegio.edu')} / {os.getenv('TEST_TEACHER_PASSWORD', 'prof123')}", "Profesor"),
+        (f"{os.getenv('TEST_PARENT_EMAIL', 'padre@colegio.edu')} / {os.getenv('TEST_PARENT_PASSWORD', 'papa123')}", "Acudiente")
+    ]
 
-# ======================================================================
-# --- Funciones de Utilidad ---
-# ======================================================================
 
 def setup_placeholder(entry, placeholder, is_password=False):
-    """Configura el comportamiento de placeholder para un widget Entry."""
     entry.placeholder = placeholder
     entry.is_password = is_password
     
@@ -65,114 +84,207 @@ def setup_placeholder(entry, placeholder, is_password=False):
             entry.config(fg=COLOR_TEXT_PLACEHOLDER)
             if entry.is_password:
                 entry.config(show="")
-
+    
     on_focus_out(None)
     entry.bind("<FocusIn>", on_focus_in)
     entry.bind("<FocusOut>", on_focus_out)
 
+
 def show_frame(name):
-    """Muestra un frame y actualiza el índice global. Asegura scroll al inicio."""
     global step_index
+    
     frame = frames.get(name)
     if frame:
         for other_frame in frames.values():
             other_frame.grid_remove()
-        frame.grid(row=0, column=0, sticky="nsew") # Asegura que se muestre correctamente
+        
+        frame.grid(row=0, column=0, sticky="nsew")
         
         if name == "login":
             step_index = -1
         elif name.startswith("step"):
             new_index = int(name.replace("step", "")) - 1
             step_index = new_index
-            
             if name in step_canvases:
                 canvas = step_canvases[name]['canvas']
                 root.update_idletasks()
                 canvas.config(scrollregion=canvas.bbox("all"))
                 canvas.yview_moveto(0)
 
+
 def start_preinscription():
-    """Inicia el formulario en el Paso 1."""
     show_frame("step1")
 
+
 def next_step():
-    """Avanza al siguiente paso del formulario."""
     global step_index
-    if step_index < 3: 
+    if step_index < 3:
         show_frame(f"step{step_index + 2}")
 
+
 def prev_step():
-    """Regresa al paso anterior del formulario o al login (si estamos en el paso 1)."""
     global step_index
     if step_index > 0:
         show_frame(f"step{step_index}")
     elif step_index == 0:
         show_frame("login")
 
-# ======================================================================
-# --- LÓGICA DE LOGIN (CORREGIDA) ---
-# ======================================================================
 
 def login_to_dashboard():
-    """Verifica credenciales, establece el rol y navega al panel correspondiente."""
-    global user_entry_ref, pass_entry_ref
+    """
+    Controlador del evento de login.
+    Valida credenciales usando AuthenticationService y SessionManager,
+    luego navega al dashboard correspondiente según el rol del usuario.
+    """
+    global login_form
     
-    if user_entry_ref is None or pass_entry_ref is None:
-        messagebox.showerror("Error", "La interfaz no se ha inicializado correctamente.")
+    if login_form is None:
+        messagebox.showerror("Error", "La interfaz de login no se ha inicializado correctamente.")
         return
-
-    user = user_entry_ref.get().lower()
-    password = pass_entry_ref.get()
-
-    if user == user_entry_ref.placeholder.lower() or password == pass_entry_ref.placeholder:
+    
+    # Verificar que los campos no estén vacíos
+    if login_form.is_empty():
         messagebox.showerror("Error de Login", "Por favor, ingrese usuario y contraseña.")
         return
     
-    if user in USER_CREDENTIALS and USER_CREDENTIALS[user]["password"] == password:
-        role = USER_CREDENTIALS[user]["role"]
+    # Obtener credenciales del formulario
+    user_email, password = login_form.get_credentials()
+    
+    # Validar formato de credenciales
+    is_valid, error_msg = auth_service.validate_credentials(user_email, password)
+    if not is_valid:
+        messagebox.showerror("Error de validación", error_msg)
+        return
+    
+    try:
+        # Autenticar contra la BD
+        usuario = auth_service.authenticate(user_email, password)
         
-        # 🛑 1. Establecer el rol en el gestor de sesión
-        set_current_role(role) 
+        if usuario is None:
+            messagebox.showerror("Error de Login", "Credenciales incorrectas.")
+            return
         
-        # Mapeo de roles a frames
+        role = getattr(usuario, 'rol', None)
+        if role is None:
+            messagebox.showerror("Error de Rol", "El usuario no tiene un rol asignado.")
+            return
+        
+        role_name = role.nombre_rol.lower() if hasattr(role, 'nombre_rol') else str(role).lower()
+        
+        # Guardar info en sesión
+        set_user_info(
+            user_id=usuario.id_usuario,
+            name=f"{usuario.primer_nombre} {usuario.primer_apellido}",
+            email=usuario.correo_electronico,
+            role=role_name,
+            department=None
+        )
+        
+        # Mapear rol a frame
         role_map = {
-            "admin": "dashboard",
+            "administrador": "dashboard",
             "director": "director_dashboard",
-            "teacher": "teacher_dashboard",
-            "parent": "parent_dashboard",
+            "profesor": "teacher_dashboard",
+            "acudiente": "parent_dashboard",
         }
         
-        target_frame = role_map.get(role)
+        target_frame = role_map.get(role_name)
         if target_frame:
             show_frame(target_frame)
-            
-            # Limpiar campos y restaurar placeholders
-            user_entry_ref.delete(0, tk.END)
-            pass_entry_ref.delete(0, tk.END)
-            user_entry_ref.insert(0, user_entry_ref.placeholder)
-            pass_entry_ref.insert(0, pass_entry_ref.placeholder)
-            user_entry_ref.config(fg=COLOR_TEXT_PLACEHOLDER)
-            pass_entry_ref.config(fg=COLOR_TEXT_PLACEHOLDER, show="")
-            
+            login_form.clear()
+            messagebox.showinfo("Éxito", f"Bienvenido, {usuario.primer_nombre}!")
         else:
-            messagebox.showerror("Error de Rol", "Rol de usuario no reconocido.")
-            
-    else:
-        messagebox.showerror("Error de Login", "Credenciales incorrectas.")
+            messagebox.showerror("Error de Rol", f"Rol '{role_name}' no tiene dashboard asignado.")
+    
+    except Exception as e:
+        messagebox.showerror("Error", f"Ocurrió un error durante el login: {str(e)}")
+        print(f"Error en login_to_dashboard: {str(e)}")
+        import traceback
+        traceback.print_exc()
 
 
-# ======================================================================
-# --- Funciones de Creación de Vistas (Login/Preinscripción) ---
-# ======================================================================
+def create_pre_column(parent):
+    column = tk.Frame(parent, bg=COLOR_ACCENT_DARK)
+    
+    tk.Label(column, text="Pre-inscripción", bg=COLOR_ACCENT_DARK, fg="#ffffff", font=FONT_H1).pack(fill="x", side="top", ipady=30)
+    tk.Label(column, text="Nuevo estudiante", bg=COLOR_ACCENT_DARK, fg="#ffffff", font=FONT_P).pack(fill="x", side="top", pady=(0, 30))
+    
+    pre_main_container = tk.Frame(column, bg=COLOR_ACCENT_DARK)
+    pre_main_container.pack(expand=True, fill="both", padx=40, pady=40)
+    
+    tk.Label(pre_main_container, text="¿Eres nuevo en nuestra institución?", bg=COLOR_ACCENT_DARK, fg="#ffffff", font=FONT_H2).pack(anchor="w", pady=(0, 20))
+    
+    tk.Label(pre_main_container, text="Completa el formulario de pre-inscripción para registrar a tu hijo(a) en nuestro colegio.", bg=COLOR_ACCENT_DARK, fg="#e0e0e0", font=FONT_P, wraplength=350, justify="left").pack(anchor="w", pady=(0, 40))
+    
+    ttk.Button(pre_main_container, text="Iniciar Pre-inscripción", style="Pre.TButton", command=start_preinscription).pack(fill="x", ipady=10)
+    
+    tk.Label(pre_main_container, text="", bg=COLOR_ACCENT_DARK).pack(pady=20)
+    
+    tk.Label(pre_main_container, text="Requisitos:", bg=COLOR_ACCENT_DARK, fg="#ffffff", font=FONT_H3).pack(anchor="w", pady=(0, 10))
+    
+    requisitos = [
+        "✓ Documento de identidad del estudiante",
+        "✓ Información de los acudientes",
+        "✓ Historial académico anterior",
+        "✓ Certificado de nacimiento"
+    ]
+    
+    for req in requisitos:
+        tk.Label(pre_main_container, text=req, bg=COLOR_ACCENT_DARK, fg="#e0e0e0", font=FONT_P).pack(anchor="w", pady=5)
+    
+    return column
+
+
+def create_login_column(parent, login_command):
+    global login_form
+    
+    column = tk.Frame(parent, bg=COLOR_BG_LOGIN)
+    tk.Label(column, text="Sistema de Gestión Académica", bg=COLOR_DARK_BG, fg=COLOR_HEADER_PRE, font=FONT_H1).pack(fill="x", side="top", ipady=30)
+    tk.Label(column, text="Colegio Pequeño - Educación Inicial", bg=COLOR_DARK_BG, fg=COLOR_HEADER_PRE, font=FONT_P).pack(fill="x", side="top", pady=(0, 30))
+    
+    login_main_container = tk.Frame(column, bg=COLOR_BG_LOGIN)
+    login_main_container.pack(expand=True, fill="both")
+
+    login_main = tk.Frame(login_main_container, bg=COLOR_BG_LOGIN, width=350, height=450)
+    login_main.place(relx=0.5, rely=0.5, anchor="center")
+    login_main.pack_propagate(False)
+    
+    tk.Label(login_main, text="Autenticación de Usuario", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_DARK, font=FONT_H2).pack(anchor="w", pady=(0, 20))
+    
+    # Crear instancia de LoginForm
+    login_form = LoginForm(login_main, {})
+    login_form.create_widgets(
+        parent_frame=login_main,
+        font=FONT_P,
+        bg_color=COLOR_BG_LOGIN,
+        placeholder_color=COLOR_TEXT_PLACEHOLDER,
+        text_color=COLOR_TEXT_DARK
+    )
+    
+    ttk.Button(login_main, text="Acceder", style="Admin.TButton", command=login_command).pack(fill="x", ipady=8)
+    
+    tk.Label(login_main, text="Usuarios de prueba:", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_MUTED, font=FONT_SMALL).pack(anchor="w", pady=(20, 10))
+    
+    test_users = [
+        ("admin@colegio.edu / admin123", "Administrador"),
+        ("director@colegio.edu / dir123", "Director"),
+        ("profesor@colegio.edu / prof123", "Profesor"),
+        ("padre@colegio.edu / papa123", "Acudiente")
+    ]
+    
+    for user_pass, role in test_users:
+        tk.Label(login_main, text=f"• {user_pass} ({role})", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_MUTED, font=FONT_SMALL).pack(anchor="w")
+    
+    return column
+
 
 def create_login_screen(parent_frame):
-    """Crea la pantalla de Login/Preinscripción."""
     login_layout = tk.Frame(parent_frame)
     login_layout.grid_columnconfigure(0, weight=1)
     login_layout.grid_columnconfigure(1, weight=1)
     login_layout.grid_rowconfigure(0, weight=1)
     
-    login_column = create_login_column(login_layout, login_to_dashboard) 
+    login_column = create_login_column(login_layout, login_to_dashboard)
     login_column.grid(row=0, column=0, sticky="nsew")
     
     pre_column = create_pre_column(login_layout)
@@ -180,160 +292,142 @@ def create_login_screen(parent_frame):
 
     return login_layout
 
-def create_login_column(parent, login_command):
-    """Columna de autenticación."""
-    global user_entry_ref, pass_entry_ref 
+def create_step_screen(parent_frame, step_num, creation_func):
+    step_frame = tk.Frame(parent_frame, bg="#f5f7fa")
     
-    column = tk.Frame(parent, bg=COLOR_BG_LOGIN)
-    tk.Label(column, text="Sistema de Gestión Académica", bg=COLOR_DARK_BG, fg=COLOR_TEXT_LIGHT, font=FONT_H1).pack(fill="x", side="top", ipady=30)
-    tk.Label(column, text="Colegio Pequeño - Educación Inicial", bg=COLOR_DARK_BG, fg=COLOR_HEADER_PRE, font=FONT_P).pack(fill="x", side="top", pady=(0, 30))
+    canvas = tk.Canvas(step_frame, bg="#f5f7fa", highlightthickness=0)
+    scrollbar = ttk.Scrollbar(step_frame, orient="vertical", command=canvas.yview)
+    scrollable_frame = tk.Frame(canvas, bg="#f5f7fa")
     
-    login_main_container = tk.Frame(column, bg=COLOR_BG_LOGIN)
-    login_main_container.pack(expand=True, fill="both")
+    scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+    
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
+    
+    step_canvases[f"step{step_num}"] = {'canvas': canvas, 'frame': scrollable_frame}
+    
+    nav_commands = create_nav_commands()
+    content = creation_func(scrollable_frame, nav_commands)
+    
+    return step_frame
 
-    login_main = tk.Frame(login_main_container, bg=COLOR_BG_LOGIN, width=350, height=450)
-    login_main.place(relx=0.5, rely=0.5, anchor="center") 
-    login_main.pack_propagate(False) 
-    
-    # --- INFO DE USUARIOS PARA PRUEBA ---
-    # info_frame = tk.Frame(login_main, bg="#f0f0f0", padx=10, pady=5)
-    # info_frame.pack(fill="x", pady=(0, 20))
-    # info_text = "Usuarios para prueba:\n"
-    # for user, data in USER_CREDENTIALS.items():
-    #     info_text += f"• {user}: {data['password']} ({data['role'].capitalize()})\n"
-    
-    # tk.Label(info_frame, text=info_text, bg="#f0f0f0", fg=COLOR_TEXT_DARK, font=FONT_P, justify="left", anchor="w").pack(fill="x")
-    
-    tk.Label(login_main, text="Autenticación de Usuario", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_DARK, font=FONT_H2).pack(anchor="w", pady=(0, 20))
-    
-    tk.Label(login_main, text="Usuario:", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_DARK, font=FONT_P_BOLD).pack(anchor="w", pady=(5, 5))
-    user_entry_ref = tk.Entry(login_main, font=FONT_P, bg="#f9f9f9", relief="solid", borderwidth=1, width=40)
-    user_entry_ref.pack(ipady=8, fill=tk.X)
-    setup_placeholder(user_entry_ref, "Ingrese su usuario")
-    
-    tk.Label(login_main, text="Contraseña:", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_DARK, font=FONT_P_BOLD).pack(anchor="w", pady=(15, 5))
-    pass_entry_ref = tk.Entry(login_main, font=FONT_P, bg="#f9f9f9", relief="solid", borderwidth=1, width=40)
-    pass_entry_ref.pack(ipady=8, fill=tk.X)
-    setup_placeholder(pass_entry_ref, "Ingrese su contraseña", is_password=True)
-    
-    ttk.Button(login_main, text="→ Ingresar al Sistema", style="Login.TButton", command=login_command).pack(fill=tk.X, pady=25) 
-    
-    tk.Label(login_main, text="El sistema detectará automáticamente su rol según sus credenciales", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_MUTED, font=FONT_SMALL).pack()
-    return column
 
-def create_pre_column(parent):
-    """Columna de Preinscripción."""
-    column = tk.Frame(parent, bg=COLOR_BG_PRE)
-    tk.Label(column, text="Preinscripción", bg=COLOR_HEADER_PRE, fg=COLOR_TEXT_PRE, font=FONT_H1).pack(fill="x", side="top", ipady=30)
-    tk.Label(column, text="¿Nuevo en el Colegio? Regístrate aquí", bg=COLOR_HEADER_PRE, fg=COLOR_TEXT_LIGHT, font=FONT_P_BOLD).pack(fill="x", side="top", pady=(0, 30))
-    
-    pre_main_container = tk.Frame(column, bg=COLOR_BG_PRE)
-    pre_main_container.pack(expand=True, fill="both")
-    
-    process_box = tk.Frame(pre_main_container, bg=COLOR_BG_LOGIN, padx=30, pady=30)
-    process_box.config(highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
-    process_box.place(relx=0.5, rely=0.5, anchor="center")
-    
-    tk.Label(process_box, text="Proceso de Preinscripción", bg=COLOR_BG_LOGIN, fg=COLOR_HEADER_PRE, font=FONT_H2).pack(pady=(0, 20))
-    
-    def add_step(num, text):
-        step_frame = tk.Frame(process_box, bg=COLOR_BG_LOGIN)
-        step_frame.pack(fill="x", pady=5)
-        tk.Label(step_frame, text=str(num), bg=COLOR_HEADER_PRE, fg=COLOR_TEXT_LIGHT, font=FONT_P_BOLD, width=2, height=1).pack(side="left", padx=(0, 10))
-        tk.Label(step_frame, text=text, bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_DARK, font=FONT_P).pack(side="left", anchor="w")
 
-    add_step(1, "Completar formulario en línea")
-    add_step(2, "Recibir confirmación inmediata")
-    add_step(3, "Agendar cita para documentación")
-    add_step(4, "Conocer nuestras instalaciones")
-
-    ttk.Button(process_box, text="→ Iniciar Preinscripción", 
-               style="Pre.TButton", width=30,
-               command=start_preinscription).pack(pady=30)
-    return column
-    
-# ======================================================================
-# --- Inicializador Principal ---
-# ======================================================================
-
-def initialize_app():
-    """Función de inicio que configura el entorno global y registra las vistas."""
-    global root, frames, step_canvases
-    
-    root = tk.Tk()
-    root.title("Sistema de Gestión Académica")
-    root.geometry("900x700")
-    root.resizable(False, False)
-    
-    configure_styles(root)
-    
-    root_content_frame = tk.Frame(root, bg=COLOR_BG_LOGIN)
-    root_content_frame.pack(fill="both", expand=True)
-    root_content_frame.grid_rowconfigure(0, weight=1)
-    root_content_frame.grid_columnconfigure(0, weight=1)
-    
-    # 1. Creación de Login
-    frames["login"] = create_login_screen(root_content_frame)
-
-    # Inyección de comandos de navegación
+def create_nav_commands():
     nav_commands = {
-        'next': next_step,
-        'prev': prev_step,
-        'home': lambda: show_frame("login"), 
-        'dashboard_home': lambda: show_frame("dashboard"), 
-        'director_home': lambda: show_frame("director_dashboard"), 
-        'teacher_home': lambda: show_frame("teacher_dashboard"), 
-        'parent_home': lambda: show_frame("parent_dashboard"), 
-        'show_frame': show_frame  
+        'home': lambda: show_frame("login"),
+        'dashboard_home': lambda: show_frame("dashboard"),
+        'director_home': lambda: show_frame("director_dashboard"),
+        'teacher_home': lambda: show_frame("teacher_dashboard"),
+        'parent_home': lambda: show_frame("parent_dashboard"),
+        'show_frame': show_frame,
+        'next': lambda: next_step(),
+        'prev': lambda: prev_step(),
+        'submit': lambda: submit_form(),
     }
+    return nav_commands
 
-    # 2. Frames de Preinscripción
-    step_data = [
-        ("step1", create_step1),
-        ("step2", create_step2),
-        ("step3", create_step3),
-        ("step4", create_step4)
-    ]
 
-    for name, creator_func in step_data:
-        try:
-            frame, _, canvas, content_frame = creator_func(root_content_frame, nav_commands)
-            frames[name] = frame
-            step_canvases[name] = {'canvas': canvas, 'content_frame': content_frame}
-        except Exception:
-            # En un entorno real, manejarías la excepción. Aquí se omite por brevedad.
-            pass
-        
-    # 3. Frames de Dashboard y Módulos por Rol
-    frames["dashboard"] = create_admin_dashboard(root_content_frame, nav_commands)
-    frames["director_dashboard"] = create_director_dashboard(root_content_frame, nav_commands)
-    frames["teacher_dashboard"] = create_teacher_dashboard(root_content_frame, nav_commands)
-    frames["parent_dashboard"] = create_parent_dashboard(root_content_frame, nav_commands)
-    
-    # Módulos compartidos
-    frames["groups_manager"] = create_groups_manager(root_content_frame, nav_commands)
-    frames["citation_generator"] = create_citation_generator(root_content_frame, nav_commands)
-    frames["achievements_manager"] = create_achievements_manager(root_content_frame, nav_commands)
-    
-    # Módulos específicos del profesor
-    frames["assigned_courses"] = create_assigned_courses(root_content_frame, nav_commands)
-    frames["evaluations_manager"] = create_evaluations_manager(root_content_frame, nav_commands)
-    frames["generate_reports"] = create_report_generator(root_content_frame, nav_commands)
-    frames["student_observer"] = create_observer_teacher(root_content_frame, nav_commands)
-    frames["assignment_teacher"] = create_assignment_teacher(root_content_frame, nav_commands)
-    
-    # Módulos específicos del directivo
-    frames["student_manager"] = create_student_manager(root_content_frame, nav_commands)
-    
-    # Asegura que todos los frames estén registrados en la cuadrícula pero ocultos
-    for frame in frames.values():
-        frame.grid(row=0, column=0, sticky="nsew")
-        frame.grid_remove() 
+def next_step():
+    global step_index
+    if step_index < 4:
+        step_index += 1
+        show_frame(f"step{step_index}")
 
-    # Iniciar la aplicación en la pantalla de Login
+def prev_step():
+    global step_index
+    if step_index > 1:
+        step_index -= 1
+        show_frame(f"step{step_index}")
+
+def submit_form():
+    # Lógica para enviar el formulario
+    messagebox.showinfo("Éxito", "Formulario enviado correctamente")
+
+
+def initialize_app(root_window):
+    global root, frames
+    
+    root = root_window
+    root.title("Sistema de Gestión Académica")
+    root.geometry("1400x800")
+    root.grid_columnconfigure(0, weight=1)
+    root.grid_rowconfigure(0, weight=1)
+    
+    configure_styles(root_window)
+
+    
+    main_frame = tk.Frame(root)
+    main_frame.grid(row=0, column=0, sticky="nsew")
+    main_frame.grid_columnconfigure(0, weight=1)
+    main_frame.grid_rowconfigure(0, weight=1)
+    
+    nav_commands = create_nav_commands()
+    
+    frames["login"] = create_login_screen(main_frame)
+    frames["login"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["step1"] = create_step_screen(main_frame, 1, create_step1)
+    frames["step1"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["step2"] = create_step_screen(main_frame, 2, create_step2)
+    frames["step2"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["step3"] = create_step_screen(main_frame, 3, create_step3)
+    frames["step3"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["step4"] = create_step_screen(main_frame, 4, create_step4)
+    frames["step4"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["dashboard"] = create_admin_dashboard(main_frame, nav_commands)
+    frames["dashboard"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["director_dashboard"] = create_director_dashboard(main_frame, nav_commands)
+    frames["director_dashboard"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["teacher_dashboard"] = create_teacher_dashboard(main_frame, nav_commands)
+    frames["teacher_dashboard"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["assignment_teacher"] = create_assignment_teacher(main_frame, nav_commands)
+    frames["assignment_teacher"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["observer_teacher"] = create_observer_teacher(main_frame, nav_commands)
+    frames["observer_teacher"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["parent_dashboard"] = create_parent_dashboard(main_frame, nav_commands)
+    frames["parent_dashboard"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["consult_parent"] = create_consult_parent(main_frame, nav_commands)
+    frames["consult_parent"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["citation_generator"] = create_citation_generator(main_frame, nav_commands)
+    frames["citation_generator"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["groups_manager"] = create_groups_manager(main_frame, nav_commands)
+    frames["groups_manager"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["achievements_manager"] = create_achievements_manager(main_frame, nav_commands)
+    frames["achievements_manager"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["student_manager"] = create_student_manager(main_frame, nav_commands)
+    frames["student_manager"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["evaluations_manager"] = create_evaluations_manager(main_frame, nav_commands)
+    frames["evaluations_manager"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["assigned_courses"] = create_assigned_courses(main_frame, nav_commands)
+    frames["assigned_courses"].grid(row=0, column=0, sticky="nsew")
+    
+    frames["report_generator"] = create_report_generator(main_frame, nav_commands)
+    frames["report_generator"].grid(row=0, column=0, sticky="nsew")
+    
     show_frame("login")
-    
-    root.mainloop()
 
-if __name__ == '__main__':
-    initialize_app()
+
+if __name__ == "__main__":
+    root_window = tk.Tk()
+    initialize_app(root_window)
+    root_window.mainloop()

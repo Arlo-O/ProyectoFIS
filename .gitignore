@@ -1,0 +1,74 @@
+# Python
+*.py[cod]
+*$py.class
+__pycache__/
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+app.db
+
+# Logs y outputs
+*.log
+output.txt
+output_use_cases.txt
+test_result.txt
+postgres_debug.txt
+debug_*.txt
+
+# OS específicos
+.DS_Store
+Thumbs.db
+*.bak
+
+# Reportes generados
+reportes/*.pdf
+reportes/*.txt
+
+# Configuración local
+.env
+.env.local
+config.local.py
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Pytest
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Archivos temporales de GUI
+app/vista/__pycache__/
+app/vista/*.pyc
+
+# Archivos de brain/artifacts (si los hay)
+.gemini/
