@@ -1,13 +1,17 @@
+from typing import Dict, Optional
+
+
 class PlantillaNotificacion:
-    def __init__(self, idPlantilla: int = None, nombre: str = None, asunto: str = None, cuerpo: str = None):
-        self.__idPlantilla: int = idPlantilla
-        self.__nombre: str = nombre
-        self.__asunto: str = asunto
-        self.__cuerpo: str = cuerpo
+    def __init__(self, id_plantilla: Optional[int] = None, nombre: str = "", 
+                 asunto: str = "", cuerpo: str = ""):
+        self.__id_plantilla = id_plantilla
+        self.__nombre = nombre
+        self.__asunto = asunto
+        self.__cuerpo = cuerpo
 
     @property
-    def idPlantilla(self) -> int:
-        return self.__idPlantilla
+    def id_plantilla(self) -> Optional[int]:
+        return self.__id_plantilla
 
     @property
     def nombre(self) -> str:
@@ -21,8 +25,9 @@ class PlantillaNotificacion:
     def cuerpo(self) -> str:
         return self.__cuerpo
 
-    def render(self, context: dict) -> str:
+    def render(self, context: Optional[Dict[str, any]] = None) -> str:
         body = self.__cuerpo or ""
-        for k, v in (context or {}).items():
-            body = body.replace("{{%s}}" % k, str(v))
+        context = context or {}
+        for key, value in context.items():
+            body = body.replace(f"{{{{{key}}}}}", str(value))
         return body

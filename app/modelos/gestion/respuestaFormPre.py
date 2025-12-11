@@ -1,28 +1,30 @@
 from datetime import datetime
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, Optional, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from ..usuarios.aspirante import Aspirante
 
+
 class RespuestaFormPre:
-    def __init__(self, idRespuesta: int, aspirante: 'Aspirante', fechaRespuesta: datetime, 
-                 respuestas: Dict[str, str]):
-        self.__idRespuesta: int = idRespuesta
-        self.__aspirante: 'Aspirante' = aspirante
-        self.__fechaRespuesta: datetime = fechaRespuesta
-        self.__respuestas: Dict[str, str] = respuestas
+    def __init__(self, id_respuesta: int, id_aspirante: Optional[int], 
+                 fecha_respuesta: datetime, respuestas: Dict[str, str]):
+        self.__id_respuesta = id_respuesta
+        self.__id_aspirante = id_aspirante
+        self.__fecha_respuesta = fecha_respuesta
+        self.__respuestas = respuestas
 
     @property
-    def idRespuesta(self) -> int:
-        return self.__idRespuesta
+    def id_respuesta(self) -> int:
+        return self.__id_respuesta
 
     @property
-    def aspirante(self) -> 'Aspirante':
-        return self.__aspirante
+    def id_aspirante(self) -> Optional[int]:
+        return self.__id_aspirante
 
     @property
-    def fechaRespuesta(self) -> datetime:
-        return self.__fechaRespuesta
+    def fecha_respuesta(self) -> datetime:
+        return self.__fecha_respuesta
 
     @property
     def respuestas(self) -> Dict[str, str]:

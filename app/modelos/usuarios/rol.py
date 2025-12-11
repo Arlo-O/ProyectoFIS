@@ -1,47 +1,35 @@
-from .permiso import Permiso
 from typing import List
 
+from app.modelos.usuarios.permiso import Permiso
+
+
 class Rol:
-    def __init__(self, idRol: int, nombreRol: str, descripcionRol: str):
-        self.__idRol = idRol
-        self.__nombreRol = nombreRol
-        self.__descripcionRol = descripcionRol
-        self.__permisos: List[Permiso] = []
+    def __init__(self, id_rol: int, nombre_rol: str, descripcion_rol: str = ""):
+        self.__id_rol = id_rol
+        self.__nombre_rol = nombre_rol
+        self.__descripcion_rol = descripcion_rol
+        self.__permisos: List['Permiso'] = []
 
     @property
-    def idRol(self) -> int:
-        return self.__idRol
+    def id_rol(self) -> int:
+        return self.__id_rol
 
     @property
-    def nombreRol(self) -> str:
-        return self.__nombreRol
+    def nombre_rol(self) -> str:
+        return self.__nombre_rol
+
+    @nombre_rol.setter
+    def nombre_rol(self, value: str) -> None:
+        self.__nombre_rol = value
 
     @property
-    def descripcionRol(self) -> str:
-        return self.__descripcionRol
+    def descripcion_rol(self) -> str:
+        return self.__descripcion_rol
+
+    @descripcion_rol.setter
+    def descripcion_rol(self, value: str) -> None:
+        self.__descripcion_rol = value
 
     @property
-    def permisos(self) -> List[Permiso]:
+    def permisos(self) -> List['Permiso']:
         return self.__permisos.copy()
-
-    @nombreRol.setter
-    def nombreRol(self, nuevoNombre: str) -> None:
-        self.__nombreRol = nuevoNombre
-
-    @descripcionRol.setter
-    def descripcionRol(self, nuevaDescripcion: str) -> None:
-        self.__descripcionRol = nuevaDescripcion
-
-    def agregarPermiso(self, permiso: Permiso) -> None:
-        if permiso not in self.__permisos:
-            self.__permisos.append(permiso)
-
-    def eliminarPermiso(self, permiso: Permiso) -> None:
-        try:
-            self.__permisos.remove(permiso)
-        except ValueError:
-            print(f"ERROR: Permiso '{permiso.nombre}' no encontrado.")
-
-    def __str__(self):
-        num_permisos = len(self.__permisos)
-        return f"Rol(ID: {self.__idRol}, Nombre: {self.__nombreRol}, Permisos: {num_permisos})"

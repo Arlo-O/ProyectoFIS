@@ -1,40 +1,39 @@
 from datetime import datetime
 from typing import List, Optional, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from ..usuarios.profesor import Profesor
-    from .citacion import Citacion
     from ..usuarios.directivo import Directivo
     from ..usuarios.aspirante import Aspirante
+    from .citacion import Citacion
+
 
 class Entrevista:
-    def __init__(self, idEntrevista: int, notas: str, entrevistador: 'Profesor', 
-                 fechaProgramada: datetime, lugar: str, estado: str, remitente: 'Directivo'):
-        self.__idEntrevista: int = idEntrevista
-        self.__notas: str = notas
-        self.__entrevistador: 'Profesor' = entrevistador
-        self.__fechaProgramada: datetime = fechaProgramada
-        self.__lugar: str = lugar
-        self.__estado: str = estado
-        self.__citacion: List['Citacion'] = []
-        self.__remitente: 'Directivo' = remitente
-        self.__aspirante: Optional['Aspirante'] = None
+    def __init__(self, id_entrevista: int, notas: str, fecha_programada: datetime, 
+                 lugar: str, estado: str, id_entrevistador: Optional[int] = None,
+                 id_remitente: Optional[int] = None, id_aspirante: Optional[int] = None):
+        self.__id_entrevista = id_entrevista
+        self.__notas = notas
+        self.__fecha_programada = fecha_programada
+        self.__lugar = lugar
+        self.__estado = estado
+        self.__id_entrevistador = id_entrevistador
+        self.__id_remitente = id_remitente
+        self.__id_aspirante = id_aspirante
+        self.__citaciones: List['Citacion'] = []
 
     @property
-    def idEntrevista(self) -> int:
-        return self.__idEntrevista
+    def id_entrevista(self) -> int:
+        return self.__id_entrevista
 
     @property
     def notas(self) -> str:
         return self.__notas
 
     @property
-    def entrevistador(self) -> 'Profesor':
-        return self.__entrevistador
-
-    @property
-    def fechaProgramada(self) -> datetime:
-        return self.__fechaProgramada
+    def fecha_programada(self) -> datetime:
+        return self.__fecha_programada
 
     @property
     def lugar(self) -> str:
@@ -45,22 +44,17 @@ class Entrevista:
         return self.__estado
 
     @property
-    def remitente(self) -> 'Directivo':
-        return self.__remitente
+    def id_entrevistador(self) -> Optional[int]:
+        return self.__id_entrevistador
 
     @property
-    def citacion(self) -> List['Citacion']:
-        return self.__citacion.copy()
+    def id_remitente(self) -> Optional[int]:
+        return self.__id_remitente
 
     @property
-    def aspirante(self) -> Optional['Aspirante']:
-        return self.__aspirante
+    def id_aspirante(self) -> Optional[int]:
+        return self.__id_aspirante
 
-    @aspirante.setter
-    def aspirante(self, aspirante: 'Aspirante') -> None:
-        self.__aspirante = aspirante
-
-    def agregarCitacion(self, citacion: 'Citacion') -> None:
-        if citacion not in self.__citacion:
-            self.__citacion.append(citacion)
-
+    @property
+    def citaciones(self) -> List['Citacion']:
+        return self.__citaciones.copy()

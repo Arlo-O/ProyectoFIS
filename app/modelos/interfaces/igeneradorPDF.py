@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
+from typing import Dict, Optional
+
 
 class IGeneradorPDF(ABC):
     @abstractmethod
-    def generarPDF(self, fuente: str, destino: str, opciones: dict = None) -> bytes:
-        """Genera un PDF a partir de una fuente (plantilla, datos) y devuelve el contenido binario."""
+    def generar_pdf(self, fuente: str, opciones: Optional[Dict] = None) -> bytes:
         pass
 
     @abstractmethod
-    def exportar(self, contenido: bytes, ruta: str) -> None:
+    def guardar_pdf(self, contenido: bytes, ruta: str) -> None:
         pass

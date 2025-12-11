@@ -1,54 +1,66 @@
 from datetime import datetime
-from typing import List, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from .logro import Logro
     from ..usuarios.profesor import Profesor
     from ..academico.periodoAcademico import PeriodoAcademico
+    from ..usuarios.estudiante import Estudiante
+    from ..logros.boletin import Boletin
+
 
 class EvaluacionLogro:
-    def __init__(self, idEvaluacion: int, logro: 'Logro', profesor: 'Profesor', 
-                 periodo: 'PeriodoAcademico', puntuacion: str, fechaRegistro: datetime, 
-                 comentarios: List[str] = None):
-        self.__idEvaluacion: int = idEvaluacion
-        self.__logro: 'Logro' = logro
-        self.__profesor: 'Profesor' = profesor
-        self.__periodo: 'PeriodoAcademico' = periodo
-        self.__puntuacion: str = puntuacion
-        self.__fechaRegistro: datetime = fechaRegistro
-        self.__comentarios: List[str] = comentarios or []
+    def __init__(self, id_evaluacion: int, id_logro: int, id_profesor: int, 
+                 id_periodo: int, puntuacion: str, fecha_registro: datetime,
+                 comentarios: dict = None, id_estudiante: Optional[int] = None,
+                 id_boletin: Optional[int] = None):
+        self.__id_evaluacion = id_evaluacion
+        self.__id_logro = id_logro
+        self.__id_profesor = id_profesor
+        self.__id_periodo = id_periodo
+        self.__puntuacion = puntuacion
+        self.__fecha_registro = fecha_registro
+        self.__comentarios = comentarios or {}
+        self.__id_estudiante = id_estudiante
+        self.__id_boletin = id_boletin
 
     @property
-    def idEvaluacion(self) -> int:
-        return self.__idEvaluacion
+    def id_evaluacion(self) -> int:
+        return self.__id_evaluacion
 
     @property
-    def logro(self) -> 'Logro':
-        return self.__logro
+    def id_logro(self) -> int:
+        return self.__id_logro
 
     @property
-    def profesor(self) -> 'Profesor':
-        return self.__profesor
+    def id_profesor(self) -> int:
+        return self.__id_profesor
 
     @property
-    def periodo(self) -> 'PeriodoAcademico':
-        return self.__periodo
+    def id_periodo(self) -> int:
+        return self.__id_periodo
 
     @property
     def puntuacion(self) -> str:
         return self.__puntuacion
 
-    @property
-    def fechaRegistro(self) -> datetime:
-        return self.__fechaRegistro
+    @puntuacion.setter
+    def puntuacion(self, value: str) -> None:
+        self.__puntuacion = value
 
     @property
-    def comentarios(self) -> List[str]:
+    def fecha_registro(self) -> datetime:
+        return self.__fecha_registro
+
+    @property
+    def comentarios(self) -> dict:
         return self.__comentarios.copy()
 
-    @puntuacion.setter
-    def puntuacion(self, nuevaPuntuacion: str) -> None:
-        self.__puntuacion = nuevaPuntuacion
+    @property
+    def id_estudiante(self) -> Optional[int]:
+        return self.__id_estudiante
 
-    def agregarComentario(self, comentario: str) -> None:
-        self.__comentarios.append(comentario)
+    @property
+    def id_boletin(self) -> Optional[int]:
+        return self.__id_boletin

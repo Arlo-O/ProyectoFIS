@@ -1,54 +1,60 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from ..usuarios.directivo import Directivo
+    from ..logros.categoriaLogro import CategoriaLogro
+
 
 class Logro:
-    def __init__(self, idLogro: int, titulo: str, descripcion: str, fechaCreacion: datetime, 
-                 creador: 'Directivo', estado: str):
-        self.__idLogro: int = idLogro
-        self.__titulo: str = titulo
-        self.__descripcion: str = descripcion
-        self.__fechaCreacion: datetime = fechaCreacion
-        self.__creador: 'Directivo' = creador
-        self.__estado: str = estado
+    def __init__(self, id_logro: int, titulo: str, descripcion: str, 
+                 fecha_creacion: datetime, estado: str, id_creador: Optional[int] = None,
+                 id_categoria: Optional[int] = None):
+        self.__id_logro = id_logro
+        self.__titulo = titulo
+        self.__descripcion = descripcion
+        self.__fecha_creacion = fecha_creacion
+        self.__estado = estado
+        self.__id_creador = id_creador
+        self.__id_categoria = id_categoria
 
     @property
-    def idLogro(self) -> int:
-        return self.__idLogro
+    def id_logro(self) -> int:
+        return self.__id_logro
 
     @property
     def titulo(self) -> str:
         return self.__titulo
 
+    @titulo.setter
+    def titulo(self, value: str) -> None:
+        self.__titulo = value
+
     @property
     def descripcion(self) -> str:
         return self.__descripcion
 
-    @property
-    def fechaCreacion(self) -> datetime:
-        return self.__fechaCreacion
+    @descripcion.setter
+    def descripcion(self, value: str) -> None:
+        self.__descripcion = value
 
     @property
-    def creador(self) -> 'Directivo':
-        return self.__creador
+    def fecha_creacion(self) -> datetime:
+        return self.__fecha_creacion
 
     @property
     def estado(self) -> str:
         return self.__estado
 
-    @titulo.setter
-    def titulo(self, nuevoTitulo: str) -> None:
-        self.__titulo = nuevoTitulo
-
-    @descripcion.setter
-    def descripcion(self, nuevaDescripcion: str) -> None:
-        self.__descripcion = nuevaDescripcion
-
     @estado.setter
-    def estado(self, nuevoEstado: str) -> None:
-        self.__estado = nuevoEstado
+    def estado(self, value: str) -> None:
+        self.__estado = value
 
-    def resumen(self) -> str:
-        return f"{self.__descripcion} ({self.__estado})"
+    @property
+    def id_creador(self) -> Optional[int]:
+        return self.__id_creador
+
+    @property
+    def id_categoria(self) -> Optional[int]:
+        return self.__id_categoria

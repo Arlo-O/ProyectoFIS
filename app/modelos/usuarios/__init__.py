@@ -1,6 +1,3 @@
-# Subpaquete de modelos de usuarios
-# Exporta todas las clases de usuarios para facilitar las importaciones
-
 from .persona import Persona
 from .usuario import Usuario
 from .estudiante import Estudiante
@@ -11,6 +8,7 @@ from .acudiente import Acudiente
 from .aspirante import Aspirante
 from .rol import Rol
 from .permiso import Permiso
+
 
 __all__ = [
     'Persona',

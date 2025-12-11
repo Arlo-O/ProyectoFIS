@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from contextlib import contextmanager
 from .db import SessionLocal
 from .repositories import (
     UsuarioRepository,
@@ -24,13 +25,35 @@ from .repositories import (
     RespuestaFormPreRepository
 )
 
-# Unidad de trabajo para gestionar transacciones y repositorios
+
 class UnitOfWork:
     def __init__(self):
         self.session_factory = SessionLocal
+        self.session: Session = None
+        self.usuarios = None
+        self.estudiantes = None
+        self.profesores = None
+        self.acudientes = None
+        self.aspirantes = None
+        self.directivos = None
+        self.administradores = None
+        self.grupos = None
+        self.grados = None
+        self.logros = None
+        self.categorias_logro = None
+        self.evaluaciones = None
+        self.periodos = None
+        self.boletines = None
+        self.citaciones = None
+        self.notificaciones = None
+        self.entrevistas = None
+        self.anotaciones = None
+        self.hojas_vida = None
+        self.observadores = None
+        self.respuestas_form = None
 
     def __enter__(self):
-        self.session: Session = self.session_factory()
+        self.session = self.session_factory()
         self.usuarios = UsuarioRepository(self.session)
         self.estudiantes = EstudianteRepository(self.session)
         self.profesores = ProfesorRepository(self.session)
@@ -68,3 +91,12 @@ class UnitOfWork:
 
     def rollback(self):
         self.session.rollback()
+
+
+@contextmanager
+def uow():
+    uow_instance = UnitOfWork()
+    try:
+        yield uow_instance
+    finally:
+        uow_instance.__exit__(None, None, None)

@@ -1,27 +1,28 @@
+from typing import Optional
+
+
 class Permiso:
-    def __init__(self, idPermiso: int, nombrePermiso: str, descripcion: str):
-        self.__idPermiso = idPermiso
-        self.__nombrePermiso = nombrePermiso
+    def __init__(self, id_permiso: int, nombre_permiso: str, descripcion: str = ""):
+        self.__id_permiso = id_permiso
+        self.__nombre_permiso = nombre_permiso
         self.__descripcion = descripcion
 
     @property
-    def idPermiso(self) -> int:
-        return self.__idPermiso
+    def id_permiso(self) -> int:
+        return self.__id_permiso
 
     @property
-    def nombrePermiso(self) -> str:
-        return self.__nombrePermiso
+    def nombre_permiso(self) -> str:
+        return self.__nombre_permiso
+
+    @nombre_permiso.setter
+    def nombre_permiso(self, value: str) -> None:
+        self.__nombre_permiso = value
 
     @property
     def descripcion(self) -> str:
         return self.__descripcion
-    
-    @nombrePermiso.setter
-    def nombrePermiso(self, nuevoNombre: str)-> None:
-        self.__nombrePermiso = nuevoNombre
 
-    def actualizarDescripcion(self, desc: str) -> None:
-        self.__descripcion = desc
-
-    def __str__(self):
-        return f"Permiso(ID: {self.__idPermiso}, Nombre: {self.__nombrePermiso})"
+    @descripcion.setter
+    def descripcion(self, value: str) -> None:
+        self.__descripcion = value

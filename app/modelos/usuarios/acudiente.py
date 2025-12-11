@@ -1,51 +1,40 @@
 from typing import List, TYPE_CHECKING
-from datetime import datetime
 from .usuario import Usuario
-from .rol import Rol
+
 
 if TYPE_CHECKING:
     from .persona import Persona
+    from .estudiante import Estudiante
+
 
 class Acudiente(Usuario):
-    def __init__(self, primerNombre: str, segundoNombre: str, primerApellido: str, segundoApellido: str,
-                 tipoDocumento: str, numeroDocumento: str, fechaNacimiento: datetime, genero: str,
-                 direccion: str, telefono: str, correoElectronico: str, rol: Rol, contrasena: str,
-                 idAcudiente: int = None, parentesco: str = None, esAspirante: bool = False):
-        super().__init__(primerNombre, segundoNombre, primerApellido, segundoApellido,
-                         tipoDocumento, numeroDocumento, fechaNacimiento, genero, direccion, telefono,
-                         correoElectronico, rol, contrasena)
-        self.__idAcudiente: int = idAcudiente
-        self.__parentesco: str = parentesco
-        self.__esAspirante: bool = esAspirante
-        self.__representados: List['Persona'] = []
+    def __init__(self, id_acudiente: int, parentesco: str = "", es_aspirante: bool = False):
+        super().__init__()
+        self.__id_acudiente = id_acudiente
+        self.__parentesco = parentesco
+        self.__es_aspirante = es_aspirante
+        self.__estudiantes: List['Estudiante'] = []
 
     @property
-    def idAcudiente(self) -> int:
-        return self.__idAcudiente
+    def id_acudiente(self) -> int:
+        return self.__id_acudiente
 
     @property
     def parentesco(self) -> str:
         return self.__parentesco
 
-    @property
-    def esAspirante(self) -> bool:
-        return self.__esAspirante
-
-    @idAcudiente.setter
-    def idAcudiente(self, nuevoId: int) -> None:
-        self.__idAcudiente = nuevoId
-
     @parentesco.setter
-    def parentesco(self, nuevoParentesco: str) -> None:
-        self.__parentesco = nuevoParentesco
+    def parentesco(self, value: str) -> None:
+        self.__parentesco = value
 
-    @esAspirante.setter
-    def esAspirante(self, valor: bool) -> None:
-        self.__esAspirante = valor
+    @property
+    def es_aspirante(self) -> bool:
+        return self.__es_aspirante
 
-    def obtenerRepresentados(self) -> List['Persona']:
-        return self.__representados.copy()
+    @es_aspirante.setter
+    def es_aspirante(self, value: bool) -> None:
+        self.__es_aspirante = value
 
-    def agregarRepresentado(self, persona: 'Persona') -> None:
-        if persona not in self.__representados:
-            self.__representados.append(persona)
+    @property
+    def estudiantes(self) -> List['Estudiante']:
+        return self.__estudiantes.copy()

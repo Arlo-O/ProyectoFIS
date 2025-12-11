@@ -1,54 +1,45 @@
 from typing import List, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from ..usuarios.estudiante import Estudiante
     from ..usuarios.profesor import Profesor
     from ..usuarios.directivo import Directivo
-    from ..interfaces.igeneradorPDF import IGeneradorPDF
+
 
 class Grupo:
-    def __init__(self, idGrupo: int, nombreGrupo: str, directorGrupo: 'Profesor', 
-                 creador: 'Directivo', cupoMaximo: int = 10, cupoMinimo: int = 5, activo: bool = True):
-        self.__idGrupo: int = idGrupo
-        self.__nombreGrupo: str = nombreGrupo
-        self.__directorGrupo: 'Profesor' = directorGrupo
-        self.__creador: 'Directivo' = creador
-        self.__cupoMaximo: int = cupoMaximo
-        self.__cupoMinimo: int = cupoMinimo
-        self.__activo: bool = activo
+    def __init__(self, id_grupo: int, nombre_grupo: str, cupo_maximo: int = 10, 
+                 cupo_minimo: int = 5, activo: bool = True, id_director: int = None, 
+                 id_creador: int = None, id_grado: int = None):
+        self.__id_grupo = id_grupo
+        self.__nombre_grupo = nombre_grupo
+        self.__cupo_maximo = cupo_maximo
+        self.__cupo_minimo = cupo_minimo
+        self.__activo = activo
+        self.__id_director = id_director
+        self.__id_creador = id_creador
+        self.__id_grado = id_grado
         self.__estudiantes: List['Estudiante'] = []
 
     @property
-    def idGrupo(self) -> int:
-        return self.__idGrupo
+    def id_grupo(self) -> int:
+        return self.__id_grupo
 
     @property
-    def nombreGrupo(self) -> str:
-        return self.__nombreGrupo
+    def nombre_grupo(self) -> str:
+        return self.__nombre_grupo
 
     @property
-    def directorGrupo(self) -> 'Profesor':
-        return self.__directorGrupo
+    def cupo_maximo(self) -> int:
+        return self.__cupo_maximo
+
+    @cupo_maximo.setter
+    def cupo_maximo(self, value: int) -> None:
+        self.__cupo_maximo = value
 
     @property
-    def creador(self) -> 'Directivo':
-        return self.__creador
-
-    @property
-    def numEstudiantes(self) -> int:
-        return len(self.__estudiantes)
-
-    @property
-    def cupoMaximo(self) -> int:
-        return self.__cupoMaximo
-
-    @cupoMaximo.setter
-    def cupoMaximo(self, value: int) -> None:
-        self.__cupoMaximo = value
-
-    @property
-    def cupoMinimo(self) -> int:
-        return self.__cupoMinimo
+    def cupo_minimo(self) -> int:
+        return self.__cupo_minimo
 
     @property
     def activo(self) -> bool:
@@ -58,20 +49,37 @@ class Grupo:
     def activo(self, value: bool) -> None:
         self.__activo = value
 
-    def agregarEstudiante(self, estudiante: 'Estudiante') -> None:
-        if self.cupoDisponible() and estudiante not in self.__estudiantes:
-            self.__estudiantes.append(estudiante)
+    @property
+    def id_director(self) -> int:
+        return self.__id_director
 
-    def eliminarEstudiante(self, estudiante: 'Estudiante') -> None:
-        if estudiante in self.__estudiantes:
-            self.__estudiantes.remove(estudiante)
+    @property
+    def id_creador(self) -> int:
+        return self.__id_creador
 
-    def cupoDisponible(self) -> bool:
-        return len(self.__estudiantes) < self.__cupoMaximo
+    @property
+    def id_grado(self) -> int:
+        return self.__id_grado
 
-    def obtenerEstudiantes(self) -> List['Estudiante']:
+    @property
+    def num_estudiantes(self) -> int:
+        return len(self.__estudiantes)
+
+    @property
+    def estudiantes(self) -> List['Estudiante']:
         return self.__estudiantes.copy()
 
-    def generarListadoPDF(self, generador: 'IGeneracionPDF') -> str:
-        # Logic to generate PDF
-        return "PDF Content"
+    def agregar_estudiante(self, estudiante: 'Estudiante') -> bool:
+        if self.cupo_disponible() and estudiante not in self.__estudiantes:
+            self.__estudiantes.append(estudiante)
+            return True
+        return False
+
+    def eliminar_estudiante(self, estudiante: 'Estudiante') -> bool:
+        if estudiante in self.__estudiantes:
+            self.__estudiantes.remove(estudiante)
+            return True
+        return False
+
+    def cupo_disponible(self) -> bool:
+        return len(self.__estudiantes) < self.__cupo_maximo

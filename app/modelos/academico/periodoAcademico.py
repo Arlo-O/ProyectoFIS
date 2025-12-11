@@ -1,48 +1,39 @@
 from datetime import datetime
+from typing import Optional
+
 
 class PeriodoAcademico:
-    def __init__(self, idPeriodo: int, nombrePeriodo: str, fechaInicio: datetime, 
-                 fechaFin: datetime, actual: bool = False):
-        self.__idPeriodo: int = idPeriodo
-        self.__nombrePeriodo: str = nombrePeriodo
-        self.__fechaInicio: datetime = fechaInicio
-        self.__fechaFin: datetime = fechaFin
-        self.__actual: bool = actual
+    def __init__(self, id_periodo: int, nombre_periodo: str, fecha_inicio: datetime, 
+                 fecha_fin: datetime, actual: bool = False):
+        self.__id_periodo = id_periodo
+        self.__nombre_periodo = nombre_periodo
+        self.__fecha_inicio = fecha_inicio
+        self.__fecha_fin = fecha_fin
+        self.__actual = actual
 
     @property
-    def idPeriodo(self) -> int:
-        return self.__idPeriodo
+    def id_periodo(self) -> int:
+        return self.__id_periodo
 
     @property
-    def nombrePeriodo(self) -> str:
-        return self.__nombrePeriodo
+    def nombre_periodo(self) -> str:
+        return self.__nombre_periodo
 
     @property
-    def fechaInicio(self) -> datetime:
-        return self.__fechaInicio
+    def fecha_inicio(self) -> datetime:
+        return self.__fecha_inicio
 
     @property
-    def fechaFin(self) -> datetime:
-        return self.__fechaFin
+    def fecha_fin(self) -> datetime:
+        return self.__fecha_fin
 
     @property
     def actual(self) -> bool:
         return self.__actual
 
     @actual.setter
-    def actual(self, valor: bool) -> None:
-        self.__actual = valor
+    def actual(self, value: bool) -> None:
+        self.__actual = value
 
-    def esActual(self) -> bool:
+    def es_actual(self) -> bool:
         return self.__actual
-
-    def cerrarPeriodo(self) -> None:
-        self.__actual = False
-
-    def abrirPeriodo(self, nombre: str, fechaInicio: datetime, fechaFin: datetime) -> None:
-        # Logic to create/open new period (might be static or factory, but dictionary puts it here)
-        # Assuming it updates current instance or similar
-        self.__nombrePeriodo = nombre
-        self.__fechaInicio = fechaInicio
-        self.__fechaFin = fechaFin
-        self.__actual = True

@@ -1,17 +1,19 @@
 from typing import List, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from .grupo import Grupo
 
+
 class Grado:
-    def __init__(self, idGrado: int, nombre: str):
-        self.__idGrado: int = idGrado
-        self.__nombre: str = nombre
+    def __init__(self, id_grado: int, nombre: str):
+        self.__id_grado = id_grado
+        self.__nombre = nombre
         self.__grupos: List['Grupo'] = []
 
     @property
-    def idGrado(self) -> int:
-        return self.__idGrado
+    def id_grado(self) -> int:
+        return self.__id_grado
 
     @property
     def nombre(self) -> str:
@@ -21,13 +23,10 @@ class Grado:
     def grupos(self) -> List['Grupo']:
         return self.__grupos.copy()
 
-    def agregarGrupo(self, grupo: 'Grupo') -> None:
+    def agregar_grupo(self, grupo: 'Grupo') -> None:
         if grupo not in self.__grupos:
             self.__grupos.append(grupo)
 
-    def eliminarGrupo(self, grupo: 'Grupo') -> None:
+    def eliminar_grupo(self, grupo: 'Grupo') -> None:
         if grupo in self.__grupos:
             self.__grupos.remove(grupo)
-
-    def obtenerGrupos(self) -> List['Grupo']:
-        return self.__grupos.copy()

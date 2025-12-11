@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey, Boolean, DateTime, Text, JSON
+from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey, Boolean, DateTime, Text, JSON, Float
 from sqlalchemy.orm import relationship
 from .db import mapper_registry
+
 
 # Modelos de usuarios
 from app.modelos.usuarios.persona import Persona
@@ -14,6 +15,7 @@ from app.modelos.usuarios.administrador import Administrador
 from app.modelos.usuarios.rol import Rol
 from app.modelos.usuarios.permiso import Permiso
 
+
 # Modelos académicos
 from app.modelos.academico.grupo import Grupo
 from app.modelos.academico.grado import Grado
@@ -22,11 +24,13 @@ from app.modelos.academico.hojaVidaAcademica import HojaVidaAcademica
 from app.modelos.academico.observador import Observador
 from app.modelos.academico.anotacion import Anotacion
 
+
 # Modelos de logros
 from app.modelos.logros.logro import Logro
 from app.modelos.logros.categoriaLogro import CategoriaLogro
 from app.modelos.logros.evaluacionLogro import EvaluacionLogro
 from app.modelos.logros.boletin import Boletin
+
 
 # Modelos de gestión
 from app.modelos.gestion.citacion import Citacion
@@ -34,31 +38,31 @@ from app.modelos.gestion.notificacion import Notificacion
 from app.modelos.gestion.entrevista import Entrevista
 from app.modelos.gestion.respuestaFormPre import RespuestaFormPre
 
-# Tablas de la base de datos
 
+# Tablas de la base de datos
 persona_table = Table(
     "persona",
     mapper_registry.metadata,
     Column("id_persona", Integer, primary_key=True, autoincrement=True),
-    Column("numero_identificacion", String, unique=True, nullable=False),
-    Column("tipo_identificacion", String, nullable=False),
-    Column("primer_nombre", String, nullable=False),
-    Column("segundo_nombre", String),
-    Column("primer_apellido", String, nullable=False),
-    Column("segundo_apellido", String),
+    Column("numero_identificacion", String(20), unique=True, nullable=False),
+    Column("tipo_identificacion", String(10), nullable=False),
+    Column("primer_nombre", String(50), nullable=False),
+    Column("segundo_nombre", String(50)),
+    Column("primer_apellido", String(50), nullable=False),
+    Column("segundo_apellido", String(50)),
     Column("fecha_nacimiento", DateTime, nullable=False),
-    Column("telefono", String),
-    Column("direccion", String),
-    Column("genero", String),
-    Column("type", String, nullable=False),  # Discriminator
+    Column("telefono", String(20)),
+    Column("direccion", Text),
+    Column("genero", String(10)),
+    Column("type", String(20), nullable=False),  # Discriminator
 )
 
 usuario_table = Table(
     "usuario",
     mapper_registry.metadata,
     Column("id_usuario", Integer, ForeignKey("persona.id_persona"), primary_key=True),
-    Column("contrasena", String, nullable=False),
-    Column("correo_electronico", String, unique=True, nullable=False),
+    Column("contrasena", String(255), nullable=False),
+    Column("correo_electronico", String(100), unique=True, nullable=False),
     Column("id_rol", Integer, ForeignKey("rol.id_rol")),
     Column("activo", Boolean, default=True),
     Column("fecha_creacion", DateTime),
@@ -69,16 +73,16 @@ rol_table = Table(
     "rol",
     mapper_registry.metadata,
     Column("id_rol", Integer, primary_key=True, autoincrement=True),
-    Column("nombre_rol", String, nullable=False),
-    Column("descripcion_rol", String),
+    Column("nombre_rol", String(50), nullable=False),
+    Column("descripcion_rol", Text),
 )
 
 permiso_table = Table(
     "permiso",
     mapper_registry.metadata,
     Column("id_permiso", Integer, primary_key=True, autoincrement=True),
-    Column("nombre_permiso", String, nullable=False),
-    Column("descripcion", String),
+    Column("nombre_permiso", String(50), nullable=False),
+    Column("descripcion", Text),
 )
 
 rol_permiso_table = Table(
@@ -93,7 +97,7 @@ estudiante_table = Table(
     mapper_registry.metadata,
     Column("id_estudiante", Integer, ForeignKey("usuario.id_usuario"), primary_key=True),
     Column("fecha_ingreso", DateTime),
-    Column("codigo_matricula", String, unique=True),
+    Column("codigo_matricula", String(20), unique=True),
     Column("id_grupo", Integer, ForeignKey("grupo.id_grupo")),
 )
 
@@ -122,7 +126,7 @@ acudiente_table = Table(
     "acudiente",
     mapper_registry.metadata,
     Column("id_acudiente", Integer, ForeignKey("usuario.id_usuario"), primary_key=True),
-    Column("parentesco", String),
+    Column("parentesco", String(50)),
     Column("es_aspirante", Boolean, default=False),
 )
 
@@ -130,17 +134,17 @@ aspirante_table = Table(
     "aspirante",
     mapper_registry.metadata,
     Column("id_aspirante", Integer, ForeignKey("usuario.id_usuario"), primary_key=True),
-    Column("grado_solicitado", String),
+    Column("grado_solicitado", String(20)),
     Column("fecha_solicitud", DateTime),
-    Column("estado_proceso", String),
+    Column("estado_proceso", String(30)),
 )
 
 directivo_table = Table(
     "directivo",
     mapper_registry.metadata,
     Column("id_directivo", Integer, ForeignKey("usuario.id_usuario"), primary_key=True),
-    Column("cargo", String),
-    Column("area_responsable", String),
+    Column("cargo", String(100)),
+    Column("area_responsable", String(100)),
 )
 
 administrador_table = Table(
@@ -153,7 +157,7 @@ grupo_table = Table(
     "grupo",
     mapper_registry.metadata,
     Column("id_grupo", Integer, primary_key=True, autoincrement=True),
-    Column("nombre_grupo", String, nullable=False),
+    Column("nombre_grupo", String(20), nullable=False),
     Column("id_director", Integer, ForeignKey("profesor.id_profesor")),
     Column("id_creador", Integer, ForeignKey("directivo.id_directivo")),
     Column("cupo_maximo", Integer),
@@ -166,18 +170,18 @@ grado_table = Table(
     "grado",
     mapper_registry.metadata,
     Column("id_grado", Integer, primary_key=True, autoincrement=True),
-    Column("nombre", String, nullable=False),
+    Column("nombre", String(20), nullable=False),
 )
 
 logro_table = Table(
     "logro",
     mapper_registry.metadata,
     Column("id_logro", Integer, primary_key=True, autoincrement=True),
-    Column("titulo", String),
-    Column("descripcion", String),
+    Column("titulo", String(200)),
+    Column("descripcion", Text),
     Column("fecha_creacion", DateTime),
     Column("id_creador", Integer, ForeignKey("directivo.id_directivo")),
-    Column("estado", String),
+    Column("estado", String(30)),
     Column("id_categoria", Integer, ForeignKey("categoria_logro.id_categoria")),
 )
 
@@ -185,8 +189,8 @@ categoria_logro_table = Table(
     "categoria_logro",
     mapper_registry.metadata,
     Column("id_categoria", Integer, primary_key=True, autoincrement=True),
-    Column("nombre", String),
-    Column("descripcion", String),
+    Column("nombre", String(100)),
+    Column("descripcion", Text),
     Column("id_creador", Integer, ForeignKey("directivo.id_directivo")),
 )
 
@@ -197,18 +201,18 @@ evaluacion_logro_table = Table(
     Column("id_logro", Integer, ForeignKey("logro.id_logro")),
     Column("id_profesor", Integer, ForeignKey("profesor.id_profesor")),
     Column("id_periodo", Integer, ForeignKey("periodo_academico.id_periodo")),
-    Column("puntuacion", String),
+    Column("puntuacion", String(10)),
     Column("fecha_registro", DateTime),
-    Column("comentarios", JSON), # Changed to JSON
-    Column("id_estudiante", Integer, ForeignKey("estudiante.id_estudiante")), # Linked to student
-    Column("id_boletin", Integer, ForeignKey("boletin.id_boletin")), # Linked to boletin
+    Column("comentarios", JSON),
+    Column("id_estudiante", Integer, ForeignKey("estudiante.id_estudiante")),
+    Column("id_boletin", Integer, ForeignKey("boletin.id_boletin")),
 )
 
 periodo_academico_table = Table(
     "periodo_academico",
     mapper_registry.metadata,
     Column("id_periodo", Integer, primary_key=True, autoincrement=True),
-    Column("nombre_periodo", String),
+    Column("nombre_periodo", String(50)),
     Column("fecha_inicio", DateTime),
     Column("fecha_fin", DateTime),
     Column("actual", Boolean),
@@ -229,12 +233,12 @@ citacion_table = Table(
     mapper_registry.metadata,
     Column("id_citacion", Integer, primary_key=True, autoincrement=True),
     Column("fecha_programada", DateTime),
-    Column("correo_destinatarios", JSON), # Changed to JSON
-    Column("motivo", String),
-    Column("descripcion", String),
-    Column("lugar", String),
+    Column("correo_destinatarios", JSON),
+    Column("motivo", String(200)),
+    Column("descripcion", Text),
+    Column("lugar", String(100)),
     Column("id_remitente", Integer, ForeignKey("directivo.id_directivo")),
-    Column("id_entrevista", Integer, ForeignKey("entrevista.id_entrevista")), # If linked
+    Column("id_entrevista", Integer, ForeignKey("entrevista.id_entrevista")),
 )
 
 notificacion_table = Table(
@@ -242,8 +246,8 @@ notificacion_table = Table(
     mapper_registry.metadata,
     Column("id_notificacion", Integer, primary_key=True, autoincrement=True),
     Column("fecha_envio", DateTime),
-    Column("asunto", String),
-    Column("contenido", String),
+    Column("asunto", String(200)),
+    Column("contenido", Text),
     Column("id_destinatario", Integer, ForeignKey("acudiente.id_acudiente")),
     Column("id_citacion", Integer, ForeignKey("citacion.id_citacion")),
 )
@@ -252,11 +256,11 @@ entrevista_table = Table(
     "entrevista",
     mapper_registry.metadata,
     Column("id_entrevista", Integer, primary_key=True, autoincrement=True),
-    Column("notas", String),
+    Column("notas", Text),
     Column("id_entrevistador", Integer, ForeignKey("profesor.id_profesor")),
     Column("fecha_programada", DateTime),
-    Column("lugar", String),
-    Column("estado", String),
+    Column("lugar", String(100)),
+    Column("estado", String(30)),
     Column("id_remitente", Integer, ForeignKey("directivo.id_directivo")),
     Column("id_aspirante", Integer, ForeignKey("aspirante.id_aspirante")),
 )
@@ -266,9 +270,9 @@ anotacion_table = Table(
     mapper_registry.metadata,
     Column("id_anotacion", Integer, primary_key=True, autoincrement=True),
     Column("fecha", DateTime),
-    Column("descripcion", String),
+    Column("descripcion", Text),
     Column("id_autor", Integer, ForeignKey("profesor.id_profesor")),
-    Column("tipo", String),
+    Column("tipo", String(50)),
     Column("id_observador", Integer, ForeignKey("observador.id_observador")),
 )
 
@@ -277,7 +281,7 @@ hoja_vida_table = Table(
     mapper_registry.metadata,
     Column("id_hoja_vida", Integer, primary_key=True, autoincrement=True),
     Column("id_estudiante", Integer, ForeignKey("estudiante.id_estudiante"), unique=True),
-    Column("promedio_general", Integer), # Float actually
+    Column("promedio_general", Float, nullable=True),
 )
 
 hoja_vida_logro_table = Table(
@@ -299,7 +303,7 @@ observador_table = Table(
     mapper_registry.metadata,
     Column("id_observador", Integer, primary_key=True, autoincrement=True),
     Column("id_estudiante", Integer, ForeignKey("estudiante.id_estudiante"), unique=True),
-    Column("comportamiento_general", String),
+    Column("comportamiento_general", Text),
 )
 
 respuesta_form_pre_table = Table(
@@ -308,19 +312,19 @@ respuesta_form_pre_table = Table(
     Column("id_respuesta", Integer, primary_key=True, autoincrement=True),
     Column("id_aspirante", Integer, ForeignKey("aspirante.id_aspirante")),
     Column("fecha_respuesta", DateTime),
-    Column("respuestas", JSON), # Changed to JSON
+    Column("respuestas", JSON),
 )
 
 
-
 def start_mappers():
+    # 1. ENTIDADES INDEPENDIENTES (sin FK)
     mapper_registry.map_imperatively(
         Permiso,
         permiso_table,
         properties={
-            "_Permiso__idPermiso": permiso_table.c.id_permiso,
-            "_Permiso__nombrePermiso": permiso_table.c.nombre_permiso,
-            "_Permiso__descripcion": permiso_table.c.descripcion,
+            "id_permiso": permiso_table.c.id_permiso,
+            "nombre_permiso": permiso_table.c.nombre_permiso,
+            "descripcion": permiso_table.c.descripcion,
         }
     )
 
@@ -328,62 +332,65 @@ def start_mappers():
         Rol,
         rol_table,
         properties={
-            "_Rol__idRol": rol_table.c.id_rol,
-            "_Rol__nombreRol": rol_table.c.nombre_rol,
-            "_Rol__descripcionRol": rol_table.c.descripcion_rol,
-            "_Rol__permisos": relationship(Permiso, secondary=rol_permiso_table),
+            "id_rol": rol_table.c.id_rol,
+            "nombre_rol": rol_table.c.nombre_rol,
+            "descripcion_rol": rol_table.c.descripcion_rol,
+            "permisos": relationship(Permiso, secondary=rol_permiso_table),
         }
     )
 
+    # 2. PERSONA (BASE POLIMÓRFICA)
     mapper_registry.map_imperatively(
         Persona,
         persona_table,
         polymorphic_on=persona_table.c.type,
         polymorphic_identity="persona",
         properties={
-            "_primerNombre": persona_table.c.primer_nombre,
-            "_segundoNombre": persona_table.c.segundo_nombre,
-            "_primerApellido": persona_table.c.primer_apellido,
-            "_segundoApellido": persona_table.c.segundo_apellido,
-            "_tipoDocumento": persona_table.c.tipo_identificacion,
-            "_numeroDocumento": persona_table.c.numero_identificacion,
-            "_fechaNacimiento": persona_table.c.fecha_nacimiento,
-            "_genero": persona_table.c.genero,
-            "_direccion": persona_table.c.direccion,
-            "_telefono": persona_table.c.telefono,
+            "numero_identificacion": persona_table.c.numero_identificacion,
+            "tipo_identificacion": persona_table.c.tipo_identificacion,
+            "primer_nombre": persona_table.c.primer_nombre,
+            "segundo_nombre": persona_table.c.segundo_nombre,
+            "primer_apellido": persona_table.c.primer_apellido,
+            "segundo_apellido": persona_table.c.segundo_apellido,
+            "fecha_nacimiento": persona_table.c.fecha_nacimiento,
+            "telefono": persona_table.c.telefono,
+            "direccion": persona_table.c.direccion,
+            "genero": persona_table.c.genero,
         }
     )
 
+    # 3. USUARIO (HEREDA PERSONA)
     mapper_registry.map_imperatively(
         Usuario,
         usuario_table,
         inherits=Persona,
         polymorphic_identity="usuario",
         properties={
-            "_Usuario__idUsuario": usuario_table.c.id_usuario,
-            "_Usuario__contrasenaEncriptada": usuario_table.c.contrasena,
-            "_Usuario__correoElectronico": usuario_table.c.correo_electronico,
-            "_Usuario__activo": usuario_table.c.activo,
-            "_Usuario__fechaCreacion": usuario_table.c.fecha_creacion,
-            "_Usuario__ultimoIngreso": usuario_table.c.ultimo_ingreso,
-            "_Usuario__rol": relationship(Rol),
+            "contrasena": usuario_table.c.contrasena,
+            "correo_electronico": usuario_table.c.correo_electronico,
+            "rol": relationship(Rol, back_populates="usuarios"),
+            "activo": usuario_table.c.activo,
+            "fecha_creacion": usuario_table.c.fecha_creacion,
+            "ultimo_ingreso": usuario_table.c.ultimo_ingreso,
         }
     )
 
+    # 4. SUBTIPOS USUARIO (SIN DEPENDENCIAS EXTERNAS)
     mapper_registry.map_imperatively(
-        Estudiante,
-        estudiante_table,
+        Administrador,
+        administrador_table,
         inherits=Usuario,
-        polymorphic_identity="estudiante",
+        polymorphic_identity="administrador",
+    )
+
+    mapper_registry.map_imperatively(
+        Directivo,
+        directivo_table,
+        inherits=Usuario,
+        polymorphic_identity="directivo",
         properties={
-            "_Estudiante__idEstudiante": estudiante_table.c.id_estudiante,
-            "_Estudiante__fechaIngreso": estudiante_table.c.fecha_ingreso,
-            "_Estudiante__codigoMatricula": estudiante_table.c.codigo_matricula,
-            "_Estudiante__grupo": relationship(Grupo, back_populates="_Grupo__estudiantes"),
-            "_Estudiante__acudientes": relationship(Acudiente, secondary=estudiante_acudiente_table, back_populates="_Acudiente__representados"),
-            "_Estudiante__hojaVida": relationship(HojaVidaAcademica, uselist=False, back_populates="_HojaVidaAcademica__estudiante"),
-            "_Estudiante__observador": relationship(Observador, uselist=False, back_populates="_Observador__estudiante"),
-            "_Estudiante__logrosObtenidos": relationship(EvaluacionLogro), # Assuming One-to-Many from Estudiante to EvaluacionLogro
+            "cargo": directivo_table.c.cargo,
+            "area_responsable": directivo_table.c.area_responsable,
         }
     )
 
@@ -393,9 +400,7 @@ def start_mappers():
         inherits=Usuario,
         polymorphic_identity="profesor",
         properties={
-            "_Profesor__idProfesor": profesor_table.c.id_profesor,
-            "_Profesor__esDirectorGrupo": profesor_table.c.es_director_grupo,
-            "_Profesor__gruposAsignados": relationship(Grupo, secondary=profesor_grupo_table),
+            "es_director_grupo": profesor_table.c.es_director_grupo,
         }
     )
 
@@ -405,10 +410,8 @@ def start_mappers():
         inherits=Usuario,
         polymorphic_identity="acudiente",
         properties={
-            "_Acudiente__idAcudiente": acudiente_table.c.id_acudiente,
-            "_Acudiente__parentesco": acudiente_table.c.parentesco,
-            "_Acudiente__esAspirante": acudiente_table.c.es_aspirante,
-            "_Acudiente__representados": relationship(Estudiante, secondary=estudiante_acudiente_table, back_populates="_Estudiante__acudientes"), # Mapping to Persona/Estudiante
+            "parentesco": acudiente_table.c.parentesco,
+            "es_aspirante": acudiente_table.c.es_aspirante,
         }
     )
 
@@ -418,189 +421,132 @@ def start_mappers():
         inherits=Usuario,
         polymorphic_identity="aspirante",
         properties={
-            "_Aspirante__idAspirante": aspirante_table.c.id_aspirante,
-            "_Aspirante__gradoSolicitado": aspirante_table.c.grado_solicitado,
-            "_Aspirante__fechaSolicitud": aspirante_table.c.fecha_solicitud,
-            "_Aspirante__estadoProceso": aspirante_table.c.estado_proceso,
-            "_Aspirante__entrevista": relationship(Entrevista, uselist=False, back_populates="_Entrevista__aspirante"),
+            "grado_solicitado": aspirante_table.c.grado_solicitado,
+            "fecha_solicitud": aspirante_table.c.fecha_solicitud,
+            "estado_proceso": aspirante_table.c.estado_proceso,
         }
     )
 
     mapper_registry.map_imperatively(
-        Directivo,
-        directivo_table,
+        Estudiante,
+        estudiante_table,
         inherits=Usuario,
-        polymorphic_identity="directivo",
+        polymorphic_identity="estudiante",
         properties={
-            "_Directivo__idDirectivo": directivo_table.c.id_directivo,
-            "_Directivo__cargo": directivo_table.c.cargo,
-            "_Directivo__areaResponsable": directivo_table.c.area_responsable,
+            "fecha_ingreso": estudiante_table.c.fecha_ingreso,
+            "codigo_matricula": estudiante_table.c.codigo_matricula,
         }
     )
 
-    mapper_registry.map_imperatively(
-        Administrador,
-        administrador_table,
-        inherits=Usuario,
-        polymorphic_identity="administrador",
-        properties={
-            "_Administrador__idAdministrador": administrador_table.c.id_administrador,
-        }
-    )
-
-    mapper_registry.map_imperatively(
-        Grupo,
-        grupo_table,
-        properties={
-            "_Grupo__idGrupo": grupo_table.c.id_grupo,
-            "_Grupo__nombreGrupo": grupo_table.c.nombre_grupo,
-            "_Grupo__directorGrupo": relationship(Profesor),
-            "_Grupo__creador": relationship(Directivo),
-            "_Grupo__cupoMaximo": grupo_table.c.cupo_maximo,
-            "_Grupo__cupoMinimo": grupo_table.c.cupo_minimo,
-            "_Grupo__activo": grupo_table.c.activo,
-            "_Grupo__estudiantes": relationship(Estudiante, back_populates="_Estudiante__grupo"),
-        }
-    )
-
+    # 5. ACADÉMICO BASE
     mapper_registry.map_imperatively(
         Grado,
         grado_table,
         properties={
-            "_Grado__idGrado": grado_table.c.id_grado,
-            "_Grado__nombre": grado_table.c.nombre,
-            "_Grado__grupos": relationship(Grupo),
+            "nombre": grado_table.c.nombre,
         }
     )
 
-    mapper_registry.map_imperatively(
-        Logro,
-        logro_table,
-        properties={
-            "_Logro__idLogro": logro_table.c.id_logro,
-            "_Logro__titulo": logro_table.c.titulo,
-            "_Logro__descripcion": logro_table.c.descripcion,
-            "_Logro__fechaCreacion": logro_table.c.fecha_creacion,
-            "_Logro__creador": relationship(Directivo),
-            "_Logro__estado": logro_table.c.estado,
-        }
-    )
-
-    mapper_registry.map_imperatively(
-        CategoriaLogro,
-        categoria_logro_table,
-        properties={
-            "_CategoriaLogro__idCategoria": categoria_logro_table.c.id_categoria,
-            "_CategoriaLogro__nombre": categoria_logro_table.c.nombre,
-            "_CategoriaLogro__descripcion": categoria_logro_table.c.descripcion,
-            "_CategoriaLogro__creador": relationship(Directivo),
-            "_CategoriaLogro__logros": relationship(Logro),
-        }
-    )
-
-    mapper_registry.map_imperatively(
-        EvaluacionLogro,
-        evaluacion_logro_table,
-        properties={
-            "_EvaluacionLogro__idEvaluacion": evaluacion_logro_table.c.id_evaluacion,
-            "_EvaluacionLogro__logro": relationship(Logro),
-            "_EvaluacionLogro__profesor": relationship(Profesor),
-            "_EvaluacionLogro__periodo": relationship(PeriodoAcademico),
-            "_EvaluacionLogro__puntuacion": evaluacion_logro_table.c.puntuacion,
-            "_EvaluacionLogro__fechaRegistro": evaluacion_logro_table.c.fecha_registro,
-            "_EvaluacionLogro__comentarios": evaluacion_logro_table.c.comentarios, # Need to handle JSON/List conversion if needed
-        }
-    )
-
+    # 6. PERÍODO ACADÉMICO
     mapper_registry.map_imperatively(
         PeriodoAcademico,
         periodo_academico_table,
         properties={
-            "_PeriodoAcademico__idPeriodo": periodo_academico_table.c.id_periodo,
-            "_PeriodoAcademico__nombrePeriodo": periodo_academico_table.c.nombre_periodo,
-            "_PeriodoAcademico__fechaInicio": periodo_academico_table.c.fecha_inicio,
-            "_PeriodoAcademico__fechaFin": periodo_academico_table.c.fecha_fin,
-            "_PeriodoAcademico__actual": periodo_academico_table.c.actual,
+            "nombre_periodo": periodo_academico_table.c.nombre_periodo,
+            "fecha_inicio": periodo_academico_table.c.fecha_inicio,
+            "fecha_fin": periodo_academico_table.c.fecha_fin,
+            "actual": periodo_academico_table.c.actual,
+        }
+    )
+
+    # 7. CATEGORÍA LOGRO
+    mapper_registry.map_imperatively(
+        CategoriaLogro,
+        categoria_logro_table,
+        properties={
+            "nombre": categoria_logro_table.c.nombre,
+            "descripcion": categoria_logro_table.c.descripcion,
+            "creador": relationship(Directivo),
+        }
+    )
+
+    # 8. GRUPO (DEPENDE DE GRADO, PROFESOR, DIRECTIVO, ESTUDIANTE)
+    mapper_registry.map_imperatively(
+        Grupo,
+        grupo_table,
+        properties={
+            "nombre_grupo": grupo_table.c.nombre_grupo,
+            "director": relationship(Profesor, back_populates="grupos_dirigidos"),
+            "creador": relationship(Directivo),
+            "cupo_maximo": grupo_table.c.cupo_maximo,
+            "cupo_minimo": grupo_table.c.cupo_minimo,
+            "activo": grupo_table.c.activo,
+            "grado": relationship(Grado, back_populates="grupos"),
+            "estudiantes": relationship(Estudiante, back_populates="grupo"),
+        }
+    )
+
+    # 9. LOGRO
+    mapper_registry.map_imperatively(
+        Logro,
+        logro_table,
+        properties={
+            "titulo": logro_table.c.titulo,
+            "descripcion": logro_table.c.descripcion,
+            "fecha_creacion": logro_table.c.fecha_creacion,
+            "creador": relationship(Directivo),
+            "estado": logro_table.c.estado,
+            "categoria": relationship(CategoriaLogro, back_populates="logros"),
+        }
+    )
+
+    # 10. COMPLETAR RELACIONES USUARIO-GRUPO
+    # Actualizar Profesor con grupos
+    mapper_registry.map_imperatively(
+        Profesor,
+        profesor_table,
+        inherits=Usuario,
+        polymorphic_identity="profesor",
+        properties={
+            "es_director_grupo": profesor_table.c.es_director_grupo,
+            "grupos_asignados": relationship(Grupo, secondary=profesor_grupo_table),
+            "grupos_dirigidos": relationship(Grupo, foreign_keys="Grupo.director"),
+        }
+    )
+
+    # Actualizar Acudiente/Estudiante relaciones many-to-many
+    mapper_registry.map_imperatively(
+        Acudiente,
+        acudiente_table,
+        inherits=Usuario,
+        polymorphic_identity="acudiente",
+        properties={
+            "parentesco": acudiente_table.c.parentesco,
+            "es_aspirante": acudiente_table.c.es_aspirante,
+            "estudiantes": relationship(Estudiante, secondary=estudiante_acudiente_table, back_populates="acudientes"),
         }
     )
 
     mapper_registry.map_imperatively(
-        Boletin,
-        boletin_table,
+        Estudiante,
+        estudiante_table,
+        inherits=Usuario,
+        polymorphic_identity="estudiante",
         properties={
-            "_Boletin__idBoletin": boletin_table.c.id_boletin,
-            "_Boletin__estudiante": relationship(Estudiante),
-            "_Boletin__periodo": relationship(PeriodoAcademico),
-            "_Boletin__generadoPor": relationship(Profesor),
-            "_Boletin__fechaGeneracion": boletin_table.c.fecha_generacion,
-            "_Boletin__calificaciones": relationship(EvaluacionLogro),
+            "fecha_ingreso": estudiante_table.c.fecha_ingreso,
+            "codigo_matricula": estudiante_table.c.codigo_matricula,
+            "grupo": relationship(Grupo, back_populates="estudiantes"),
+            "acudientes": relationship(Acudiente, secondary=estudiante_acudiente_table, back_populates="estudiantes"),
         }
     )
 
-    mapper_registry.map_imperatively(
-        Citacion,
-        citacion_table,
-        properties={
-            "_Citacion__idCitacion": citacion_table.c.id_citacion,
-            "_Citacion__fechaProgramada": citacion_table.c.fecha_programada,
-            "_Citacion__correoDestinatarios": citacion_table.c.correo_destinatarios,
-            "_Citacion__motivo": citacion_table.c.motivo,
-            "_Citacion__descripcion": citacion_table.c.descripcion,
-            "_Citacion__lugar": citacion_table.c.lugar,
-            "_Citacion__remitente": relationship(Directivo),
-            "_Citacion__notificacion": relationship(Notificacion),
-        }
-    )
-
-    mapper_registry.map_imperatively(
-        Notificacion,
-        notificacion_table,
-        properties={
-            "_Notificacion__idNotificacion": notificacion_table.c.id_notificacion,
-            "_Notificacion__fechaEnvio": notificacion_table.c.fecha_envio,
-            "_Notificacion__asunto": notificacion_table.c.asunto,
-            "_Notificacion__contenido": notificacion_table.c.contenido,
-            "_Notificacion__destinatario": relationship(Acudiente),
-        }
-    )
-
-    mapper_registry.map_imperatively(
-        Entrevista,
-        entrevista_table,
-        properties={
-            "_Entrevista__idEntrevista": entrevista_table.c.id_entrevista,
-            "_Entrevista__notas": entrevista_table.c.notas,
-            "_Entrevista__entrevistador": relationship(Profesor),
-            "_Entrevista__fechaProgramada": entrevista_table.c.fecha_programada,
-            "_Entrevista__lugar": entrevista_table.c.lugar,
-            "_Entrevista__estado": entrevista_table.c.estado,
-            "_Entrevista__remitente": relationship(Directivo),
-            "_Entrevista__citacion": relationship(Citacion), # If linked
-            "_Entrevista__aspirante": relationship(Aspirante, back_populates="_Aspirante__entrevista"),
-        }
-    )
-
-    mapper_registry.map_imperatively(
-        Anotacion,
-        anotacion_table,
-        properties={
-            "_Anotacion__idAnotacion": anotacion_table.c.id_anotacion,
-            "_Anotacion__fecha": anotacion_table.c.fecha,
-            "_Anotacion__descripcion": anotacion_table.c.descripcion,
-            "_Anotacion__autor": relationship(Profesor),
-            "_Anotacion__tipo": anotacion_table.c.tipo,
-        }
-    )
-
+    # 11. HOJA VIDA Y OBSERVADOR
     mapper_registry.map_imperatively(
         HojaVidaAcademica,
         hoja_vida_table,
         properties={
-            "_HojaVidaAcademica__idHojaVida": hoja_vida_table.c.id_hoja_vida,
-            "_HojaVidaAcademica__estudiante": relationship(Estudiante, back_populates="_Estudiante__hojaVida"),
-            "_HojaVidaAcademica__promedioGeneral": hoja_vida_table.c.promedio_general,
-            "_HojaVidaAcademica__logrosDestacados": relationship(Logro, secondary=hoja_vida_logro_table),
-            "_HojaVidaAcademica__historialGrupos": relationship(Grupo, secondary=hoja_vida_grupo_table),
+            "estudiante": relationship(Estudiante, back_populates="hoja_vida"),
+            "promedio_general": hoja_vida_table.c.promedio_general,
         }
     )
 
@@ -608,10 +554,175 @@ def start_mappers():
         Observador,
         observador_table,
         properties={
-            "_Observador__idObservador": observador_table.c.id_observador,
-            "_Observador__estudiante": relationship(Estudiante, back_populates="_Estudiante__observador"),
-            "_Observador__comportamientoGeneral": observador_table.c.comportamiento_general,
-            "_Observador__anotaciones": relationship(Anotacion),
+            "estudiante": relationship(Estudiante, back_populates="observador"),
+            "comportamiento_general": observador_table.c.comportamiento_general,
+        }
+    )
+
+    # 12. EVALUACIÓN LOGRO
+    mapper_registry.map_imperatively(
+        EvaluacionLogro,
+        evaluacion_logro_table,
+        properties={
+            "logro": relationship(Logro, back_populates="evaluaciones"),
+            "profesor": relationship(Profesor, back_populates="evaluaciones"),
+            "periodo": relationship(PeriodoAcademico),
+            "puntuacion": evaluacion_logro_table.c.puntuacion,
+            "fecha_registro": evaluacion_logro_table.c.fecha_registro,
+            "comentarios": evaluacion_logro_table.c.comentarios,
+            "estudiante": relationship(Estudiante, back_populates="evaluaciones_logro"),
+            "boletin": relationship(Boletin, back_populates="evaluaciones_logro"),
+        }
+    )
+
+    # 13. BOLETÍN
+    mapper_registry.map_imperatively(
+        Boletin,
+        boletin_table,
+        properties={
+            "estudiante": relationship(Estudiante),
+            "periodo": relationship(PeriodoAcademico),
+            "generador": relationship(Profesor),
+            "fecha_generacion": boletin_table.c.fecha_generacion,
+            "evaluaciones_logro": relationship(EvaluacionLogro, back_populates="boletin"),
+        }
+    )
+
+    # 14. GESTIÓN
+    mapper_registry.map_imperatively(
+        Entrevista,
+        entrevista_table,
+        properties={
+            "notas": entrevista_table.c.notas,
+            "entrevistador": relationship(Profesor),
+            "fecha_programada": entrevista_table.c.fecha_programada,
+            "lugar": entrevista_table.c.lugar,
+            "estado": entrevista_table.c.estado,
+            "remitente": relationship(Directivo),
+            "aspirante": relationship(Aspirante, back_populates="entrevista"),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Aspirante,
+        aspirante_table,
+        inherits=Usuario,
+        polymorphic_identity="aspirante",
+        properties={
+            "grado_solicitado": aspirante_table.c.grado_solicitado,
+            "fecha_solicitud": aspirante_table.c.fecha_solicitud,
+            "estado_proceso": aspirante_table.c.estado_proceso,
+            "entrevista": relationship(Entrevista, back_populates="aspirante", uselist=False),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Citacion,
+        citacion_table,
+        properties={
+            "fecha_programada": citacion_table.c.fecha_programada,
+            "correo_destinatarios": citacion_table.c.correo_destinatarios,
+            "motivo": citacion_table.c.motivo,
+            "descripcion": citacion_table.c.descripcion,
+            "lugar": citacion_table.c.lugar,
+            "remitente": relationship(Directivo),
+            "entrevista": relationship(Entrevista, back_populates="citacion"),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Notificacion,
+        notificacion_table,
+        properties={
+            "fecha_envio": notificacion_table.c.fecha_envio,
+            "asunto": notificacion_table.c.asunto,
+            "contenido": notificacion_table.c.contenido,
+            "destinatario": relationship(Acudiente),
+            "citacion": relationship(Citacion),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Anotacion,
+        anotacion_table,
+        properties={
+            "fecha": anotacion_table.c.fecha,
+            "descripcion": anotacion_table.c.descripcion,
+            "autor": relationship(Profesor),
+            "tipo": anotacion_table.c.tipo,
+            "observador": relationship(Observador, back_populates="anotaciones"),
+        }
+    )
+
+    # 15. COMPLETAR RELACIONES FINALES
+    mapper_registry.map_imperatively(
+        HojaVidaAcademica,
+        hoja_vida_table,
+        properties={
+            "estudiante": relationship(Estudiante, back_populates="hoja_vida"),
+            "promedio_general": hoja_vida_table.c.promedio_general,
+            "logros": relationship(Logro, secondary=hoja_vida_logro_table),
+            "grupos": relationship(Grupo, secondary=hoja_vida_grupo_table),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Observador,
+        observador_table,
+        properties={
+            "estudiante": relationship(Estudiante, back_populates="observador"),
+            "comportamiento_general": observador_table.c.comportamiento_general,
+            "anotaciones": relationship(Anotacion, back_populates="observador"),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Estudiante,
+        estudiante_table,
+        inherits=Usuario,
+        polymorphic_identity="estudiante",
+        properties={
+            "fecha_ingreso": estudiante_table.c.fecha_ingreso,
+            "codigo_matricula": estudiante_table.c.codigo_matricula,
+            "grupo": relationship(Grupo, back_populates="estudiantes"),
+            "acudientes": relationship(Acudiente, secondary=estudiante_acudiente_table, back_populates="estudiantes"),
+            "hoja_vida": relationship(HojaVidaAcademica, uselist=False, back_populates="estudiante"),
+            "observador": relationship(Observador, uselist=False, back_populates="estudiante"),
+            "evaluaciones_logro": relationship(EvaluacionLogro, back_populates="estudiante"),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Grado,
+        grado_table,
+        properties={
+            "nombre": grado_table.c.nombre,
+            "grupos": relationship(Grupo, back_populates="grado"),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        CategoriaLogro,
+        categoria_logro_table,
+        properties={
+            "nombre": categoria_logro_table.c.nombre,
+            "descripcion": categoria_logro_table.c.descripcion,
+            "creador": relationship(Directivo),
+            "logros": relationship(Logro, back_populates="categoria"),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Logro,
+        logro_table,
+        properties={
+            "titulo": logro_table.c.titulo,
+            "descripcion": logro_table.c.descripcion,
+            "fecha_creacion": logro_table.c.fecha_creacion,
+            "creador": relationship(Directivo),
+            "estado": logro_table.c.estado,
+            "categoria": relationship(CategoriaLogro, back_populates="logros"),
+            "evaluaciones": relationship(EvaluacionLogro, back_populates="logro"),
         }
     )
 
@@ -619,9 +730,21 @@ def start_mappers():
         RespuestaFormPre,
         respuesta_form_pre_table,
         properties={
-            "_RespuestaFormPre__idRespuesta": respuesta_form_pre_table.c.id_respuesta,
-            "_RespuestaFormPre__aspirante": relationship(Aspirante),
-            "_RespuestaFormPre__fechaRespuesta": respuesta_form_pre_table.c.fecha_respuesta,
-            "_RespuestaFormPre__respuestas": respuesta_form_pre_table.c.respuestas,
+            "aspirante": relationship(Aspirante),
+            "fecha_respuesta": respuesta_form_pre_table.c.fecha_respuesta,
+            "respuestas": respuesta_form_pre_table.c.respuestas,
+        }
+    )
+
+    # Relaciones Rol-Usuario (al final)
+    mapper_registry.map_imperatively(
+        Rol,
+        rol_table,
+        properties={
+            "id_rol": rol_table.c.id_rol,
+            "nombre_rol": rol_table.c.nombre_rol,
+            "descripcion_rol": rol_table.c.descripcion_rol,
+            "permisos": relationship(Permiso, secondary=rol_permiso_table),
+            "usuarios": relationship(Usuario, back_populates="rol"),
         }
     )

@@ -1,81 +1,58 @@
 from datetime import datetime
-from .rol import Rol
+from typing import Optional
 from .persona import Persona
+from .rol import Rol
+
 
 class Usuario(Persona):
-    def __init__(self, primerNombre: str, segundoNombre: str, primerApellido: str, segundoApellido: str,
-                 tipoDocumento: str, numeroDocumento: str, fechaNacimiento: datetime, genero: str,
-                 direccion: str, telefono: str, correoElectronico: str, rol: Rol, contrasena: str, idUsuario: int = None):
-        super().__init__(primerNombre, segundoNombre, primerApellido, segundoApellido,
-                         tipoDocumento, numeroDocumento, fechaNacimiento, genero, direccion, telefono)
-        self.__idUsuario = idUsuario
-        self.__contrasenaEncriptada: str = contrasena
-        self.__fechaCreacion: datetime = datetime.now()
-        self.__ultimoIngreso: datetime = None
-        self.__rol: Rol = rol
-        self.__activo: bool = True
-        self.__correoElectronico = correoElectronico
+    def __init__(self, id_usuario: int, contrasena: str, correo_electronico: str, 
+                 id_rol: Optional[int] = None, activo: bool = True,
+                 fecha_creacion: Optional[datetime] = None, ultimo_ingreso: Optional[datetime] = None):
+        super().__init__()
+        self.__id_usuario = id_usuario
+        self.__contrasena = contrasena
+        self.__correo_electronico = correo_electronico
+        self.__id_rol = id_rol
+        self.__activo = activo
+        self.__fecha_creacion = fecha_creacion
+        self.__ultimo_ingreso = ultimo_ingreso
 
     @property
-    def idUsuario(self) -> int:
-        return self.__idUsuario
-    
-    @idUsuario.setter
-    def idUsuario(self, idUsuario: int) -> None:
-        self.__idUsuario = idUsuario
+    def id_usuario(self) -> int:
+        return self.__id_usuario
 
     @property
-    def rol(self) -> Rol:
-        return self.__rol
-        
+    def contrasena(self) -> str:
+        return self.__contrasena
+
+    @property
+    def correo_electronico(self) -> str:
+        return self.__correo_electronico
+
+    @correo_electronico.setter
+    def correo_electronico(self, value: str) -> None:
+        self.__correo_electronico = value
+
+    @property
+    def id_rol(self) -> Optional[int]:
+        return self.__id_rol
+
     @property
     def activo(self) -> bool:
         return self.__activo
-        
-    @property
-    def correoElectronico(self) -> str:
-        return self.__correoElectronico
-    
-    @property
-    def fechaCreacion(self) -> datetime:
-        return self.__fechaCreacion
-    
-    @property
-    def ultimoIngreso(self) -> datetime:
-        return self.__ultimoIngreso
-    
-    @property
-    def contrasenaEncriptada(self) -> str:
-        return self.__contrasenaEncriptada
-
-    @contrasenaEncriptada.setter
-    def contrasenaEncriptada(self, nuevaContrasena: str) -> None:
-        self.__contrasenaEncriptada = nuevaContrasena
-
-    @ultimoIngreso.setter
-    def ultimoIngreso(self, nuevoIngreso: datetime) -> None:
-        self.__ultimoIngreso = nuevoIngreso
-
-    @rol.setter
-    def rol(self, nuevoRol: Rol) -> None:
-        self.__rol = nuevoRol
 
     @activo.setter
-    def activo(self, nuevoEstado: bool) -> None:
-        self.__activo = nuevoEstado
+    def activo(self, value: bool) -> None:
+        self.__activo = value
 
-    @correoElectronico.setter
-    def correoElectronico(self, nuevoCorreo: str) -> None:
-        self.__correoElectronico = nuevoCorreo
-        
-    def autenticar(self, nombreUsuario: str, contrasena: str) -> bool:
-        # Assuming nombreUsuario can be email or specific username if added.
-        # Dictionary says 'nombreUsuario' param.
-        return self.__correoElectronico == nombreUsuario and self.__contrasenaEncriptada == contrasena
-        
-    def recuperarContrasena(self, correoElectronico: str) -> None:
-        # Logic to send recovery email
-        pass
+    @property
+    def fecha_creacion(self) -> Optional[datetime]:
+        return self.__fecha_creacion
 
-    def cambiarContrasena(self, contrasenaNueva: str) -> None:
-        self.__contrasenaEncriptada = contrasenaNueva
+    @property
+    def ultimo_ingreso(self) -> Optional[datetime]:
+        return self.__ultimo_ingreso
+
+    @ultimo_ingreso.setter
+    def ultimo_ingreso(self, value: Optional[datetime]) -> None:
+        self.__ultimo_ingreso = value

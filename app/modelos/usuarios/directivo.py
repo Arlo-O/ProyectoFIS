@@ -1,42 +1,29 @@
-from datetime import datetime
 from .usuario import Usuario
-from .rol import Rol
+
 
 class Directivo(Usuario):
-    def __init__(self, primerNombre: str, segundoNombre: str, primerApellido: str, segundoApellido: str,
-                 tipoDocumento: str, numeroDocumento: str, fechaNacimiento: datetime, genero: str,
-                 direccion: str, telefono: str, correoElectronico: str, rol: Rol, contrasena: str,
-                 idDirectivo: int = None, cargo: str = None, areaResponsable: str = None):
-        super().__init__(primerNombre, segundoNombre, primerApellido, segundoApellido,
-                         tipoDocumento, numeroDocumento, fechaNacimiento, genero, direccion, telefono,
-                         correoElectronico, rol, contrasena)
-        self.__idDirectivo: int = idDirectivo
-        self.__cargo: str = cargo
-        self.__areaResponsable: str = areaResponsable
+    def __init__(self, id_directivo: int, cargo: str = "", area_responsable: str = ""):
+        super().__init__()
+        self.__id_directivo = id_directivo
+        self.__cargo = cargo
+        self.__area_responsable = area_responsable
 
     @property
-    def idDirectivo(self) -> int:
-        return self.__idDirectivo
+    def id_directivo(self) -> int:
+        return self.__id_directivo
 
     @property
     def cargo(self) -> str:
         return self.__cargo
 
-    @property
-    def areaResponsable(self) -> str:
-        return self.__areaResponsable
-
-    @idDirectivo.setter
-    def idDirectivo(self, nuevoId: int) -> None:
-        self.__idDirectivo = nuevoId
-
     @cargo.setter
-    def cargo(self, nuevoCargo: str) -> None:
-        self.__cargo = nuevoCargo
+    def cargo(self, value: str) -> None:
+        self.__cargo = value
 
-    @areaResponsable.setter
-    def areaResponsable(self, nuevaArea: str) -> None:
-        self.__areaResponsable = nuevaArea
+    @property
+    def area_responsable(self) -> str:
+        return self.__area_responsable
 
-    def obtenerInformacion(self) -> str:
-        return f"Directivo {self.obtenerNombreCompleto()} - {self.__cargo or ''}"
+    @area_responsable.setter
+    def area_responsable(self, value: str) -> None:
+        self.__area_responsable = value

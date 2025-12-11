@@ -1,26 +1,29 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from ..usuarios.acudiente import Acudiente
-    from .iEnvioCorreo import IEnvioCorreo
+
 
 class Notificacion:
-    def __init__(self, idNotificacion: int, fechaEnvio: datetime, asunto: str, 
-                 contenido: str, destinatario: 'Acudiente'):
-        self.__idNotificacion: int = idNotificacion
-        self.__fechaEnvio: datetime = fechaEnvio
-        self.__asunto: str = asunto
-        self.__contenido: str = contenido
-        self.__destinatario: 'Acudiente' = destinatario
+    def __init__(self, id_notificacion: int, fecha_envio: datetime, asunto: str, 
+                 contenido: str, id_destinatario: Optional[int] = None, 
+                 id_citacion: Optional[int] = None):
+        self.__id_notificacion = id_notificacion
+        self.__fecha_envio = fecha_envio
+        self.__asunto = asunto
+        self.__contenido = contenido
+        self.__id_destinatario = id_destinatario
+        self.__id_citacion = id_citacion
 
     @property
-    def idNotificacion(self) -> int:
-        return self.__idNotificacion
+    def id_notificacion(self) -> int:
+        return self.__id_notificacion
 
     @property
-    def fechaEnvio(self) -> datetime:
-        return self.__fechaEnvio
+    def fecha_envio(self) -> datetime:
+        return self.__fecha_envio
 
     @property
     def asunto(self) -> str:
@@ -31,9 +34,9 @@ class Notificacion:
         return self.__contenido
 
     @property
-    def destinatario(self) -> 'Acudiente':
-        return self.__destinatario
+    def id_destinatario(self) -> Optional[int]:
+        return self.__id_destinatario
 
-    def enviar(self, envioCorreo: 'IEnvioCorreo') -> None:
-        # Logic to send email
-        pass
+    @property
+    def id_citacion(self) -> Optional[int]:
+        return self.__id_citacion

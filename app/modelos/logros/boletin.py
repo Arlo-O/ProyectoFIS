@@ -1,58 +1,44 @@
 from datetime import datetime
-from typing import List, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from ..usuarios.estudiante import Estudiante
     from ..academico.periodoAcademico import PeriodoAcademico
     from ..usuarios.profesor import Profesor
     from .evaluacionLogro import EvaluacionLogro
-    from ..interfaces.igeneradorPDF import IGeneradorPDF
+
 
 class Boletin:
-    def __init__(self, idBoletin: int, estudiante: 'Estudiante', periodo: 'PeriodoAcademico', 
-                 generadoPor: 'Profesor', fechaGeneracion: datetime):
-        self.__idBoletin: int = idBoletin
-        self.__estudiante: 'Estudiante' = estudiante
-        self.__periodo: 'PeriodoAcademico' = periodo
-        self.__generadoPor: 'Profesor' = generadoPor
-        self.__fechaGeneracion: datetime = fechaGeneracion
+    def __init__(self, id_boletin: int, id_estudiante: int, id_periodo: int, 
+                 id_generador: Optional[int], fecha_generacion: datetime):
+        self.__id_boletin = id_boletin
+        self.__id_estudiante = id_estudiante
+        self.__id_periodo = id_periodo
+        self.__id_generador = id_generador
+        self.__fecha_generacion = fecha_generacion
         self.__calificaciones: List['EvaluacionLogro'] = []
 
     @property
-    def idBoletin(self) -> int:
-        return self.__idBoletin
+    def id_boletin(self) -> int:
+        return self.__id_boletin
 
     @property
-    def estudiante(self) -> 'Estudiante':
-        return self.__estudiante
+    def id_estudiante(self) -> int:
+        return self.__id_estudiante
 
     @property
-    def periodo(self) -> 'PeriodoAcademico':
-        return self.__periodo
+    def id_periodo(self) -> int:
+        return self.__id_periodo
 
     @property
-    def generadoPor(self) -> 'Profesor':
-        return self.__generadoPor
+    def id_generador(self) -> Optional[int]:
+        return self.__id_generador
 
     @property
-    def fechaGeneracion(self) -> datetime:
-        return self.__fechaGeneracion
+    def fecha_generacion(self) -> datetime:
+        return self.__fecha_generacion
 
     @property
     def calificaciones(self) -> List['EvaluacionLogro']:
         return self.__calificaciones.copy()
-
-    def agregarCalificacion(self, evaluacion: 'EvaluacionLogro') -> None:
-        if evaluacion not in self.__calificaciones:
-            self.__calificaciones.append(evaluacion)
-
-    def eliminarCalificacion(self, evaluacion: 'EvaluacionLogro') -> None:
-        if evaluacion in self.__calificaciones:
-            self.__calificaciones.remove(evaluacion)
-
-    def obtenerEvaluaciones(self) -> List['EvaluacionLogro']:
-        return self.__calificaciones.copy()
-
-    def generarPDF(self, generador: 'IGeneracionPDF') -> str:
-        # Logic to generate PDF
-        return "PDF Content"

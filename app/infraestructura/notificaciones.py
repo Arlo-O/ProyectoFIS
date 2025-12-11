@@ -1,26 +1,24 @@
 from typing import List, Protocol
+from abc import ABC, abstractmethod
+
 
 class IEnvioCorreo(Protocol):
+    @abstractmethod
     def enviar_correo(self, destinatarios: List[str], asunto: str, contenido: str) -> bool:
-        """Envía un correo electrónico a los destinatarios especificados.
-        
-        Returns:
-            bool: True si el envío fue exitoso, False en caso contrario
-        """
         ...
 
-class ServicioNotificaciones:
-    """Servicio para el envío de notificaciones por correo electrónico."""
+
+class ServicioNotificaciones(IEnvioCorreo):
     
     def enviar_correo(self, destinatarios: List[str], asunto: str, contenido: str) -> bool:
-        """Simula el envío de un correo electrónico.
-        
-        Returns:
-            bool: Siempre retorna True en modo simulación
-        """
-        print(f"--- SIMULACIÓN DE ENVÍO DE CORREO ---")
+        print("--- SIMULACIÓN DE ENVÍO DE CORREO ---")
         print(f"Para: {', '.join(destinatarios)}")
         print(f"Asunto: {asunto}")
-        print(f"Contenido: {contenido}")
-        print(f"{'-'*37}")
+        print(f"Contenido: {contenido[:100]}{'...' if len(contenido) > 100 else ''}")
+        print("-" * 37)
         return True
+
+
+def procesar_notificacion(servicio_envio: IEnvioCorreo, destinatarios: List[str], 
+                         asunto: str, contenido: str) -> bool:
+    return servicio_envio.enviar_correo(destinatarios, asunto, contenido)

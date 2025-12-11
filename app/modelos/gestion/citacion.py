@@ -1,33 +1,38 @@
 from datetime import datetime
 from typing import List, TYPE_CHECKING
+from typing import Optional
+
 
 if TYPE_CHECKING:
-    from .notificacion import Notificacion
     from ..usuarios.directivo import Directivo
+    from .notificacion import Notificacion
+
 
 class Citacion:
-    def __init__(self, idCitacion: int, fechaProgramada: datetime, correoDestinatarios: List[str],
-                 motivo: str, descripcion: str, lugar: str, remitente: 'Directivo'):
-        self.__idCitacion: int = idCitacion
-        self.__fechaProgramada: datetime = fechaProgramada
-        self.__correoDestinatarios: List[str] = correoDestinatarios
-        self.__motivo: str = motivo
-        self.__descripcion: str = descripcion
-        self.__lugar: str = lugar
-        self.__remitente: 'Directivo' = remitente
-        self.__notificacion: List['Notificacion'] = []
+    def __init__(self, id_citacion: int, fecha_programada: datetime, motivo: str, 
+                 descripcion: str, lugar: str, id_remitente: Optional[int] = None,
+                 id_entrevista: Optional[int] = None):
+        self.__id_citacion = id_citacion
+        self.__fecha_programada = fecha_programada
+        self.__correo_destinatarios: List[str] = []
+        self.__motivo = motivo
+        self.__descripcion = descripcion
+        self.__lugar = lugar
+        self.__id_remitente = id_remitente
+        self.__id_entrevista = id_entrevista
+        self.__notificaciones: List['Notificacion'] = []
 
     @property
-    def idCitacion(self) -> int:
-        return self.__idCitacion
+    def id_citacion(self) -> int:
+        return self.__id_citacion
 
     @property
-    def fechaProgramada(self) -> datetime:
-        return self.__fechaProgramada
+    def fecha_programada(self) -> datetime:
+        return self.__fecha_programada
 
     @property
-    def correoDestinatarios(self) -> List[str]:
-        return self.__correoDestinatarios.copy()
+    def correo_destinatarios(self) -> List[str]:
+        return self.__correo_destinatarios.copy()
 
     @property
     def motivo(self) -> str:
@@ -42,25 +47,25 @@ class Citacion:
         return self.__lugar
 
     @property
-    def remitente(self) -> 'Directivo':
-        return self.__remitente
+    def id_remitente(self) -> Optional[int]:
+        return self.__id_remitente
 
     @property
-    def notificacion(self) -> List['Notificacion']:
-        return self.__notificacion.copy()
+    def id_entrevista(self) -> Optional[int]:
+        return self.__id_entrevista
 
-    def agregarDestinatarios(self, correo: str) -> None:
-        if correo not in self.__correoDestinatarios:
-            self.__correoDestinatarios.append(correo)
+    @property
+    def notificaciones(self) -> List['Notificacion']:
+        return self.__notificaciones.copy()
 
-    def eliminarDestinatarios(self, correo: str) -> None:
-        if correo in self.__correoDestinatarios:
-            self.__correoDestinatarios.remove(correo)
+    def agregar_destinatario(self, correo: str) -> None:
+        if correo not in self.__correo_destinatarios:
+            self.__correo_destinatarios.append(correo)
 
-    def agregarNotificacion(self, notificacion: 'Notificacion') -> None:
-        if notificacion not in self.__notificacion:
-            self.__notificacion.append(notificacion)
+    def eliminar_destinatario(self, correo: str) -> None:
+        if correo in self.__correo_destinatarios:
+            self.__correo_destinatarios.remove(correo)
 
-    def eliminarNotificacion(self, notificacion: 'Notificacion') -> None:
-        if notificacion in self.__notificacion:
-            self.__notificacion.remove(notificacion)
+    def agregar_notificacion(self, notificacion: 'Notificacion') -> None:
+        if notificacion not in self.__notificaciones:
+            self.__notificaciones.append(notificacion)

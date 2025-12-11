@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
+from typing import List, Optional, Dict
+
 
 class IEnvioCorreo(ABC):
     @abstractmethod
-    def enviar(self, destinatario: str, asunto: str, cuerpo: str, adjuntos: list = None) -> bool:
+    def enviar_correo(self, destinatarios: List[str], asunto: str, contenido: str) -> bool:
         pass
 
     @abstractmethod
-    def enviarMasivo(self, destinatarios: list, asunto: str, cuerpo: str) -> dict:
+    def enviar_masivo(self, destinatarios: List[str], asunto: str, contenido: str) -> Dict[str, bool]:
         pass

@@ -1,71 +1,60 @@
-from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import Optional
 
-class Persona(ABC):
-    def __init__(self, primerNombre: str, segundoNombre : str, primerApellido : str, segundoApellido: str, 
-                tipoDocumento: str, numeroDocumento: str, fechaNacimiento: datetime, genero: str,
-                direccion: str, telefono: str):
-        self._primerNombre = primerNombre
-        self._segundoNombre = segundoNombre
-        self._primerApellido = primerApellido
-        self._segundoApellido = segundoApellido
-        self._tipoDocumento = tipoDocumento
-        self._numeroDocumento = numeroDocumento
-        self._fechaNacimiento = fechaNacimiento
-        self._genero = genero
-        self._direccion = direccion
+
+class Persona:
+    def __init__(self, numero_identificacion: str, tipo_identificacion: str, 
+                 primer_nombre: str, segundo_nombre: Optional[str] = None,
+                 primer_apellido: str = "", segundo_apellido: Optional[str] = None,
+                 fecha_nacimiento: datetime = None, telefono: Optional[str] = None,
+                 direccion: Optional[str] = None, genero: Optional[str] = None):
+        self._numero_identificacion = numero_identificacion
+        self._tipo_identificacion = tipo_identificacion
+        self._primer_nombre = primer_nombre
+        self._segundo_nombre = segundo_nombre
+        self._primer_apellido = primer_apellido
+        self._segundo_apellido = segundo_apellido
+        self._fecha_nacimiento = fecha_nacimiento
         self._telefono = telefono
+        self._direccion = direccion
+        self._genero = genero
 
     @property
-    def primerNombre(self) -> str:
-        return self._primerNombre
+    def numero_identificacion(self) -> str:
+        return self._numero_identificacion
 
     @property
-    def segundoNombre(self) -> str:
-        return self._segundoNombre
+    def tipo_identificacion(self) -> str:
+        return self._tipo_identificacion
 
     @property
-    def primerApellido(self) -> str:
-        return self._primerApellido
+    def primer_nombre(self) -> str:
+        return self._primer_nombre
 
     @property
-    def segundoApellido(self) -> str:
-        return self._segundoApellido
+    def segundo_nombre(self) -> Optional[str]:
+        return self._segundo_nombre
 
     @property
-    def tipoDocumento(self) -> str:
-        return self._tipoDocumento
+    def primer_apellido(self) -> str:
+        return self._primer_apellido
 
     @property
-    def numeroDocumento(self) -> str:
-        return self._numeroDocumento
+    def segundo_apellido(self) -> Optional[str]:
+        return self._segundo_apellido
 
     @property
-    def fechaNacimiento(self) -> datetime:
-        return self._fechaNacimiento
+    def fecha_nacimiento(self) -> Optional[datetime]:
+        return self._fecha_nacimiento
 
     @property
-    def genero(self) -> str:
-        return self._genero
+    def telefono(self) -> Optional[str]:
+        return self._telefono
 
     @property
-    def direccion(self) -> str:
+    def direccion(self) -> Optional[str]:
         return self._direccion
 
     @property
-    def telefono(self) -> str:
-        return self._telefono
-
-    def obtenerNombreCompleto(self) -> str:
-        partes = [
-            self._primerNombre,
-            self._segundoNombre,
-            self._primerApellido,
-            self._segundoApellido
-        ]
-        return " ".join([p for p in partes if p])
-    
-    def calcularEdad(self) -> int:
-        return int(datetime.now().year - self._fechaNacimiento.year)
-
-    
+    def genero(self) -> Optional[str]:
+        return self._genero

@@ -1,98 +1,137 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict
 from datetime import datetime
-from app.infraestructura.uow import UnitOfWork
+from app.infraestructura.uow import uow
 from app.infraestructura.reportes import ServicioReportes
 from app.modelos.academico.grupo import Grupo
 from app.modelos.usuarios.estudiante import Estudiante
+from app.modelos.usuarios.profesor import Profesor
+from app.modelos.usuarios.directivo import Directivo
+from app.modelos.logros.evaluacionLogro import EvaluacionLogro
+from app.modelos.academico.periodoAcademico import PeriodoAcademico
+
 
 class ServicioGestionAcademica:
-    def __init__(self):
-        self.uow = UnitOfWork()
-        self.reportes = ServicioReportes()
+    def __init__(self, reportes: ServicioReportes):
+        self.reportes = reportes
 
     def consultar_grupos(self) -> List[Grupo]:
-        with self.uow:
-            return self.uow.grupos.get_all()
+        with uow() as uow_instance:
+            return uow_instance.grupos.get_all()
 
-    def crear_grupo(self, nombre: str, cupo_maximo: int, cupo_minimo: int, director_id: int, creador_id: int) -> Tuple[bool, str, Optional[Dict]]:
-        #Crea un nuevo grupo en el sistema.
-        
-     
-        with self.uow:
-            director = self.uow.profesores.get(director_id)
-            creador = self.uow.directivos.get(creador_id)
+    def crear_grupo(self, nombre: str, cupo_maximo: int, cupo_minimo: int, 
+                   director_id: int, creador_id: int, id_grado: int) -> Tuple[bool, str, Optional[Dict]]:
+        with uow() as uow_instance:
+            director = uow_instance.profesores.get(director_id)
+            creador = uow_instance.directivos.get(creador_id)
             
             if director and creador:
-                grupo = Grupo(idGrupo=None, nombreGrupo=nombre, directorGrupo=director, creador=creador, cupoMaximo=cupo_maximo, cupoMinimo=cupo_minimo)
-                self.uow.grupos.add(grupo)
-                self.uow.commit()
-                return (True, "Grupo creado con éxito", {"id_grupo": grupo.idGrupo})
-            return (False, "Error al crear grupo", None)
+                grupo = Grupo(
+                    id_grupo=None,
+                    nombre_grupo=nombre,
+                    cupo_maximo=cupo_maximo,
+                    cupo_minimo=cupo_minimo,
+                    activo=True,
+                    id_director=director.id_profesor,
+                    id_creador=creador.id_directivo,
+                    id_grado=id_grado
+                )
+                uow_instance.grupos.add(grupo)
+                return (True, "Grupo creado con éxito", {"id_grupo": grupo.id_grupo})
+            return (False, "Director o creador no encontrado", None)
 
     def cerrar_grupo(self, id_grupo: int) -> bool:
-        with self.uow:
-            grupo = self.uow.grupos.get(id_grupo)
+        with uow() as uow_instance:
+            grupo = uow_instance.grupos.get(id_grupo)
             if grupo:
                 grupo.activo = False
-                self.uow.commit()
                 return True
             return False
 
-    def asignar_estudiante_grupo(self, id_grupo: int, id_estudiante: int) -> bool:
-        with self.uow:
-            grupo = self.uow.grupos.get(id_grupo)
-            estudiante = self.uow.estudiantes.get(id_estudiante)
+    def asignar_estudiante_grupo(self, id_grupo: int, id_estudiante: int) -> Tuple[bool, str]:
+        with uow() as uow_instance:
+            grupo = uow_instance.grupos.get(id_grupo)
+            estudiante = uow_instance.estudiantes.get(id_estudiante)
             
-            if grupo and estudiante:
-                current_students = len(grupo.estudiantes) if hasattr(grupo, 'estudiantes') else 0
-                if grupo.cupoMaximo and current_students >= grupo.cupoMaximo:
-                    print(f"Error: Cupo máximo alcanzado para el grupo {grupo.nombreGrupo}")
-                    return False
-
-                # 2. Validate Age (Example logic: Párvulos 2-3, Caminadores 1-2, Prejardín 3-4)
-                edad = (datetime.now() - estudiante.fechaNacimiento).days / 365.25
-                if edad < 1:
-                     print(f"Error: Estudiante muy joven ({edad:.1f} años)")
-                     return False
-
-                grupo.agregarEstudiante(estudiante)
-                self.uow.commit()
-                return True
-            return False
+            if not grupo or not estudiante:
+                return (False, "Grupo o estudiante no encontrado")
+            
+            if grupo.activo is False:
+                return (False, "Grupo inactivo")
+            
+            estudiantes_actuales = len(grupo.estudiantes)
+            if grupo.cupo_maximo and estudiantes_actuales >= grupo.cupo_maximo:
+                return (False, f"Cupo máximo alcanzado ({grupo.cupo_maximo})")
+            
+            # Asignación via repositorio (relación many-to-many)
+            estudiante.grupo = grupo
+            return (True, "Estudiante asignado correctamente")
 
     def generar_boletin(self, id_estudiante: int, id_periodo: int) -> str:
-        with self.uow:
-            estudiante = self.uow.estudiantes.get(id_estudiante)
-            periodo = self.uow.periodos.get(id_periodo)
+        with uow() as uow_instance:
+            estudiante = uow_instance.estudiantes.get(id_estudiante)
+            periodo = uow_instance.periodos.get(id_periodo)
             
             if not estudiante or not periodo:
-                return "Estudiante o Periodo no encontrado"
+                return "Estudiante o periodo no encontrado"
             
-            calificaciones = [
-                e for e in estudiante.obtenerHistoriaAcademica() 
-                if e.periodo.idPeriodo == id_periodo
+            calificaciones = uow_instance.evaluaciones.get_by_estudiante_periodo(
+                id_estudiante, id_periodo
+            )
+            
+            calificaciones_data = [
+                {
+                    "logro_titulo": eval_logro.logro.titulo,
+                    "puntuacion": eval_logro.puntuacion,
+                    "comentarios": eval_logro.comentarios
+                }
+                for eval_logro in calificaciones
             ]
             
             pdf_path = self.reportes.generar_boletin_pdf(
-                estudiante.obtenerNombreCompleto(), 
-                periodo.nombrePeriodo, 
-                calificaciones
+                f"{estudiante.primer_nombre} {estudiante.segundo_nombre or ''} {estudiante.primer_apellido} {estudiante.segundo_apellido or ''}".strip(),
+                periodo.nombre_periodo,
+                calificaciones_data
             )
             return f"Boletín generado: {pdf_path}"
 
     def descargar_listado_estudiantes(self, id_grupo: int) -> str:
-        with self.uow:
-            grupo = self.uow.grupos.get(id_grupo)
+        with uow() as uow_instance:
+            grupo = uow_instance.grupos.get(id_grupo)
             if not grupo:
                 return "Grupo no encontrado"
             
-            estudiantes = grupo.obtenerEstudiantes()
-            pdf_path = self.reportes.generar_listado_estudiantes_pdf(grupo.nombreGrupo, estudiantes)
+            estudiantes_data = [
+                {
+                    "nombre_completo": f"{est.primer_nombre} {est.segundo_nombre or ''} {est.primer_apellido} {est.segundo_apellido or ''}".strip(),
+                    "codigo_matricula": est.codigo_matricula
+                }
+                for est in uow_instance.estudiantes.get_by_grupo(id_grupo)
+            ]
+            
+            pdf_path = self.reportes.generar_listado_estudiantes_pdf(
+                grupo.nombre_grupo, estudiantes_data
+            )
             return f"Listado generado: {pdf_path}"
 
-    def consultar_historial_academico(self, id_estudiante: int) -> str:
-        with self.uow:
-            estudiante = self.uow.estudiantes.get(id_estudiante)
+    def consultar_historial_academico(self, id_estudiante: int) -> Dict:
+        with uow() as uow_instance:
+            estudiante = uow_instance.estudiantes.get(id_estudiante)
             if not estudiante:
-                return "Estudiante no encontrado"
-            return f"Historial académico de {estudiante.obtenerNombreCompleto()}"
+                return {"error": "Estudiante no encontrado"}
+            
+            evaluaciones = uow_instance.evaluaciones.get_by_estudiante_periodo(
+                id_estudiante, None  # Todas las evaluaciones
+            )
+            
+            return {
+                "estudiante": f"{estudiante.primer_nombre} {estudiante.segundo_nombre or ''} {estudiante.primer_apellido} {estudiante.segundo_apellido or ''}".strip(),
+                "total_evaluaciones": len(evaluaciones),
+                "evaluaciones": [
+                    {
+                        "logro": eval_logro.logro.titulo,
+                        "puntuacion": eval_logro.puntuacion,
+                        "periodo": eval_logro.periodo.nombre_periodo
+                    }
+                    for eval_logro in evaluaciones
+                ]
+            }
