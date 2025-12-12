@@ -718,14 +718,7 @@ class GestionAspirantesView:
             aspirante: Datos del aspirante
         """
         if tipo_accion == 'programar_entrevista':
-            messagebox.showinfo(
-                "Programar Entrevista",
-                f"Funcionalidad para programar entrevista con:\n\n"
-                f"Aspirante: {aspirante['nombre_completo']}\n"
-                f"ID: {aspirante['numero_identificacion']}\n\n"
-                f"Esta funcionalidad se implementará en un caso de uso posterior.",
-                parent=self.frame_actual
-            )
+            self.abrir_dialogo_programar_entrevista(aspirante)
         
         elif tipo_accion == 'diligenciar_admision':
             messagebox.showinfo(
@@ -736,6 +729,240 @@ class GestionAspirantesView:
                 f"Esta funcionalidad se implementará en un caso de uso posterior.",
                 parent=self.frame_actual
             )
+    
+    def abrir_dialogo_programar_entrevista(self, aspirante: Dict):
+        """
+        Abre un diálogo para programar una entrevista con el aspirante.
+        Permite seleccionar fecha, hora y lugar, y valida disponibilidad.
+        """
+        from tkinter import ttk
+        from datetime import datetime, timedelta
+        from tkcalendar import DateEntry
+        
+        # Crear ventana de diálogo
+        dialogo = tk.Toplevel(self.frame_actual)
+        dialogo.title("Programar Entrevista")
+        dialogo.geometry("500x450")
+        dialogo.resizable(False, False)
+        dialogo.transient(self.frame_actual)
+        dialogo.grab_set()
+        
+        # Centrar la ventana
+        dialogo.update_idletasks()
+        x = (dialogo.winfo_screenwidth() // 2) - (500 // 2)
+        y = (dialogo.winfo_screenheight() // 2) - (450 // 2)
+        dialogo.geometry(f"500x450+{x}+{y}")
+        
+        # Frame principal
+        main_frame = tk.Frame(dialogo, bg="#f8f9fa", padx=30, pady=20)
+        main_frame.pack(fill="both", expand=True)
+        
+        # Título
+        tk.Label(
+            main_frame,
+            text="📅 Programar Entrevista",
+            font=FONT_H1,
+            bg="#f8f9fa",
+            fg=COLOR_TEXT_DARK
+        ).pack(pady=(0, 5))
+        
+        # Información del aspirante
+        tk.Label(
+            main_frame,
+            text=f"Aspirante: {aspirante['nombre_completo']}",
+            font=FONT_P_BOLD,
+            bg="#f8f9fa",
+            fg=COLOR_TEXT_DARK
+        ).pack(pady=(0, 20))
+        
+        # Frame para formulario
+        form_frame = tk.Frame(main_frame, bg="#ffffff", relief="solid", bd=1)
+        form_frame.pack(fill="both", expand=True, pady=(0, 15))
+        
+        # Padding interno
+        form_content = tk.Frame(form_frame, bg="#ffffff", padx=20, pady=20)
+        form_content.pack(fill="both", expand=True)
+        
+        # Campo: Fecha
+        tk.Label(
+            form_content,
+            text="Fecha de la entrevista:",
+            font=FONT_P_BOLD,
+            bg="#ffffff",
+            fg=COLOR_TEXT_DARK
+        ).pack(anchor="w", pady=(0, 5))
+        
+        # DateEntry con formato español
+        fecha_entry = DateEntry(
+            form_content,
+            width=30,
+            background='darkblue',
+            foreground='white',
+            borderwidth=2,
+            date_pattern='dd/mm/yyyy',
+            mindate=datetime.now().date(),
+            maxdate=(datetime.now() + timedelta(days=90)).date()
+        )
+        fecha_entry.pack(fill="x", pady=(0, 15))
+        
+        # Campo: Hora
+        tk.Label(
+            form_content,
+            text="Hora de la entrevista:",
+            font=FONT_P_BOLD,
+            bg="#ffffff",
+            fg=COLOR_TEXT_DARK
+        ).pack(anchor="w", pady=(0, 5))
+        
+        hora_frame = tk.Frame(form_content, bg="#ffffff")
+        hora_frame.pack(fill="x", pady=(0, 15))
+        
+        # Hora
+        hora_var = tk.StringVar(value="09")
+        hora_spinbox = tk.Spinbox(
+            hora_frame,
+            from_=7,
+            to=18,
+            width=5,
+            textvariable=hora_var,
+            font=FONT_P,
+            format="%02.0f"
+        )
+        hora_spinbox.pack(side="left", padx=(0, 5))
+        
+        tk.Label(hora_frame, text=":", font=FONT_P_BOLD, bg="#ffffff").pack(side="left")
+        
+        # Minutos
+        minuto_var = tk.StringVar(value="00")
+        minuto_spinbox = tk.Spinbox(
+            hora_frame,
+            values=("00", "15", "30", "45"),
+            width=5,
+            textvariable=minuto_var,
+            font=FONT_P
+        )
+        minuto_spinbox.pack(side="left", padx=5)
+        
+        # Campo: Lugar
+        tk.Label(
+            form_content,
+            text="Lugar de la entrevista:",
+            font=FONT_P_BOLD,
+            bg="#ffffff",
+            fg=COLOR_TEXT_DARK
+        ).pack(anchor="w", pady=(0, 5))
+        
+        lugar_entry = tk.Entry(
+            form_content,
+            font=FONT_P,
+            relief="solid",
+            bd=1
+        )
+        lugar_entry.pack(fill="x", pady=(0, 15))
+        lugar_entry.insert(0, "Sala de Reuniones")
+        
+        # Mensaje de estado
+        status_label = tk.Label(
+            main_frame,
+            text="",
+            font=FONT_P,
+            bg="#f8f9fa",
+            fg=COLOR_TEXT_MUTED
+        )
+        status_label.pack(pady=(0, 10))
+        
+        # Botones
+        button_frame = tk.Frame(main_frame, bg="#f8f9fa")
+        button_frame.pack(fill="x")
+        
+        def guardar_entrevista():
+            """Valida y guarda la entrevista"""
+            try:
+                # Obtener valores
+                fecha = fecha_entry.get_date()
+                hora = int(hora_var.get())
+                minuto = int(minuto_var.get())
+                lugar = lugar_entry.get().strip()
+                
+                # Validaciones
+                if not lugar:
+                    messagebox.showwarning(
+                        "Validación",
+                        "Por favor ingrese el lugar de la entrevista.",
+                        parent=dialogo
+                    )
+                    return
+                
+                # Combinar fecha y hora
+                fecha_hora = datetime.combine(fecha, datetime.min.time())
+                fecha_hora = fecha_hora.replace(hour=hora, minute=minuto)
+                
+                # Validar que la fecha/hora sea futura
+                if fecha_hora <= datetime.now():
+                    messagebox.showwarning(
+                        "Validación",
+                        "La fecha y hora de la entrevista debe ser futura.",
+                        parent=dialogo
+                    )
+                    return
+                
+                status_label.config(text="⏳ Verificando disponibilidad...", fg=COLOR_TEXT_MUTED)
+                dialogo.update()
+                
+                # Llamar al servicio para programar la entrevista
+                exito, mensaje = self.servicio.programar_entrevista(
+                    id_aspirante=aspirante['id_aspirante'],
+                    fecha_programada=fecha_hora,
+                    lugar=lugar
+                )
+                
+                if exito:
+                    status_label.config(text="", fg=COLOR_TEXT_MUTED)
+                    messagebox.showinfo(
+                        "Éxito",
+                        f"Entrevista programada exitosamente.\n\n"
+                        f"Fecha: {fecha_hora.strftime('%d/%m/%Y %H:%M')}\n"
+                        f"Lugar: {lugar}\n\n"
+                        f"{mensaje}",
+                        parent=dialogo
+                    )
+                    dialogo.destroy()
+                    # Recargar los detalles del aspirante
+                    self.mostrar_detalle_aspirante(aspirante['id_aspirante'])
+                else:
+                    status_label.config(text="", fg=COLOR_TEXT_MUTED)
+                    messagebox.showerror(
+                        "Error",
+                        mensaje,
+                        parent=dialogo
+                    )
+                    
+            except ValueError as e:
+                messagebox.showerror(
+                    "Error de Validación",
+                    f"Error en los datos ingresados: {str(e)}",
+                    parent=dialogo
+                )
+            except Exception as e:
+                status_label.config(text="", fg=COLOR_TEXT_MUTED)
+                messagebox.showerror(
+                    "Error",
+                    f"Error al programar la entrevista: {str(e)}",
+                    parent=dialogo
+                )
+        
+        ttk.Button(
+            button_frame,
+            text="Cancelar",
+            command=dialogo.destroy
+        ).pack(side="left", padx=5)
+        
+        ttk.Button(
+            button_frame,
+            text="Programar Entrevista",
+            style="AdminBlue.TButton",
+            command=guardar_entrevista
+        ).pack(side="right", padx=5)
     
     def volver_a_listado(self):
         """Vuelve a la vista de listado de aspirantes"""
