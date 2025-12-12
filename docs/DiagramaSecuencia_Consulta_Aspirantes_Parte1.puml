@@ -1,0 +1,91 @@
+@startuml Consulta_Aspirantes_Parte1
+!theme plain
+title CU-12: Consultar Aspirantes - Parte 1: Navegación y Carga del Módulo
+autonumber
+
+actor Directivo
+participant "Dashboard\nDirectivo" as Dashboard
+participant "Navegación\n(show_frame)" as Nav
+participant "Módulo\nAspirantes" as Modulo
+participant "Vista\nGestionAspirantes" as Vista
+participant "Servicio\nAspirante" as Servicio
+
+== PASO 1: Directivo Accede al Módulo ==
+
+Directivo -> Dashboard: Clic en botón\n"📋 Aspirantes"
+activate Dashboard
+
+Dashboard -> Nav: show_frame('aspirantes_manager')
+activate Nav
+
+note over Nav
+  Verifica si el frame ya existe
+  Si no existe, carga dinámicamente
+end note
+
+Nav -> Nav: Verificar frame en cache
+activate Nav
+note right: frame no existe
+deactivate Nav
+
+== PASO 2: Carga Dinámica ==
+
+Nav -> Modulo: import create_aspirantes_manager()
+activate Modulo
+
+Modulo -> Vista**: Crear GestionAspirantesView(frame, nav_commands)
+activate Vista
+
+note over Vista
+  Inicializa:
+  - servicio = ServicioAspirante()
+  - aspirantes_actuales = []
+  - detalle_actual = None
+end note
+
+Vista -> Servicio**: Instanciar ServicioAspirante()
+activate Servicio
+
+Vista -> Vista: crear_interfaz()
+activate Vista
+
+note over Vista
+  Crea estructura básica:
+  - Header con título y botones
+  - Descripción
+  - Contenedor para tabla
+end note
+
+deactivate Vista
+
+Vista --> Modulo: Vista creada
+deactivate Servicio
+deactivate Vista
+
+Modulo --> Nav: Frame listo
+deactivate Modulo
+
+Nav -> Nav: Guardar frame en cache
+activate Nav
+deactivate Nav
+
+Nav -> Nav: Ocultar otros frames
+activate Nav
+deactivate Nav
+
+Nav -> Nav: Mostrar frame de aspirantes
+activate Nav
+deactivate Nav
+
+Nav --> Dashboard: Navegación completa
+deactivate Nav
+
+Dashboard --> Directivo: Módulo de aspirantes visible
+deactivate Dashboard
+
+note over Directivo, Servicio
+  Sistema listo para cargar datos
+  Continúa en Parte 2 →
+end note
+
+@enduml
