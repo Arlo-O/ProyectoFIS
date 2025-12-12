@@ -192,6 +192,11 @@ ProyectoFIS/
 │   └── reiniciar_bd_completa.py # Script todo-en-uno
 │
 ├── docs/                       # Documentación
+│   └── CU-03_Crear_Usuario.md  # Documentación del flujo de creación de usuarios
+│
+├── logs/                       # Logs del sistema (NO subir a Git)
+│   └── credenciales_usuarios.txt # Log de contraseñas generadas
+│
 ├── tests/                      # Tests unitarios
 ├── .env                        # Variables de entorno (NO subir a Git)
 ├── requirements.txt            # Dependencias Python
@@ -263,8 +268,53 @@ El proyecto incluye un `.gitignore` que excluye:
 - `.env` - Variables de entorno (sensibles)
 - `*.pyc` - Archivos compilados
 - `reportes/` - Reportes generados
+- `logs/` - Logs con credenciales
 
-**IMPORTANTE:** Nunca subas el archivo `.env` con credenciales reales.
+**IMPORTANTE:** Nunca subas el archivo `.env` ni el directorio `logs/` con credenciales reales.
+
+---
+
+## 👤 Gestión de Usuarios (CU-03)
+
+### Crear Usuarios desde el Dashboard
+
+El sistema implementa el caso de uso **CU-03: Crear Usuario** con validaciones completas:
+
+1. **Acceso:** Como administrador, ve al dashboard y haz clic en **"➕ Nuevo Usuario"**
+2. **Formulario:** Completa todos los campos obligatorios:
+   - Username (correo electrónico)
+   - Rol (director, profesor, acudiente)
+   - Datos personales (nombres, apellidos, identificación)
+   - Campos específicos según el rol seleccionado
+3. **Contraseña:** Se genera **automáticamente** (12 caracteres seguros)
+4. **Guardado:** Las credenciales se guardan en:
+   - Base de datos (contraseña encriptada con bcrypt)
+   - Archivo `logs/credenciales_usuarios.txt` (contraseña en texto plano para recuperación)
+5. **Resultado:** Mensaje de éxito con la contraseña generada
+
+### Recuperar Contraseñas Generadas
+
+Si necesitas recuperar una contraseña generada, consulta el archivo:
+
+```
+logs/credenciales_usuarios.txt
+```
+
+Este archivo contiene:
+- Fecha y hora de creación
+- Nombre completo del usuario
+- Rol asignado
+- Email (username)
+- **Contraseña generada** (en texto plano)
+- ID del administrador que creó el usuario
+
+**⚠️ Seguridad:** Mantén este archivo seguro. NO lo compartas ni lo subas a repositorios públicos.
+
+### Documentación Detallada
+
+Para más información sobre el flujo completo de creación de usuarios, consulta:
+
+📄 **[docs/CU-03_Crear_Usuario.md](docs/CU-03_Crear_Usuario.md)**
 
 ---
 

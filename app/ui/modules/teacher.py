@@ -2,11 +2,18 @@
 
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import messagebox
 from ..config import *
 from ..components.session import get_dashboard_command
 
 # ✅ NUEVO: Importar decorador RBAC
 from app.services.rbac_service import require_permission
+
+# CU-24: Importar diálogo de gestión del observador
+from ..components.dialogo_observador import DialogoObservador
+
+# CU-25: Importar diálogo de visualización/edición de hoja de vida
+from ..components.dialogo_hoja_vida_visualizar import DialogoHojaVidaVisualizar
 
 
 def create_sidebar_button_teacher(parent, text, icon, module_name, nav_commands, is_active=False):
@@ -262,6 +269,48 @@ def create_assignment_teacher(master, nav_commands):
     return assignment_frame
 
 
+def _abrir_dialogo_observador(master, nav_commands):
+    """
+    CU-24: Abrir diálogo de gestión del observador
+    
+    PASO 2: Click en "Gestión observador"
+    """
+    # ID de estudiante de ejemplo (en producción, obtener del estudiante seleccionado)
+    # Aquí usamos el estudiante seleccionado en el listado
+    estudiante_id = 2  # Santiago Díaz Martínez (ejemplo)
+    
+    # Usuario ID del director de grupo (profesor logueado)
+    # En producción, obtener del contexto de sesión
+    usuario_id = 1  # Ejemplo
+    
+    try:
+        # PASO 3-16: Abrir diálogo que maneja todo el flujo
+        dialogo = DialogoObservador(master, estudiante_id, usuario_id)
+
+
+def _abrir_dialogo_hoja_vida_visualizar(master, nav_commands):
+    """
+    CU-25: Abrir diálogo de visualización/edición de hoja de vida
+    
+    PASO 2: Click en "Visualizar hoja de vida"
+    """
+    # ID de estudiante de ejemplo (en producción, obtener del estudiante seleccionado)
+    estudiante_id = 2  # Santiago Díaz Martínez (ejemplo)
+    
+    # Usuario ID del director de grupo (profesor logueado)
+    usuario_id = 1  # Ejemplo
+    
+    try:
+        # PASO 3-15: Abrir diálogo que maneja todo el flujo
+        dialogo = DialogoHojaVidaVisualizar(master, estudiante_id, usuario_id)
+        master.wait_window(dialogo)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error al abrir hoja de vida: {str(e)}")
+        master.wait_window(dialogo)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error al abrir observador: {str(e)}")
+
+
 def create_observer_teacher(master, nav_commands):
     """Crea la interfaz del Observador del Estudiante."""
     observer_frame = tk.Frame(master, bg="#f5f7fa")
@@ -317,7 +366,30 @@ def create_observer_teacher(master, nav_commands):
 
     tk.Label(info_frame, text="Observador del Estudiante", font=FONT_H1, bg="#ffffff",
              fg=COLOR_TEXT_DARK).pack(side="left", anchor="w")
-    tk.Button(info_frame, text="+ Nueva Observación", bg="#007bff", fg=COLOR_TEXT_LIGHT,
+    
+    # CU-25: Botón para visualizar/editar hoja de vida
+    tk.Button(
+        info_frame, 
+        text="📄 Hoja de Vida", 
+        bg="#9343FF", 
+        fg=COLOR_TEXT_LIGHT,
+        font=FONT_P_BOLD, 
+        bd=0,
+        command=lambda: _abrir_dialogo_hoja_vida_visualizar(master, nav_commands)
+    ).pack(side="right", ipady=5, padx=5)
+    
+    # CU-24: Botón para gestionar observador
+    tk.Button(
+        info_frame, 
+        text="📋 Gestión Observador", 
+        bg="#007bff", 
+        fg=COLOR_TEXT_LIGHT,
+        font=FONT_P_BOLD, 
+        bd=0,
+        command=lambda: _abrir_dialogo_observador(master, nav_commands)
+    ).pack(side="right", ipady=5, padx=5)
+    
+    tk.Button(info_frame, text="+ Nueva Observación", bg="#28a745", fg=COLOR_TEXT_LIGHT,
               font=FONT_P_BOLD, bd=0).pack(side="right", ipady=5)
 
     tk.Label(detail_area, text="Historial de Observaciones", font=FONT_H3, bg="#ffffff",

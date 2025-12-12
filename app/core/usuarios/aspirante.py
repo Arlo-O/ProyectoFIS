@@ -7,6 +7,7 @@ class Aspirante(Persona):
     
     def __init__(self, id_aspirante: int, grado_solicitado: str = None,
                  fecha_solicitud: datetime = None, estado_proceso: str = None,
+                 justificacion_rechazo: str = None,
                  # Parámetros de Persona
                  id_persona: int = None, tipo_identificacion: str = None,
                  numero_identificacion: str = None, primer_nombre: str = None,
@@ -32,6 +33,7 @@ class Aspirante(Persona):
         self.grado_solicitado = grado_solicitado
         self.fecha_solicitud = fecha_solicitud
         self.estado_proceso = estado_proceso
+        self.justificacion_rechazo = justificacion_rechazo
         
         # Asociación con Usuario (no herencia)
         self.usuario = None

@@ -1,9 +1,14 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import messagebox
 from ..config import *
 
 # ✅ NUEVO: Importar decorador RBAC
 from app.services.rbac_service import require_permission
+
+# ✅ CU-18: Importar servicios y diálogo de admisión
+from app.services.servicio_aspirante import ServicioAspirante
+from ..components.dialogo_admision import abrir_dialogo_admision
 
 
 # ✅ PROTEGIDO: Requiere permiso "acceder_estudiante"
@@ -271,23 +276,62 @@ def create_student_manager(master, nav_commands):
     
     status_combo = ttk.Combobox(
         applicants_filter_inner,
-        values=["Todos", "Pendiente", "Aprobado", "Rechazado"],
+        values=["Todos", "pendiente", "en_proceso", "admitido", "rechazado"],
         width=15,
         state="readonly"
     )
     status_combo.set("Todos")
     status_combo.pack(side="left", padx=(0, 25))
     
+    # CU-18: Botón para diligenciar admisión
+    def on_diligenciar_admision():
+        """PASO 2 del CU-18: Directivo hace clic en 'Diligenciar admisión'"""
+        seleccion = applicants_tree.selection()
+        if not seleccion:
+            messagebox.showwarning(
+                "Selección Requerida",
+                "Por favor, seleccione un aspirante de la tabla.",
+                parent=frame
+            )
+            return
+        
+        # Obtener datos del aspirante seleccionado
+        item = applicants_tree.item(seleccion[0])
+        valores = item['values']
+        id_aspirante = valores[0]
+        nombre_aspirante = valores[1]
+        estado_actual = valores[4]
+        
+        # Validar que el aspirante esté en estado "en_proceso"
+        if estado_actual not in ["en_proceso", "pendiente"]:
+            messagebox.showinfo(
+                "Estado No Válido",
+                f"Solo se pueden admitir/rechazar aspirantes en estado 'en_proceso' o 'pendiente'.\n\n"
+                f"Estado actual: {estado_actual}",
+                parent=frame
+            )
+            return
+        
+        # PASO 3: Abrir diálogo de admisión
+        abrir_dialogo_admision(
+            frame,
+            id_aspirante,
+            nombre_aspirante,
+            callback_actualizar=lambda: cargar_aspirantes()
+        )
+    
     ttk.Button(
         applicants_filter_inner,
-        text="✅ Matricular Aspirante",
-        style="AdminGreen.TButton"
+        text="✅ Diligenciar Admisión",
+        style="AdminGreen.TButton",
+        command=on_diligenciar_admision
     ).pack(side="right", padx=(10, 5))
     
     ttk.Button(
         applicants_filter_inner,
-        text="📧 Enviar Recordatorios",
-        style="Pre.TButton"
+        text="🔄 Actualizar Lista",
+        style="Pre.TButton",
+        command=lambda: cargar_aspirantes()
     ).pack(side="right")
     
     # Tabla aspirantes
@@ -297,7 +341,7 @@ def create_student_manager(master, nav_commands):
     applicants_scroll = ttk.Scrollbar(applicants_tree_container)
     applicants_scroll.pack(side="right", fill="y")
     
-    applicants_columns = ("id", "nombre", "fecha", "grado_deseado", "estado", "acciones")
+    applicants_columns = ("id", "nombre", "fecha", "grado_deseado", "estado", "telefono")
     applicants_tree = ttk.Treeview(
         applicants_tree_container,
         columns=applicants_columns,
@@ -314,23 +358,58 @@ def create_student_manager(master, nav_commands):
     applicants_tree.heading("fecha", text="Fecha Solicitud")
     applicants_tree.heading("grado_deseado", text="Grado Deseado")
     applicants_tree.heading("estado", text="Estado")
-    applicants_tree.heading("acciones", text="Acciones")
+    applicants_tree.heading("telefono", text="Teléfono")
     
     applicants_tree.column("id", width=60)
     applicants_tree.column("nombre", width=250)
     applicants_tree.column("fecha", width=120, anchor="center")
     applicants_tree.column("grado_deseado", width=120)
     applicants_tree.column("estado", width=100, anchor="center")
-    applicants_tree.column("acciones", width=150)
+    applicants_tree.column("telefono", width=120)
     
-    # Datos aspirantes de ejemplo
-    aspirantes = [
-        ("ASP001", "Juan Pérez Gómez", "05/12/2025", "Preescolar A", "Pendiente", "Revisar/Aprobar"),
-        ("ASP002", "Camila López", "03/12/2025", "Transición B", "Aprobado", "Matricular"),
-        ("ASP003", "Santiago Ruiz", "01/12/2025", "Preescolar A", "Pendiente", "Revisar/Aprobar"),
-    ]
+    def cargar_aspirantes(filtro_estado=None):
+        """Carga los aspirantes desde la base de datos"""
+        # Limpiar tabla
+        for item in applicants_tree.get_children():
+            applicants_tree.delete(item)
+        
+        # Obtener aspirantes del servicio
+        servicio = ServicioAspirante()
+        exito, aspirantes, mensaje = servicio.obtener_listado_aspirantes()
+        
+        if not exito:
+            messagebox.showerror(
+                "Error",
+                f"No se pudieron cargar los aspirantes:\n{mensaje}",
+                parent=frame
+            )
+            return
+        
+        # Filtrar por estado si se especifica
+        estado_filtro = status_combo.get()
+        if estado_filtro != "Todos":
+            aspirantes = [asp for asp in aspirantes if asp.get('estado_proceso') == estado_filtro]
+        
+        # Insertar en la tabla
+        for asp in aspirantes:
+            fecha_str = asp['fecha_solicitud'].strftime('%d/%m/%Y') if asp['fecha_solicitud'] else "N/A"
+            applicants_tree.insert("", "end", values=(
+                asp['id_aspirante'],
+                asp['nombre_completo'],
+                fecha_str,
+                asp['grado_solicitado'] or "N/A",
+                asp['estado_proceso'] or "pendiente",
+                asp['telefono'] or "N/A"
+            ))
+        
+        # Actualizar contador
+        total = len(applicants_tree.get_children())
+        # Aquí podrías actualizar un label con el contador si lo deseas
     
-    for asp in aspirantes:
-        applicants_tree.insert("", "end", values=asp)
+    # Cargar aspirantes al inicio
+    cargar_aspirantes()
+    
+    # Vincular cambio de filtro
+    status_combo.bind("<<ComboboxSelected>>", lambda e: cargar_aspirantes())
     
     return frame

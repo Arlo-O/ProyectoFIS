@@ -15,6 +15,7 @@ try:
     from .styles import configure_styles
     from .components.session import set_current_role, set_user_info, clear_session
     from .components.login import LoginForm
+    from .components.recuperar_password import RecuperarPasswordWindow
     from app.services.auth_service import AuthenticationService
     from app.services.rbac_service import rbac_service
     from .components.form import create_step1, create_step2, create_step3, create_step4
@@ -25,6 +26,7 @@ except ImportError:
     from styles import configure_styles
     from components.session import set_current_role, set_user_info, clear_session
     from components.login import LoginForm
+    from components.recuperar_password import RecuperarPasswordWindow
     from app.services.auth_service import AuthenticationService
     from app.services.rbac_service import rbac_service
     from components.form import create_step1, create_step2, create_step3, create_step4
@@ -92,9 +94,102 @@ def show_frame(name):
     try:
         frame = frames.get(name)
         if frame is None:
-            print(f"ERROR: El frame '{name}' no existe!")
-            messagebox.showerror("Error", f"El frame '{name}' no se pudo cargar.")
-            return
+            # ✅ Intentar carga dinámica de módulos del director
+            if name == 'aspirantes_manager':
+                print(f"DEBUG: Cargando módulo de aspirantes dinámicamente...")
+                from .modules.aspirantes import create_aspirantes_manager
+                
+                # Obtener el main_frame correctamente
+                for widget in root.winfo_children():
+                    if isinstance(widget, tk.Frame):
+                        main_frame_widget = widget
+                        break
+                else:
+                    raise Exception("No se encontró el main_frame")
+                
+                frame = create_aspirantes_manager(main_frame_widget, nav_commands)
+                frames[name] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
+                print(f"DEBUG: ✅ Módulo de aspirantes creado exitosamente")
+            elif name == 'achievements_manager':
+                print(f"DEBUG: Cargando módulo de logros dinámicamente...")
+                from .modules.achievements import create_achievements_manager
+                
+                for widget in root.winfo_children():
+                    if isinstance(widget, tk.Frame):
+                        main_frame_widget = widget
+                        break
+                else:
+                    raise Exception("No se encontró el main_frame")
+                
+                frame = create_achievements_manager(main_frame_widget, nav_commands)
+                frames[name] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
+                print(f"DEBUG: ✅ Módulo de logros creado exitosamente")
+            elif name == 'student_manager':
+                print(f"DEBUG: Cargando módulo de estudiantes dinámicamente...")
+                from .modules.student import create_student_manager
+                
+                for widget in root.winfo_children():
+                    if isinstance(widget, tk.Frame):
+                        main_frame_widget = widget
+                        break
+                else:
+                    raise Exception("No se encontró el main_frame")
+                
+                frame = create_student_manager(main_frame_widget, nav_commands)
+                frames[name] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
+                print(f"DEBUG: ✅ Módulo de estudiantes creado exitosamente")
+            elif name == 'groups_manager':
+                print(f"DEBUG: Cargando módulo de grupos dinámicamente...")
+                from .modules.groups import create_groups_manager
+                
+                for widget in root.winfo_children():
+                    if isinstance(widget, tk.Frame):
+                        main_frame_widget = widget
+                        break
+                else:
+                    raise Exception("No se encontró el main_frame")
+                
+                frame = create_groups_manager(main_frame_widget, nav_commands)
+                frames[name] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
+                print(f"DEBUG: ✅ Módulo de grupos creado exitosamente")
+            elif name == 'citation_generator':
+                print(f"DEBUG: Cargando módulo de citaciones dinámicamente...")
+                from .modules.citations import create_citation_generator
+                
+                for widget in root.winfo_children():
+                    if isinstance(widget, tk.Frame):
+                        main_frame_widget = widget
+                        break
+                else:
+                    raise Exception("No se encontró el main_frame")
+                
+                frame = create_citation_generator(main_frame_widget, nav_commands)
+                frames[name] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
+                print(f"DEBUG: ✅ Módulo de citaciones creado exitosamente")
+            elif name == 'evaluations_manager':
+                print(f"DEBUG: Cargando módulo de evaluaciones dinámicamente...")
+                from .modules.evaluations import create_evaluations_manager
+                
+                for widget in root.winfo_children():
+                    if isinstance(widget, tk.Frame):
+                        main_frame_widget = widget
+                        break
+                else:
+                    raise Exception("No se encontró el main_frame")
+                
+                frame = create_evaluations_manager(main_frame_widget, nav_commands)
+                frames[name] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
+                print(f"DEBUG: ✅ Módulo de evaluaciones creado exitosamente")
+            else:
+                print(f"ERROR: El frame '{name}' no existe!")
+                messagebox.showerror("Error", f"El frame '{name}' no se pudo cargar.")
+                return
         
         # ✅ IMPORTANTE: Verificar que frame es realmente un Tk widget
         if not isinstance(frame, tk.Widget):
@@ -124,6 +219,26 @@ def show_frame(name):
         traceback.print_exc()
         messagebox.showerror("Error", f"Error al mostrar frame {name}: {str(e)}")
 
+
+
+def abrir_recuperar_password():
+    """
+    Paso 1 del CU-07: Usuario hace clic en "¿Olvidó su contraseña?"
+    Abre la ventana de recuperación de contraseña
+    """
+    try:
+        # Obtener la ventana raíz
+        global main_frame
+        root = main_frame.winfo_toplevel()
+        
+        # Crear y mostrar ventana de recuperación
+        RecuperarPasswordWindow(root)
+    
+    except Exception as e:
+        import traceback
+        print(f"Error al abrir recuperar contraseña: {str(e)}")
+        traceback.print_exc()
+        messagebox.showerror("Error", f"Error al abrir recuperación de contraseña: {str(e)}")
 
 
 def start_preinscription():
@@ -380,6 +495,18 @@ def create_login_column(parent, login_command):
     )
     
     ttk.Button(login_main, text="Acceder", style="Admin.TButton", command=login_command).pack(fill="x", ipady=8)
+    
+    # Paso 1 del CU-07: Enlace "¿Olvidó su contraseña?"
+    recuperar_link = tk.Label(
+        login_main,
+        text="¿Olvidó su contraseña?",
+        bg=COLOR_BG_LOGIN,
+        fg="#3498db",
+        font=("Segoe UI", 9, "underline"),
+        cursor="hand2"
+    )
+    recuperar_link.pack(pady=(10, 0))
+    recuperar_link.bind("<Button-1>", lambda e: abrir_recuperar_password())
     
     tk.Label(login_main, text="Usuarios de prueba:", bg=COLOR_BG_LOGIN, fg=COLOR_TEXT_MUTED, font=FONT_SMALL).pack(anchor="w", pady=(20, 10))
     

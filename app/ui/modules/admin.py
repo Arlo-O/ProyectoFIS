@@ -7,10 +7,13 @@ from sqlalchemy import text
 from app.services.rbac_service import require_permission
 
 # ✅ NUEVO: Importar servicios de usuario
-from app.ui.components.crear_usuario_form import crear_ventana_formulario
+from app.ui.components.form_crear_usuario import FormularioCrearUsuario
 from app.services.usuario_service import ServicioUsuario
 from app.data.db import SessionLocal
 from app.ui.components.session import get_user_info
+
+# ✅ CU-08: Importar diálogo de inhabilitación
+from app.ui.components.inhabilitar_usuario import abrir_dialogo_inhabilitar
 
 try:
     from app.services.gestion_academica import ServicioGestionAcademica
@@ -255,32 +258,15 @@ def create_admin_dashboard(master, nav_commands):
     btn_frame.pack(side="right")
     
     def abrir_formulario_crear_usuario():
-        """Abre el formulario para crear nuevo usuario"""
+        """
+        Paso 1 del diagrama CU-03: Admin hace clic en "Crear usuarios"
+        Paso 2: Sistema despliega formulario
+        """
         try:
-            # Obtener info del usuario actual
-            user_info = get_user_info()
-            
-            # Crear servicio con sesión
-            session = SessionLocal()
-            servicio = ServicioUsuario(session)
-            
-            # Obtener roles disponibles según el rol del usuario actual
-            roles_disponibles = servicio.obtener_roles_disponibles(user_info.get("role", "Administrador"))
-            
-            # Colores
-            config_colors = {
-                "BG": "#f5f5f5",
-                "ACCENT": COLOR_ACCENT_ADMIN,
-                "ERROR": "#f44336",
-                "SUCCESS": "#4caf50",
-                "TEXT": COLOR_TEXT_DARK
-            }
-            
-            # Crear ventana con formulario
-            ventana, formulario = crear_ventana_formulario(
-                roles_disponibles,
-                lambda datos: procesar_creacion_usuario(datos, servicio, session, ventana),
-                config_colors
+            # Crear formulario según flujo CU-03
+            formulario = FormularioCrearUsuario(
+                parent=master,
+                callback_refresh=recargar_tabla_usuarios
             )
         
         except Exception as e:
@@ -289,41 +275,6 @@ def create_admin_dashboard(master, nav_commands):
             print(f"[ERROR] abrir_formulario_crear_usuario: {e}")
             import traceback
             traceback.print_exc()
-    
-    def procesar_creacion_usuario(datos: dict, servicio: ServicioUsuario, session, ventana):
-        """Procesa la creación del usuario desde el formulario"""
-        from tkinter import messagebox
-        
-        try:
-            # Obtener info del usuario actual
-            user_info = get_user_info()
-            
-            # Agregar información de contexto
-            datos["rol_usuario_actual"] = user_info.get("role", "Administrador")
-            
-            # Llamar al servicio
-            exito, mensaje, datos_usuario = servicio.crear_usuario(datos, user_info.get("id"))
-            
-            if exito:
-                messagebox.showinfo("✅ Éxito", mensaje)
-                # Cerrar ventana del formulario
-                ventana.destroy()
-                # Recargar tabla de usuarios
-                recargar_tabla_usuarios()
-            else:
-                messagebox.showerror("❌ Error", mensaje)
-        
-        except Exception as e:
-            from tkinter import messagebox
-            messagebox.showerror("Error", f"Error al crear usuario: {str(e)}")
-            print(f"[ERROR] procesar_creacion_usuario: {e}")
-            import traceback
-            traceback.print_exc()
-        finally:
-            try:
-                session.close()
-            except:
-                pass
     
     def recargar_tabla_usuarios():
         """Recarga la tabla de usuarios"""
@@ -338,19 +289,24 @@ def create_admin_dashboard(master, nav_commands):
                 usuarios = session.execute(text("""
                     SELECT 
                         u.id_usuario,
-                        p.primer_nombre || ' ' || p.primer_apellido as nombre,
+                        COALESCE(
+                            p.primer_nombre || ' ' || p.primer_apellido,
+                            a.primer_nombre || ' ' || a.primer_apellido,
+                            'Usuario sin perfil'
+                        ) as nombre,
                         r.nombre_rol,
                         u.correo_electronico,
                         CASE WHEN u.activo THEN '✓ Activo' ELSE '✗ Inactivo' END as estado,
                         COALESCE(TO_CHAR(u.ultimo_ingreso, 'DD/MM/YYYY'), 'N/A') as ultimo_ingreso
                     FROM usuario u
                     JOIN rol r ON u.id_rol = r.id_rol
-                    LEFT JOIN persona p ON (
-                        u.id_profesor = p.id_persona OR 
-                        u.id_acudiente = p.id_persona OR 
-                        u.id_directivo = p.id_persona OR 
-                        u.id_administrador = p.id_persona
-                    )
+                    LEFT JOIN profesor prof ON prof.id_usuario = u.id_usuario
+                    LEFT JOIN persona p ON prof.id_profesor = p.id_persona
+                    LEFT JOIN acudiente acud ON acud.id_usuario = u.id_usuario
+                    LEFT JOIN persona pa ON acud.id_acudiente = pa.id_persona
+                    LEFT JOIN directivo dir ON dir.id_usuario = u.id_usuario
+                    LEFT JOIN persona pd ON dir.id_directivo = pd.id_persona
+                    LEFT JOIN administrador a ON a.id_administrador = u.id_usuario
                     ORDER BY u.fecha_creacion DESC
                 """)).fetchall()
                 
@@ -376,6 +332,63 @@ def create_admin_dashboard(master, nav_commands):
         text="✏️ Editar",
         style="AdminBlue.TButton",
         command=lambda: open_edit_user_modal(content_card, tree)
+    ).pack(side="left", padx=(0, 8))
+    
+    # PASO 2 CU-08: Botón Inhabilitar usuario
+    def inhabilitar_usuario_seleccionado():
+        """
+        Paso 2 del CU-08: Admin hace clic en "Inhabilitar usuario"
+        asociado a un usuario específico de la lista.
+        """
+        # Verificar que haya un usuario seleccionado
+        seleccion = tree.selection()
+        if not seleccion:
+            from tkinter import messagebox
+            messagebox.showwarning(
+                "Seleccionar Usuario",
+                "Por favor, selecciona un usuario de la lista para inhabilitar.",
+                parent=master
+            )
+            return
+        
+        # Obtener datos del usuario seleccionado
+        item = tree.item(seleccion[0])
+        valores = item['values']
+        id_usuario = valores[0]  # Primera columna: ID
+        correo_usuario = valores[3]  # Cuarta columna: Email
+        estado_actual = valores[4]  # Quinta columna: Estado
+        
+        # Validar que el usuario esté activo
+        if "Inactivo" in estado_actual or "✗" in estado_actual:
+            from tkinter import messagebox
+            messagebox.showinfo(
+                "Usuario ya Inhabilitado",
+                f"El usuario {correo_usuario} ya está inhabilitado.",
+                parent=master
+            )
+            return
+        
+        # Obtener ID del administrador actual (opcional para validación)
+        try:
+            admin_info = get_user_info()
+            admin_id = admin_info.get('id_usuario') if admin_info else None
+        except:
+            admin_id = None
+        
+        # PASO 3-5: Abrir diálogo para solicitar justificación
+        abrir_dialogo_inhabilitar(
+            parent=master,
+            id_usuario=id_usuario,
+            correo_usuario=correo_usuario,
+            admin_id=admin_id,
+            callback=recargar_tabla_usuarios  # Recargar lista después de inhabilitar
+        )
+    
+    ttk.Button(
+        btn_frame,
+        text="🚫 Inhabilitar",
+        style="AdminGreen.TButton",
+        command=inhabilitar_usuario_seleccionado
     ).pack(side="left", padx=(0, 8))
     
     ttk.Button(

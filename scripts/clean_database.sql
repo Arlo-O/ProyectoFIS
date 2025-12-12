@@ -130,10 +130,24 @@ CREATE TABLE IF NOT EXISTS usuario (
     id_rol INTEGER REFERENCES rol(id_rol),
     activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ultimo_ingreso TIMESTAMP
+    ultimo_ingreso TIMESTAMP,
+    justificacion_inhabilitacion TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_usuario_email ON usuario(correo_electronico);
+
+-- Tabla PASSWORD_RESET_CODE - Códigos de recuperación de contraseña (CU-07)
+CREATE TABLE IF NOT EXISTS password_reset_code (
+    id_code SERIAL PRIMARY KEY,
+    id_usuario INTEGER REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    codigo VARCHAR(6) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_expiracion TIMESTAMP NOT NULL,
+    estado VARCHAR(20) DEFAULT 'activo' CHECK (estado IN ('activo', 'usado', 'expirado'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_reset_code_usuario ON password_reset_code(id_usuario);
+CREATE INDEX IF NOT EXISTS idx_reset_code_estado ON password_reset_code(estado);
 
 -- Tabla ADMINISTRADOR (hereda de Usuario) - JOINED TABLE INHERITANCE
 CREATE TABLE IF NOT EXISTS administrador (
@@ -191,7 +205,8 @@ CREATE TABLE IF NOT EXISTS aspirante (
     id_usuario INTEGER REFERENCES usuario(id_usuario),
     grado_solicitado VARCHAR(20),
     fecha_solicitud TIMESTAMP,
-    estado_proceso VARCHAR(20)
+    estado_proceso VARCHAR(20),
+    justificacion_rechazo TEXT
 );
 
 -- Tabla ESTUDIANTE (hereda de Persona, NO tiene Usuario)
@@ -238,13 +253,16 @@ CREATE TABLE IF NOT EXISTS periodo_academico (
 -- ============================================================
 
 -- Tabla HOJA_VIDA
+-- NOTA: Las calificaciones son cualitativas (no numéricas), por lo tanto no se guarda promedio
 CREATE TABLE IF NOT EXISTS hoja_vida (
     id_hoja_vida SERIAL PRIMARY KEY,
     id_estudiante INTEGER REFERENCES estudiante(id_estudiante) UNIQUE,
     estado_salud VARCHAR(100),
     alergias JSONB,
     tratamientos JSONB,
-    necesidades_educativas JSONB
+    necesidades_educativas JSONB,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creador INTEGER REFERENCES usuario(id_usuario)
 );
 
 -- Tabla OBSERVADOR

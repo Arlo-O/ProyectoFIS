@@ -1,0 +1,483 @@
+@startuml DiagramaSecuencia_Inicio_Aplicacion
+!theme plain
+title Diagrama de Secuencia: Inicialización del Sistema de Gestión Académica
+autonumber "<b>[00]"
+
+actor Usuario as user
+participant "<<script>>\nrun_app.py" as runapp
+participant "<<module>>\ndotenv" as dotenv
+participant "<<module>>\napp.data.mappers" as mappers
+participant "<<window>>\ntk.Tk()" as tkwindow
+participant "<<module>>\napp.ui.main" as uimain
+participant "<<module>>\napp.ui.styles" as styles
+participant "<<Frame>>\nmain_frame" as mainframe
+participant "<<function>>\ncreate_nav_commands()" as navcommands
+participant "<<function>>\ncreate_login_screen()" as loginscreen
+participant "<<Frame>>\nlogin_layout" as loginlayout
+participant "<<function>>\ncreate_login_column()" as logincol
+participant "<<Frame>>\nlogin_column" as logincolframe
+participant "<<class>>\nLoginForm" as loginform
+participant "<<function>>\ncreate_pre_column()" as precol
+participant "<<Frame>>\npre_column" as precolframe
+participant "<<function>>\nshow_frame()" as showframe
+
+== FASE 1: Inicialización del Punto de Entrada ==
+
+user -> runapp: ejecuta python run_app.py
+activate runapp
+
+note over runapp
+  Módulo principal del sistema
+  Punto de entrada de la aplicación
+end note
+
+runapp -> dotenv: load_dotenv()
+activate dotenv
+note right
+  Carga variables de entorno:
+  - ENVIRONMENT (dev/prod)
+  - TEST_ADMIN_EMAIL
+  - TEST_ADMIN_PASSWORD
+  - TEST_DIRECTOR_EMAIL
+  - TEST_TEACHER_EMAIL
+  - TEST_PARENT_EMAIL
+  - Configuración de BD
+end note
+dotenv --> runapp: variables cargadas
+deactivate dotenv
+
+runapp -> mappers: start_mappers()
+activate mappers
+note right of mappers
+  Inicializa mapeos SQLAlchemy ORM:
+  • persona_table
+  • usuario_table
+  • rol_table
+  • permiso_table
+  • aspirante_table
+  • estudiante_table
+  • profesor_table
+  • director_table
+  • acudiente_table
+  • grupo_table
+  • curso_table
+  • evaluacion_table
+  • logro_table
+  • observador_table
+  • anotacion_table
+  • hoja_vida_table
+  
+  Configura relaciones entre entidades
+end note
+mappers -> mappers: mapper_registry.configure()
+activate mappers
+deactivate mappers
+mappers --> runapp: mapeos configurados
+deactivate mappers
+
+runapp -> tkwindow ** : root_window = tk.Tk()
+activate tkwindow
+note right
+  Crea ventana principal de Tkinter
+  Ventana raíz del sistema
+end note
+
+runapp -> uimain: initialize_app(root_window)
+activate uimain
+
+== FASE 2: Configuración de la Ventana Principal ==
+
+uimain -> uimain: root = root_window
+note left
+  Asigna ventana a variable global
+end note
+
+uimain -> tkwindow: title("Sistema de Gestión Académica")
+uimain -> tkwindow: geometry("1400x800")
+uimain -> tkwindow: grid_columnconfigure(0, weight=1)
+uimain -> tkwindow: grid_rowconfigure(0, weight=1)
+
+note over tkwindow
+  Ventana configurada:
+  - Título establecido
+  - Tamaño: 1400x800 píxeles
+  - Grid expandible en ambas direcciones
+end note
+
+== FASE 3: Configuración de Estilos ==
+
+uimain -> styles: configure_styles(root_window)
+activate styles
+styles -> styles: style = ttk.Style()
+activate styles
+deactivate styles
+styles -> styles: theme_use('clam')
+activate styles
+deactivate styles
+
+note over styles
+  Configura estilos de componentes:
+  • Admin.TButton (azul)
+  • Pre.TButton (verde)
+  • Director.TButton
+  • Teacher.TButton
+  • Parent.TButton
+  • Logout.TButton
+  • Danger.TButton
+  
+  Define fuentes, colores, padding
+end note
+
+styles -> styles: configure('Admin.TButton', ...)
+activate styles
+deactivate styles
+styles -> styles: configure('Pre.TButton', ...)
+activate styles
+deactivate styles
+styles --> uimain: estilos aplicados
+deactivate styles
+
+== FASE 4: Creación del Frame Principal ==
+
+uimain -> mainframe ** : main_frame = tk.Frame(root)
+activate mainframe
+note right
+  Frame contenedor principal
+  Todos los frames se colocarán aquí
+end note
+
+uimain -> mainframe: grid(row=0, column=0, sticky="nsew")
+uimain -> mainframe: grid_columnconfigure(0, weight=1)
+uimain -> mainframe: grid_rowconfigure(0, weight=1)
+
+note over mainframe
+  Frame principal configurado:
+  - Posicionado en grid (0,0)
+  - Sticky "nsew" (expandible)
+  - Columna y fila con peso 1
+end note
+
+== FASE 5: Creación de Comandos de Navegación ==
+
+uimain -> navcommands: nav_commands = create_nav_commands()
+activate navcommands
+
+note over navcommands
+  Crea diccionario de comandos:
+  • 'home': lambda: show_frame("login")
+  • 'logout': logout
+  • 'dashboard_home': lambda: show_frame("dashboard")
+  • 'director_home': lambda: show_frame("director_dashboard")
+  • 'teacher_home': lambda: show_frame("teacher_dashboard")
+  • 'parent_home': lambda: show_frame("parent_dashboard")
+  • 'show_frame': show_frame
+  • 'next': lambda: next_step()
+  • 'prev': lambda: prev_step()
+  • 'submit': lambda: submit_form()
+end note
+
+navcommands --> uimain: diccionario de comandos
+deactivate navcommands
+
+== FASE 6: Creación de Pantalla de Login ==
+
+uimain -> loginscreen: frames["login"] = create_login_screen(main_frame)
+activate loginscreen
+
+loginscreen -> loginlayout ** : login_layout = tk.Frame(parent_frame)
+activate loginlayout
+
+loginscreen -> loginlayout: grid_columnconfigure(0, weight=1)
+loginscreen -> loginlayout: grid_columnconfigure(1, weight=1)
+loginscreen -> loginlayout: grid_rowconfigure(0, weight=1)
+
+note over loginlayout
+  Layout con dos columnas:
+  - Columna 0: Autenticación
+  - Columna 1: Pre-inscripción
+  Ambas expandibles
+end note
+
+=== Creación de Columna de Autenticación ===
+
+loginscreen -> logincol: login_column = create_login_column(login_layout, login_to_dashboard)
+activate logincol
+
+logincol -> logincolframe ** : column = tk.Frame(parent, bg=COLOR_BG_LOGIN)
+activate logincolframe
+
+logincol -> logincolframe: crear Label("Sistema de Gestión Académica")
+activate logincolframe
+deactivate logincolframe
+
+logincol -> logincolframe: crear Label("Colegio Pequeño - Educación Inicial")
+activate logincolframe
+deactivate logincolframe
+
+logincol -> logincolframe: crear login_main_container
+activate logincolframe
+deactivate logincolframe
+
+logincol -> logincolframe: crear login_main (Frame 350x450)
+activate logincolframe
+deactivate logincolframe
+
+logincol -> logincolframe: crear Label("Autenticación de Usuario")
+activate logincolframe
+deactivate logincolframe
+
+logincol -> loginform ** : login_form = LoginForm(login_main, {})
+activate loginform
+
+note over loginform
+  Instancia de clase LoginForm
+  Maneja credenciales de usuario
+end note
+
+logincol -> loginform: create_widgets(parent_frame, font, bg_color, ...)
+activate loginform
+
+loginform -> loginform: crear Label("Usuario:")
+activate loginform
+deactivate loginform
+
+loginform -> loginform: crear Entry(_user_entry)
+activate loginform
+note right
+  Campo de texto para usuario
+  Con placeholder "Ingrese su usuario"
+end note
+deactivate loginform
+
+loginform -> loginform: _setup_placeholder(_user_entry, "Ingrese su usuario", False)
+activate loginform
+note right
+  Configura eventos:
+  • <FocusIn>: borra placeholder
+  • <FocusOut>: muestra placeholder si vacío
+end note
+deactivate loginform
+
+loginform -> loginform: crear Label("Contraseña:")
+activate loginform
+deactivate loginform
+
+loginform -> loginform: crear Entry(_pass_entry)
+activate loginform
+note right
+  Campo de texto para contraseña
+  Con placeholder "Ingrese su contraseña"
+end note
+deactivate loginform
+
+loginform -> loginform: _setup_placeholder(_pass_entry, "Ingrese su contraseña", True)
+activate loginform
+note right
+  Configura eventos:
+  • <FocusIn>: borra placeholder, show="*"
+  • <FocusOut>: muestra placeholder si vacío
+end note
+deactivate loginform
+
+loginform --> logincol: widgets creados
+deactivate loginform
+
+logincol -> logincolframe: crear Button("Acceder", command=login_to_dashboard)
+activate logincolframe
+note right
+  Botón con estilo Admin.TButton
+  Ejecuta login_to_dashboard al hacer clic
+end note
+deactivate logincolframe
+
+logincol -> logincolframe: crear Label("¿Olvidó su contraseña?", clickeable)
+activate logincolframe
+note right
+  Label con evento <Button-1>
+  Ejecuta abrir_recuperar_password()
+end note
+deactivate logincolframe
+
+opt IS_DEVELOPMENT == True
+    logincol -> logincolframe: mostrar usuarios de prueba
+    activate logincolframe
+    note right
+      Lista de credenciales de prueba:
+      • admin@test.com / admin123 (Admin)
+      • director@test.com / director123 (Director)
+      • teacher@test.com / teacher123 (Profesor)
+      • parent@test.com / parent123 (Acudiente)
+    end note
+    deactivate logincolframe
+end
+
+logincol --> loginscreen: login_column creado
+deactivate logincol
+
+loginscreen -> loginlayout: login_column.grid(row=0, column=0, sticky="nsew")
+
+=== Creación de Columna de Pre-inscripción ===
+
+loginscreen -> precol: pre_column = create_pre_column(login_layout)
+activate precol
+
+precol -> precolframe ** : column = tk.Frame(parent, bg=COLOR_ACCENT_DARK)
+activate precolframe
+
+precol -> precolframe: crear Label("Pre-inscripción")
+activate precolframe
+deactivate precolframe
+
+precol -> precolframe: crear Label("Nuevo estudiante")
+activate precolframe
+deactivate precolframe
+
+precol -> precolframe: crear pre_main_container
+activate precolframe
+deactivate precolframe
+
+precol -> precolframe: crear Label("¿Eres nuevo en nuestra institución?")
+activate precolframe
+deactivate precolframe
+
+precol -> precolframe: crear Label(texto descriptivo)
+activate precolframe
+note right
+  "Completa el formulario de pre-inscripción
+  y nos pondremos en contacto contigo..."
+end note
+deactivate precolframe
+
+precol -> precolframe: crear Button("Iniciar Pre-inscripción")
+activate precolframe
+note right
+  Botón con estilo Pre.TButton
+  Ejecuta start_preinscription()
+end note
+deactivate precolframe
+
+precol -> precolframe: crear Label("Requisitos:")
+activate precolframe
+deactivate precolframe
+
+loop para cada requisito
+    precol -> precolframe: crear Label(requisito)
+    activate precolframe
+    note right
+      Requisitos:
+      ✓ Documento de identidad
+      ✓ Información acudientes
+      ✓ Historial académico
+      ✓ Certificado de nacimiento
+    end note
+    deactivate precolframe
+end
+
+precol --> loginscreen: pre_column creado
+deactivate precol
+
+loginscreen -> loginlayout: pre_column.grid(row=0, column=1, sticky="nsew")
+
+loginscreen --> uimain: login_layout completo
+deactivate loginscreen
+
+uimain -> mainframe: frames["login"].grid(row=0, column=0, sticky="nsew")
+
+== FASE 7: Mostrar Pantalla de Login ==
+
+uimain -> showframe: show_frame("login")
+activate showframe
+
+showframe -> showframe: frame = frames.get("login")
+activate showframe
+deactivate showframe
+
+loop para cada frame en frames.values()
+    showframe -> mainframe: other_frame.grid_remove()
+    activate mainframe
+    note right
+      Oculta todos los frames
+      (sin destruirlos)
+    end note
+    deactivate mainframe
+end
+
+showframe -> mainframe: frame.grid(row=0, column=0, sticky="nsew")
+activate mainframe
+note right
+  Muestra el frame de login
+  Lo posiciona en grid (0,0)
+end note
+deactivate mainframe
+
+showframe -> showframe: step_index = -1
+activate showframe
+note left
+  Actualiza índice de pasos
+  -1 indica pantalla de login
+end note
+deactivate showframe
+
+showframe --> uimain: frame visible
+deactivate showframe
+
+uimain --> runapp: inicialización completa
+deactivate uimain
+
+== FASE 8: Inicio del Event Loop ==
+
+runapp -> tkwindow: mainloop()
+activate tkwindow
+
+note over tkwindow
+  Inicia bucle de eventos de Tkinter:
+  • Espera eventos del usuario
+  • Procesa clics, teclas, movimientos
+  • Redibuja ventana cuando necesario
+  • No retorna hasta cerrar ventana
+end note
+
+note over user, tkwindow
+  SISTEMA EN ESPERA DE INTERACCIÓN DEL USUARIO
+  
+  Pantalla visible con:
+  ═══════════════════════════════════════════════════════════
+  │                                                         │
+  │  COLUMNA IZQUIERDA          │  COLUMNA DERECHA         │
+  │  (Autenticación)            │  (Pre-inscripción)       │
+  │                             │                          │
+  │  ┌─────────────────────┐   │  ┌─────────────────────┐ │
+  │  │ Usuario: [_______]  │   │  │ Pre-inscripción     │ │
+  │  │ Contraseña: [_____] │   │  │                     │ │
+  │  │                     │   │  │ ¿Eres nuevo?        │ │
+  │  │  [   Acceder   ]    │   │  │                     │ │
+  │  │                     │   │  │ [Iniciar Pre-inscr] │ │
+  │  │ ¿Olvidó contraseña? │   │  │                     │ │
+  │  │                     │   │  │ Requisitos:         │ │
+  │  │ Usuarios de prueba  │   │  │ ✓ Documento ID      │ │
+  │  └─────────────────────┘   │  └─────────────────────┘ │
+  │                             │                          │
+  ═══════════════════════════════════════════════════════════
+  
+  Acciones disponibles:
+  ─────────────────────────────────────────────────────────
+  1. Usuario escribe en campo "Usuario"
+  2. Usuario escribe en campo "Contraseña"
+  3. Usuario hace clic en botón "Acceder"
+     → Ejecuta: login_to_dashboard()
+  4. Usuario hace clic en "¿Olvidó su contraseña?"
+     → Ejecuta: abrir_recuperar_password()
+  5. Usuario hace clic en "Iniciar Pre-inscripción"
+     → Ejecuta: start_preinscription()
+  6. Usuario cierra ventana
+     → Ejecuta: exit
+end note
+
+deactivate runapp
+deactivate mainframe
+deactivate loginlayout
+deactivate logincolframe
+deactivate loginform
+deactivate precolframe
+
+@enduml

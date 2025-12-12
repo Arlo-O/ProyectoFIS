@@ -231,47 +231,68 @@ def create_unified_form(master, nav_commands):
     fields1.grid_columnconfigure(0, weight=1)
     fields1.grid_columnconfigure(1, weight=1)
     
-    # Nombre del estudiante
-    tk.Label(fields1, text="Nombre Completo del Estudiante *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=0, column=0, sticky="w", pady=(0, 5))
-    form_data['nombre_estudiante'] = ttk.Entry(fields1, width=40)
-    form_data['nombre_estudiante'].grid(row=1, column=0, sticky="ew", padx=(0, 10), ipady=5)
-    error_labels['nombre_estudiante'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['nombre_estudiante'].grid(row=2, column=0, sticky="w")
+    # Primer nombre del estudiante
+    tk.Label(fields1, text="Primer Nombre del Estudiante *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=0, column=0, sticky="w", pady=(0, 5))
+    form_data['primer_nombre_estudiante'] = ttk.Entry(fields1, width=40)
+    form_data['primer_nombre_estudiante'].grid(row=1, column=0, sticky="ew", padx=(0, 10), ipady=5)
+    error_labels['primer_nombre_estudiante'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
+    error_labels['primer_nombre_estudiante'].grid(row=2, column=0, sticky="w")
+    
+    # Segundo nombre del estudiante
+    tk.Label(fields1, text="Segundo Nombre (Opcional)", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=0, column=1, sticky="w", pady=(0, 5))
+    form_data['segundo_nombre_estudiante'] = ttk.Entry(fields1, width=38)
+    form_data['segundo_nombre_estudiante'].grid(row=1, column=1, sticky="ew", ipady=5)
+    error_labels['segundo_nombre_estudiante'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
+    error_labels['segundo_nombre_estudiante'].grid(row=2, column=1, sticky="w")
+    
+    # Primer apellido del estudiante
+    tk.Label(fields1, text="Primer Apellido del Estudiante *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=3, column=0, sticky="w", pady=(10, 5))
+    form_data['primer_apellido_estudiante'] = ttk.Entry(fields1, width=40)
+    form_data['primer_apellido_estudiante'].grid(row=4, column=0, sticky="ew", padx=(0, 10), ipady=5)
+    error_labels['primer_apellido_estudiante'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
+    error_labels['primer_apellido_estudiante'].grid(row=5, column=0, sticky="w")
+    
+    # Segundo apellido del estudiante
+    tk.Label(fields1, text="Segundo Apellido (Opcional)", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=3, column=1, sticky="w", pady=(10, 5))
+    form_data['segundo_apellido_estudiante'] = ttk.Entry(fields1, width=38)
+    form_data['segundo_apellido_estudiante'].grid(row=4, column=1, sticky="ew", ipady=5)
+    error_labels['segundo_apellido_estudiante'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
+    error_labels['segundo_apellido_estudiante'].grid(row=5, column=1, sticky="w")
     
     # Tipo de identificación
-    tk.Label(fields1, text="Tipo de Identificación *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=0, column=1, sticky="w", pady=(0, 5))
-    form_data['tipo_id'] = ttk.Combobox(fields1, width=38, values=["Cédula de Ciudadanía", "Tarjeta de Identidad", "Pasaporte", "Registro Civil"])
-    form_data['tipo_id'].grid(row=1, column=1, sticky="ew", ipady=5)
+    tk.Label(fields1, text="Tipo de Identificación *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=6, column=0, sticky="w", pady=(10, 5))
+    form_data['tipo_id'] = ttk.Combobox(fields1, width=40, values=["Cédula", "Tarjeta ID", "Pasaporte", "Registro Civil"])
+    form_data['tipo_id'].grid(row=7, column=0, sticky="ew", padx=(0, 10), ipady=5)
     error_labels['tipo_id'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['tipo_id'].grid(row=2, column=1, sticky="w")
+    error_labels['tipo_id'].grid(row=8, column=0, sticky="w")
     
     # Número de identificación
-    tk.Label(fields1, text="Número de Identificación *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=3, column=0, sticky="w", pady=(10, 5))
-    form_data['numero_id'] = ttk.Entry(fields1, width=40)
-    form_data['numero_id'].grid(row=4, column=0, sticky="ew", padx=(0, 10), ipady=5)
+    tk.Label(fields1, text="Número de Identificación *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=6, column=1, sticky="w", pady=(10, 5))
+    form_data['numero_id'] = ttk.Entry(fields1, width=38)
+    form_data['numero_id'].grid(row=7, column=1, sticky="ew", ipady=5)
     error_labels['numero_id'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['numero_id'].grid(row=5, column=0, sticky="w")
+    error_labels['numero_id'].grid(row=8, column=1, sticky="w")
     
     # Fecha de nacimiento
-    tk.Label(fields1, text="Fecha de Nacimiento (DD/MM/YYYY) *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=3, column=1, sticky="w", pady=(10, 5))
-    form_data['fecha_nacimiento'] = ttk.Entry(fields1, width=38)
-    form_data['fecha_nacimiento'].grid(row=4, column=1, sticky="ew", ipady=5)
+    tk.Label(fields1, text="Fecha de Nacimiento (DD/MM/YYYY) *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=9, column=0, sticky="w", pady=(10, 5))
+    form_data['fecha_nacimiento'] = ttk.Entry(fields1, width=40)
+    form_data['fecha_nacimiento'].grid(row=10, column=0, sticky="ew", padx=(0, 10), ipady=5)
     error_labels['fecha_nacimiento'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['fecha_nacimiento'].grid(row=5, column=1, sticky="w")
+    error_labels['fecha_nacimiento'].grid(row=11, column=0, sticky="w")
     
     # Género
-    tk.Label(fields1, text="Género *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=6, column=0, sticky="w", pady=(10, 5))
-    form_data['genero'] = ttk.Combobox(fields1, width=40, values=["Masculino", "Femenino", "Otro"])
-    form_data['genero'].grid(row=7, column=0, sticky="ew", padx=(0, 10), ipady=5)
+    tk.Label(fields1, text="Género *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=9, column=1, sticky="w", pady=(10, 5))
+    form_data['genero'] = ttk.Combobox(fields1, width=38, values=["M", "F"])
+    form_data['genero'].grid(row=10, column=1, sticky="ew", ipady=5)
     error_labels['genero'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['genero'].grid(row=8, column=0, sticky="w")
+    error_labels['genero'].grid(row=11, column=1, sticky="w")
     
     # Grado deseado
-    tk.Label(fields1, text="Grado Deseado *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=6, column=1, sticky="w", pady=(10, 5))
-    form_data['grado'] = ttk.Combobox(fields1, width=38, values=["Preescolar", "1°", "2°", "3°", "4°", "5°", "6°", "7°", "8°", "9°", "10°", "11°"])
-    form_data['grado'].grid(row=7, column=1, sticky="ew", ipady=5)
+    tk.Label(fields1, text="Grado Deseado *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=12, column=0, sticky="w", pady=(10, 5))
+    form_data['grado'] = ttk.Combobox(fields1, width=40, values=["Parvulos", "Caminadores", "Prejardin"])
+    form_data['grado'].grid(row=13, column=0, sticky="ew", padx=(0, 10), ipady=5)
     error_labels['grado'] = tk.Label(fields1, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['grado'].grid(row=8, column=1, sticky="w")
+    error_labels['grado'].grid(row=14, column=0, sticky="w")
     
     # --- SECCIÓN 2: ACUDIENTE PRINCIPAL ---
     section2 = tk.Frame(main_content_frame, bg="#fcf0e5", highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
@@ -291,47 +312,68 @@ def create_unified_form(master, nav_commands):
     fields2.grid_columnconfigure(0, weight=1)
     fields2.grid_columnconfigure(1, weight=1)
     
-    # Nombre acudiente
-    tk.Label(fields2, text="Nombre Completo del Acudiente *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=0, column=0, sticky="w", pady=(0, 5))
-    form_data['nombre_acudiente'] = ttk.Entry(fields2, width=40)
-    form_data['nombre_acudiente'].grid(row=1, column=0, sticky="ew", padx=(0, 10), ipady=5)
-    error_labels['nombre_acudiente'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['nombre_acudiente'].grid(row=2, column=0, sticky="w")
+    # Primer nombre acudiente
+    tk.Label(fields2, text="Primer Nombre del Acudiente *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=0, column=0, sticky="w", pady=(0, 5))
+    form_data['primer_nombre_acudiente'] = ttk.Entry(fields2, width=40)
+    form_data['primer_nombre_acudiente'].grid(row=1, column=0, sticky="ew", padx=(0, 10), ipady=5)
+    error_labels['primer_nombre_acudiente'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
+    error_labels['primer_nombre_acudiente'].grid(row=2, column=0, sticky="w")
+    
+    # Segundo nombre acudiente
+    tk.Label(fields2, text="Segundo Nombre (Opcional)", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=0, column=1, sticky="w", pady=(0, 5))
+    form_data['segundo_nombre_acudiente'] = ttk.Entry(fields2, width=38)
+    form_data['segundo_nombre_acudiente'].grid(row=1, column=1, sticky="ew", ipady=5)
+    error_labels['segundo_nombre_acudiente'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
+    error_labels['segundo_nombre_acudiente'].grid(row=2, column=1, sticky="w")
+    
+    # Primer apellido acudiente
+    tk.Label(fields2, text="Primer Apellido del Acudiente *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=3, column=0, sticky="w", pady=(10, 5))
+    form_data['primer_apellido_acudiente'] = ttk.Entry(fields2, width=40)
+    form_data['primer_apellido_acudiente'].grid(row=4, column=0, sticky="ew", padx=(0, 10), ipady=5)
+    error_labels['primer_apellido_acudiente'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
+    error_labels['primer_apellido_acudiente'].grid(row=5, column=0, sticky="w")
+    
+    # Segundo apellido acudiente
+    tk.Label(fields2, text="Segundo Apellido (Opcional)", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=3, column=1, sticky="w", pady=(10, 5))
+    form_data['segundo_apellido_acudiente'] = ttk.Entry(fields2, width=38)
+    form_data['segundo_apellido_acudiente'].grid(row=4, column=1, sticky="ew", ipady=5)
+    error_labels['segundo_apellido_acudiente'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
+    error_labels['segundo_apellido_acudiente'].grid(row=5, column=1, sticky="w")
     
     # Cédula acudiente
-    tk.Label(fields2, text="Cédula de Ciudadanía del Acudiente *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=0, column=1, sticky="w", pady=(0, 5))
-    form_data['cedula_acudiente'] = ttk.Entry(fields2, width=38)
-    form_data['cedula_acudiente'].grid(row=1, column=1, sticky="ew", ipady=5)
+    tk.Label(fields2, text="Cédula de Ciudadanía *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=6, column=0, sticky="w", pady=(10, 5))
+    form_data['cedula_acudiente'] = ttk.Entry(fields2, width=40)
+    form_data['cedula_acudiente'].grid(row=7, column=0, sticky="ew", padx=(0, 10), ipady=5)
     error_labels['cedula_acudiente'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['cedula_acudiente'].grid(row=2, column=1, sticky="w")
+    error_labels['cedula_acudiente'].grid(row=8, column=0, sticky="w")
     
     # Teléfono
-    tk.Label(fields2, text="Teléfono/Celular *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=3, column=0, sticky="w", pady=(10, 5))
-    form_data['telefono'] = ttk.Entry(fields2, width=40)
-    form_data['telefono'].grid(row=4, column=0, sticky="ew", padx=(0, 10), ipady=5)
+    tk.Label(fields2, text="Teléfono/Celular *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=6, column=1, sticky="w", pady=(10, 5))
+    form_data['telefono'] = ttk.Entry(fields2, width=38)
+    form_data['telefono'].grid(row=7, column=1, sticky="ew", ipady=5)
     error_labels['telefono'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['telefono'].grid(row=5, column=0, sticky="w")
+    error_labels['telefono'].grid(row=8, column=1, sticky="w")
     
     # Email
-    tk.Label(fields2, text="Correo Electrónico *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=3, column=1, sticky="w", pady=(10, 5))
-    form_data['email'] = ttk.Entry(fields2, width=38)
-    form_data['email'].grid(row=4, column=1, sticky="ew", ipady=5)
+    tk.Label(fields2, text="Correo Electrónico *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=9, column=0, sticky="w", pady=(10, 5))
+    form_data['email'] = ttk.Entry(fields2, width=40)
+    form_data['email'].grid(row=10, column=0, sticky="ew", padx=(0, 10), ipady=5)
     error_labels['email'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['email'].grid(row=5, column=1, sticky="w")
+    error_labels['email'].grid(row=11, column=0, sticky="w")
     
     # Dirección
-    tk.Label(fields2, text="Dirección de Residencia *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=6, column=0, sticky="w", pady=(10, 5))
-    form_data['direccion'] = ttk.Entry(fields2, width=40)
-    form_data['direccion'].grid(row=7, column=0, sticky="ew", padx=(0, 10), ipady=5)
+    tk.Label(fields2, text="Dirección de Residencia *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=9, column=1, sticky="w", pady=(10, 5))
+    form_data['direccion'] = ttk.Entry(fields2, width=38)
+    form_data['direccion'].grid(row=10, column=1, sticky="ew", ipady=5)
     error_labels['direccion'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['direccion'].grid(row=8, column=0, sticky="w")
+    error_labels['direccion'].grid(row=11, column=1, sticky="w")
     
     # Parentesco
-    tk.Label(fields2, text="Parentesco *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=6, column=1, sticky="w", pady=(10, 5))
-    form_data['parentesco'] = ttk.Combobox(fields2, width=38, values=["Padre", "Madre", "Tutor Legal", "Abuelo/a", "Otro"])
-    form_data['parentesco'].grid(row=7, column=1, sticky="ew", ipady=5)
+    tk.Label(fields2, text="Parentesco *", bg="#ffffff", font=FONT_P_BOLD, anchor="w").grid(row=12, column=0, sticky="w", pady=(10, 5))
+    form_data['parentesco'] = ttk.Combobox(fields2, width=40, values=["Padre", "Madre", "Tutor Legal", "Abuelo/a", "Otro"])
+    form_data['parentesco'].grid(row=13, column=0, sticky="ew", padx=(0, 10), ipady=5)
     error_labels['parentesco'] = tk.Label(fields2, text="", bg="#ffffff", fg="red", font=FONT_P, anchor="w")
-    error_labels['parentesco'].grid(row=8, column=1, sticky="w")
+    error_labels['parentesco'].grid(row=14, column=0, sticky="w")
     
     # --- SECCIÓN 2B: ACUDIENTE SECUNDARIO (OPCIONAL) ---
     section2b = tk.Frame(main_content_frame, bg="#fcf0e5", highlightbackground=COLOR_TEST_BORDER, highlightthickness=1)
@@ -489,11 +531,18 @@ def create_unified_form(master, nav_commands):
         errores_dict = {}  # Diccionario para almacenar errores
         hay_errores = False
         
-        # Validar nombre estudiante
-        valido, error = FormValidators.validar_nombre(form_data['nombre_estudiante'].get())
+        # Validar primer nombre del estudiante
+        valido, error = FormValidators.validar_nombre(form_data['primer_nombre_estudiante'].get())
         if not valido:
-            error_labels['nombre_estudiante'].config(text=f"✗ {error}")
-            errores_dict['nombre_estudiante'] = error
+            error_labels['primer_nombre_estudiante'].config(text=f"✗ {error}")
+            errores_dict['primer_nombre_estudiante'] = error
+            hay_errores = True
+        
+        # Validar primer apellido del estudiante
+        valido, error = FormValidators.validar_nombre(form_data['primer_apellido_estudiante'].get())
+        if not valido:
+            error_labels['primer_apellido_estudiante'].config(text=f"✗ {error}")
+            errores_dict['primer_apellido_estudiante'] = error
             hay_errores = True
         
         # Validar tipo de ID
@@ -528,11 +577,18 @@ def create_unified_form(master, nav_commands):
             errores_dict['grado'] = "Seleccione un grado"
             hay_errores = True
         
-        # Validar nombre acudiente
-        valido, error = FormValidators.validar_nombre(form_data['nombre_acudiente'].get())
+        # Validar primer nombre acudiente
+        valido, error = FormValidators.validar_nombre(form_data['primer_nombre_acudiente'].get())
         if not valido:
-            error_labels['nombre_acudiente'].config(text=f"✗ {error}")
-            errores_dict['nombre_acudiente'] = error
+            error_labels['primer_nombre_acudiente'].config(text=f"✗ {error}")
+            errores_dict['primer_nombre_acudiente'] = error
+            hay_errores = True
+        
+        # Validar primer apellido acudiente
+        valido, error = FormValidators.validar_nombre(form_data['primer_apellido_acudiente'].get())
+        if not valido:
+            error_labels['primer_apellido_acudiente'].config(text=f"✗ {error}")
+            errores_dict['primer_apellido_acudiente'] = error
             hay_errores = True
         
         # Validar cédula acudiente
@@ -620,6 +676,45 @@ def create_unified_form(master, nav_commands):
             intento = servicio.registrar_error(errores_dict, identificador_usuario)
             contador = intento.numero_error
             
+            # PASO 7.2-7.4: Encontrar el primer campo inválido y hacer scroll hacia él
+            primer_campo_invalido = None
+            orden_campos = [
+                'primer_nombre_estudiante', 'segundo_nombre_estudiante', 'primer_apellido_estudiante', 'segundo_apellido_estudiante',
+                'tipo_id', 'numero_id', 'fecha_nacimiento', 'genero', 'grado',
+                'primer_nombre_acudiente', 'segundo_nombre_acudiente', 'primer_apellido_acudiente', 'segundo_apellido_acudiente',
+                'cedula_acudiente', 'telefono', 'email', 'direccion', 'parentesco',
+                'nombre_acudiente2', 'cedula_acudiente2', 'telefono2', 'email2', 'parentesco2',
+                'acepto_terminos'
+            ]
+            
+            for campo in orden_campos:
+                if campo in errores_dict:
+                    primer_campo_invalido = campo
+                    break
+            
+            # PASO 7.4: Ir al primer campo inválido
+            if primer_campo_invalido and primer_campo_invalido in form_data:
+                try:
+                    widget = form_data[primer_campo_invalido]
+                    # Hacer scroll hacia el widget
+                    canvas.yview_moveto(0)  # Primero ir al inicio
+                    form_frame.update_idletasks()
+                    
+                    # Obtener la posición Y del widget
+                    widget_y = widget.winfo_y()
+                    canvas_height = canvas.winfo_height()
+                    scrollable_height = main_content_frame.winfo_height()
+                    
+                    # Calcular el scroll necesario
+                    if scrollable_height > canvas_height:
+                        scroll_position = widget_y / scrollable_height
+                        canvas.yview_moveto(max(0, scroll_position - 0.1))
+                    
+                    # Dar foco al widget
+                    widget.focus_set()
+                except Exception as e:
+                    print(f"No se pudo hacer scroll al campo {primer_campo_invalido}: {e}")
+            
             # Construir mensaje de error con contador
             mensaje = f"❌ Error {contador}/3:\n\n"
             for campo, error_msg in errores_dict.items():
@@ -644,20 +739,61 @@ def create_unified_form(master, nav_commands):
                 )
             return
         
-        # Si todo está válido, mostrar mensaje de éxito y redirigir
-        try:
-            from .dialogs import show_confirmation_dialog
-            def redirect_home():
-                nav_commands['home']()
-            show_confirmation_dialog(
-                form_frame,
-                "Preinscripción Enviada",
-                "Su formulario de preinscripción ha sido enviado exitosamente. Nos pondremos en contacto pronto.",
-                on_confirm=redirect_home
+        # PASO 8: Registrar datos en el datastore (BD)
+        datos_formulario = {
+            'primer_nombre_estudiante': form_data['primer_nombre_estudiante'].get().strip(),
+            'segundo_nombre_estudiante': form_data['segundo_nombre_estudiante'].get().strip(),
+            'primer_apellido_estudiante': form_data['primer_apellido_estudiante'].get().strip(),
+            'segundo_apellido_estudiante': form_data['segundo_apellido_estudiante'].get().strip(),
+            'tipo_id': form_data['tipo_id'].get(),
+            'numero_id': form_data['numero_id'].get(),
+            'fecha_nacimiento': form_data['fecha_nacimiento'].get(),
+            'genero': form_data['genero'].get(),
+            'grado': form_data['grado'].get(),
+            'primer_nombre_acudiente': form_data['primer_nombre_acudiente'].get().strip(),
+            'segundo_nombre_acudiente': form_data['segundo_nombre_acudiente'].get().strip(),
+            'primer_apellido_acudiente': form_data['primer_apellido_acudiente'].get().strip(),
+            'segundo_apellido_acudiente': form_data['segundo_apellido_acudiente'].get().strip(),
+            'cedula_acudiente': form_data['cedula_acudiente'].get(),
+            'telefono': form_data['telefono'].get(),
+            'email': form_data['email'].get(),
+            'direccion': form_data['direccion'].get(),
+            'parentesco': form_data['parentesco'].get(),
+            'acepto_terminos': form_data['acepto_terminos'].get()
+        }
+        
+        # Agregar acudiente secundario si existe
+        if form_data['nombre_acudiente2'].get():
+            datos_formulario['nombre_acudiente2'] = form_data['nombre_acudiente2'].get()
+            datos_formulario['cedula_acudiente2'] = form_data['cedula_acudiente2'].get()
+            datos_formulario['telefono2'] = form_data['telefono2'].get()
+            datos_formulario['email2'] = form_data['email2'].get()
+            datos_formulario['parentesco2'] = form_data['parentesco2'].get()
+        
+        # Llamar al servicio para guardar en BD
+        exito_bd, mensaje_bd = servicio.registrar_preinscripcion_bd(datos_formulario)
+        
+        if not exito_bd:
+            messagebox.showerror(
+                "Error al Guardar",
+                f"No se pudo guardar la preinscripción en la base de datos:\n\n{mensaje_bd}",
+                parent=form_frame
             )
-        except ImportError:
-            messagebox.showinfo("Éxito", "Preinscripción enviada correctamente")
-            nav_commands['home']()
+            return
+        
+        # PASO 9: Mensaje respuesta enviada (mensaje exacto del diagrama)
+        # Limpiar contador de intentos fallidos
+        servicio.servicio_intentos.limpiar_intentos_usuario(identificador_usuario)
+        
+        # Mostrar mensaje de éxito y redirigir
+        messagebox.showinfo(
+            "Preinscripción Enviada",
+            mensaje_bd,  # "La preinscripción ha sido enviada exitosamente."
+            parent=form_frame
+        )
+        
+        # PASO 10-11: Usuario hace clic en "Aceptar" y finaliza
+        nav_commands['home']()
     
     ttk.Button(button_frame, text="Volver", command=nav_commands['home']).pack(side="left", padx=5)
     ttk.Button(button_frame, text="Enviar Preinscripción", style="Login.TButton", command=validar_y_enviar).pack(side="right", padx=5)

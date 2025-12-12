@@ -1,0 +1,846 @@
+@startuml DiagramaSecuencia_Consulta_Aspirantes
+!theme plain
+title Diagrama de Secuencia: CU-12 - Consultar y Gestionar Aspirantes
+autonumber "<b>[00]"
+
+actor Directivo as director
+participant "<<Frame>>\ndirector_dashboard" as dashboard
+participant "<<module>>\napp.ui.main" as uimain
+participant "<<function>>\nshow_frame()" as showframe
+participant "<<module>>\napp.ui.modules.aspirantes" as aspmodule
+participant "<<function>>\ncreate_aspirantes_manager()" as createasp
+participant "<<Frame>>\nmain_frame" as mainframe
+participant "<<class>>\nGestionAspirantesView" as viewclass
+participant "<<method>>\ncrear_interfaz()" as crearintf
+participant "<<method>>\ncargar_listado_aspirantes()" as cargarlist
+participant "<<class>>\nServicioAspirante" as servicio
+participant "<<method>>\nobtener_listado_aspirantes()" as obtenerlist
+participant "<<database>>\nPostgreSQL" as database
+participant "<<method>>\ndesplegar_tabla_aspirantes()" as desplegarTabla
+participant "<<widget>>\nCanvas + Scrollbar" as canvas
+participant "<<method>>\ncrear_fila_aspirante()" as crearfila
+participant "<<widget>>\nButton 'Ver detalles'" as btndetalle
+participant "<<method>>\nver_detalle_aspirante()" as verdetalle
+participant "<<method>>\nmostrar_detalle_aspirante()" as mostrardetalle
+participant "<<method>>\nobtener_detalle_aspirante()" as obtenerdetalle
+participant "<<method>>\nrenderizar_detalle_completo()" as renderdetalle
+
+== PASO 1: Directivo Accede al Módulo ==
+
+director -> dashboard: hace clic en botón "📋 Aspirantes"
+activate dashboard
+
+note right of dashboard
+  Dashboard del Directivo (director.py)
+  Botón de navegación en sidebar o grid
+  command=lambda: nav_commands['show_frame']('aspirantes_manager')
+end note
+
+dashboard -> uimain: nav_commands['show_frame']('aspirantes_manager')
+activate uimain
+
+uimain -> showframe: show_frame('aspirantes_manager')
+activate showframe
+
+note over showframe
+  Función show_frame() en main.py
+  Verifica si frame existe en diccionario frames
+  Si no existe, carga dinámicamente
+end note
+
+showframe -> showframe: frame = frames.get('aspirantes_manager')
+activate showframe
+note right
+  frame == None
+  (primera vez que se accede)
+end note
+deactivate showframe
+
+== PASO 2: Carga Dinámica del Módulo ==
+
+showframe -> aspmodule: from .modules.aspirantes import create_aspirantes_manager
+activate aspmodule
+
+note over aspmodule
+  Módulo aspirantes.py
+  Contiene la clase GestionAspirantesView
+  y la función factory create_aspirantes_manager()
+end note
+
+aspmodule --> showframe: módulo cargado
+deactivate aspmodule
+
+showframe -> mainframe: obtener referencia main_frame
+activate mainframe
+note right
+  Busca widget Frame en root.winfo_children()
+end note
+mainframe --> showframe: main_frame_widget
+deactivate mainframe
+
+showframe -> createasp: frame = create_aspirantes_manager(main_frame_widget, nav_commands)
+activate createasp
+
+note over createasp
+  Función factory que:
+  1. Crea Frame contenedor
+  2. Instancia GestionAspirantesView
+  3. Retorna el Frame
+end note
+
+createasp -> mainframe ** : frame = tk.Frame(parent)
+activate mainframe
+
+createasp -> viewclass ** : view = GestionAspirantesView(frame, nav_commands)
+activate viewclass
+
+note over viewclass
+  Constructor de la vista:
+  - Inicializa self.servicio = ServicioAspirante()
+  - Inicializa self.aspirantes_actuales = []
+  - Inicializa self.detalle_actual = None
+  - Inicializa frames (listado y detalle)
+end note
+
+viewclass -> servicio ** : self.servicio = ServicioAspirante()
+activate servicio
+note right
+  Instancia del servicio de aspirantes
+  Maneja la lógica de negocio
+end note
+
+viewclass -> crearintf: self.crear_interfaz()
+activate crearintf
+
+note over crearintf
+  PASO 2 DEL DIAGRAMA:
+  "Sistema carga listado aspirantes actuales"
+  
+  Crea la interfaz con:
+  - Header con título y botones
+  - Descripción
+  - Contenedor de tabla
+end note
+
+== PASO 3: Construcción de la Interfaz ==
+
+crearintf -> crearintf: limpiar master
+activate crearintf
+deactivate crearintf
+
+crearintf -> crearintf: crear self.frame_listado
+activate crearintf
+note right
+  Frame principal con bg="#f8f9fa"
+end note
+deactivate crearintf
+
+crearintf -> crearintf: crear header (Frame)
+activate crearintf
+note right
+  Header contiene:
+  - Label "📋 Gestión de Aspirantes"
+  - Button "🔄 Actualizar"
+  - Button "← Volver al Dashboard"
+end note
+deactivate crearintf
+
+crearintf -> crearintf: crear Label(descripción)
+activate crearintf
+note right
+  "Consulte y gestione los aspirantes
+  registrados en el sistema"
+end note
+deactivate crearintf
+
+crearintf -> crearintf: crear self.contenedor_tabla
+activate crearintf
+note right
+  Frame blanco para la tabla
+  bg="#ffffff"
+end note
+deactivate crearintf
+
+crearintf -> cargarlist: self.cargar_listado_aspirantes()
+activate cargarlist
+
+note over cargarlist
+  PASO 2 (continuación):
+  Método que carga los datos desde la BD
+end note
+
+== PASO 4: Consulta a la Base de Datos ==
+
+cargarlist -> cargarlist: limpiar contenedor_tabla
+activate cargarlist
+deactivate cargarlist
+
+cargarlist -> cargarlist: mostrar "⏳ Cargando aspirantes..."
+activate cargarlist
+deactivate cargarlist
+
+cargarlist -> cargarlist: update() para mostrar indicador
+activate cargarlist
+deactivate cargarlist
+
+cargarlist -> servicio: exito, aspirantes, mensaje = obtener_listado_aspirantes()
+activate servicio
+
+servicio -> obtenerlist: self.obtener_listado_aspirantes()
+activate obtenerlist
+
+note over obtenerlist
+  Método del servicio que:
+  1. Crea sesión de BD
+  2. Ejecuta query SQL
+  3. Procesa resultados
+  4. Retorna (bool, list, str)
+end note
+
+obtenerlist -> obtenerlist: session = SessionLocal()
+activate obtenerlist
+note right
+  Crea sesión de SQLAlchemy
+end note
+deactivate obtenerlist
+
+obtenerlist -> database: execute SQL query
+activate database
+
+note over database
+  Query SQL con JOIN:
+  
+  SELECT 
+    a.id_aspirante,
+    p.primer_nombre,
+    p.segundo_nombre,
+    p.primer_apellido,
+    p.segundo_apellido,
+    p.tipo_identificacion,
+    p.numero_identificacion,
+    p.fecha_nacimiento,
+    p.genero,
+    p.direccion,
+    p.telefono,
+    a.grado_solicitado,
+    a.fecha_solicitud,
+    a.estado_proceso
+  FROM aspirante a
+  INNER JOIN persona p 
+    ON a.id_aspirante = p.id_persona
+  ORDER BY a.fecha_solicitud DESC
+end note
+
+database --> obtenerlist: resultados (lista de Row)
+deactivate database
+
+loop para cada row en resultados
+    obtenerlist -> obtenerlist: construir nombre_completo
+    activate obtenerlist
+    note right
+      Concatena:
+      primer_nombre + segundo_nombre +
+      primer_apellido + segundo_apellido
+    end note
+    deactivate obtenerlist
+    
+    obtenerlist -> obtenerlist: calcular edad
+    activate obtenerlist
+    note right
+      Si existe fecha_nacimiento:
+      edad = año_actual - año_nacimiento
+      ajustado por mes y día
+    end note
+    deactivate obtenerlist
+    
+    obtenerlist -> obtenerlist: formatear fechas
+    activate obtenerlist
+    note right
+      fecha_solicitud.strftime("%d/%m/%Y")
+    end note
+    deactivate obtenerlist
+    
+    obtenerlist -> obtenerlist: crear aspirante_dict
+    activate obtenerlist
+    note right
+      Diccionario con:
+      - id_aspirante
+      - nombre_completo
+      - tipo_identificacion
+      - numero_identificacion
+      - grado_solicitado
+      - fecha_solicitud
+      - estado_proceso
+      - edad
+      - genero, direccion, telefono
+    end note
+    deactivate obtenerlist
+    
+    obtenerlist -> obtenerlist: aspirantes.append(aspirante_dict)
+    activate obtenerlist
+    deactivate obtenerlist
+end
+
+obtenerlist -> obtenerlist: session.close()
+activate obtenerlist
+deactivate obtenerlist
+
+obtenerlist --> servicio: return (True, aspirantes, mensaje)
+deactivate obtenerlist
+
+servicio --> cargarlist: (exito, aspirantes, mensaje)
+deactivate servicio
+
+opt exito == False
+    cargarlist -> cargarlist: mostrar error
+    activate cargarlist
+    note right
+      Label con mensaje de error
+      fg="#dc3545"
+    end note
+    deactivate cargarlist
+    cargarlist --> crearintf: return (error mostrado)
+end
+
+opt aspirantes == []
+    cargarlist -> cargarlist: mostrar "📭 No hay aspirantes"
+    activate cargarlist
+    deactivate cargarlist
+    cargarlist --> crearintf: return (mensaje mostrado)
+end
+
+cargarlist -> cargarlist: self.aspirantes_actuales = aspirantes
+activate cargarlist
+note right
+  Guarda lista en variable de instancia
+end note
+deactivate cargarlist
+
+== PASO 5: Renderizado de la Tabla ==
+
+cargarlist -> desplegarTabla: self.desplegar_tabla_aspirantes()
+activate desplegarTabla
+
+note over desplegarTabla
+  PASO 3 DEL DIAGRAMA:
+  "Sistema despliega listado aspirantes"
+  
+  Muestra tabla con:
+  - Encabezados
+  - Filas de datos
+  - Botones de acción
+end note
+
+desplegarTabla -> canvas ** : crear Canvas + Scrollbar
+activate canvas
+note right
+  Canvas con scrollbar vertical
+  para tabla scrollable
+  
+  scrollable_frame dentro del Canvas
+end note
+
+desplegarTabla -> canvas: crear encabezados
+activate canvas
+note right
+  Headers:
+  ["#", "Nombre Completo", 
+   "Identificación", "Grado",
+   "Fecha Solicitud", "Estado",
+   "Acciones"]
+  
+  Frame con bg=COLOR_HEADER_PRE
+  Labels en blanco (fg="#ffffff")
+end note
+deactivate canvas
+
+loop para cada aspirante en self.aspirantes_actuales
+    desplegarTabla -> crearfila: self.crear_fila_aspirante(scrollable_frame, idx, aspirante)
+    activate crearfila
+    
+    note over crearfila
+      Crea una fila con:
+      - Número secuencial
+      - Nombre completo
+      - Tipo y número de identificación
+      - Grado solicitado
+      - Fecha de solicitud
+      - Estado (con color)
+      - Botón "👁️ Ver detalles"
+    end note
+    
+    crearfila -> crearfila: crear row_frame
+    activate crearfila
+    note right
+      Frame con bg alternado
+      (blanco / gris claro)
+    end note
+    deactivate crearfila
+    
+    crearfila -> crearfila: crear Labels (columnas 1-6)
+    activate crearfila
+    note right
+      Label para número
+      Label para nombre
+      Label para identificación
+      Label para grado
+      Label para fecha
+      Label para estado (con color)
+    end note
+    deactivate crearfila
+    
+    crearfila -> btndetalle ** : crear Button "Ver detalles"
+    activate btndetalle
+    note right
+      Button con:
+      - text="👁️ Ver detalles"
+      - bg=COLOR_HEADER_PRE
+      - command=lambda: ver_detalle_aspirante(id)
+      - cursor="hand2"
+      
+      Con efectos hover (enter/leave)
+    end note
+    
+    crearfila --> desplegarTabla: fila creada
+    deactivate crearfila
+end
+
+desplegarTabla -> canvas: crear footer con total
+activate canvas
+note right
+  Label: "Total de aspirantes: N"
+end note
+deactivate canvas
+
+desplegarTabla -> canvas: pack scrollbar y canvas
+activate canvas
+deactivate canvas
+
+desplegarTabla --> cargarlist: tabla desplegada
+deactivate desplegarTabla
+
+cargarlist --> crearintf: listado cargado
+deactivate cargarlist
+
+crearintf --> viewclass: interfaz creada
+deactivate crearintf
+
+viewclass --> createasp: view creada
+deactivate viewclass
+
+createasp -> mainframe: frame.grid(row=0, column=0, sticky="nsew")
+
+createasp --> showframe: return frame
+deactivate createasp
+deactivate mainframe
+
+showframe -> showframe: frames['aspirantes_manager'] = frame
+activate showframe
+note right
+  Guarda frame en diccionario global
+end note
+deactivate showframe
+
+== PASO 6: Mostrar el Frame ==
+
+loop para cada frame en frames.values()
+    showframe -> mainframe: other_frame.grid_remove()
+    activate mainframe
+    note right
+      Oculta todos los frames existentes
+    end note
+    deactivate mainframe
+end
+
+showframe -> mainframe: frame.grid(row=0, column=0, sticky="nsew")
+activate mainframe
+note right
+  Muestra el frame de aspirantes
+end note
+deactivate mainframe
+
+showframe --> uimain: frame mostrado
+deactivate showframe
+
+uimain --> dashboard: navegación completada
+deactivate uimain
+
+dashboard --> director: pantalla de aspirantes visible
+deactivate dashboard
+
+note over director, canvas
+  SISTEMA ESPERANDO INTERACCIÓN
+  
+  Pantalla visible:
+  ═══════════════════════════════════════════════════
+  │ 📋 Gestión de Aspirantes    [🔄][← Volver]     │
+  │ Consulte y gestione los aspirantes registrados  │
+  ├─────────────────────────────────────────────────┤
+  │ # │ Nombre  │ ID  │ Grado │ Fecha │ Estado │ ● │
+  ├─────────────────────────────────────────────────┤
+  │ 1 │ Juan P. │ TI  │ 1°    │ 01/12 │ Pend.  │👁️│
+  │ 2 │ María G.│ TI  │ 2°    │ 28/11 │ Acept. │👁️│
+  │ 3 │ Pedro M.│ CC  │ 1°    │ 25/11 │ EnProc │👁️│
+  ├─────────────────────────────────────────────────┤
+  │ Total de aspirantes: 3                          │
+  ═══════════════════════════════════════════════════
+  
+  Directivo puede:
+  1. Hacer clic en "🔄 Actualizar" → recargar lista
+  2. Hacer clic en "← Volver" → volver al dashboard
+  3. Hacer clic en "👁️ Ver detalles" → ver detalle
+end note
+
+== PASO 7: Directivo Hace Clic en "Ver Detalles" ==
+
+director -> btndetalle: hace clic en "👁️ Ver detalles"
+activate btndetalle
+
+note right of btndetalle
+  El Directivo selecciona un aspirante
+  específico de la lista
+  
+  PASO 4 DEL DIAGRAMA:
+  "Directivo hace clic en
+  'Ver detalles de aspirante'"
+end note
+
+btndetalle -> verdetalle: command() ejecuta ver_detalle_aspirante(id_aspirante)
+activate verdetalle
+
+note over verdetalle
+  PASO 5 DEL DIAGRAMA:
+  "Sistema redirige al módulo de aspirante"
+  
+  Método que:
+  1. Oculta frame_listado
+  2. Llama a mostrar_detalle_aspirante()
+end note
+
+verdetalle -> verdetalle: self.frame_listado.pack_forget()
+activate verdetalle
+note right
+  Oculta la tabla de listado
+end note
+deactivate verdetalle
+
+verdetalle -> mostrardetalle: self.mostrar_detalle_aspirante(id_aspirante)
+activate mostrardetalle
+
+note over mostrardetalle
+  PASO 6-7 DEL DIAGRAMA:
+  "Dirigir al módulo de aspirante"
+  "Desplegar información de aspirante y acciones"
+end note
+
+== PASO 8: Crear Frame de Detalle ==
+
+mostrardetalle -> mostrardetalle: crear/limpiar self.frame_detalle
+activate mostrardetalle
+note right
+  Frame para mostrar detalle completo
+  bg="#f8f9fa"
+end note
+deactivate mostrardetalle
+
+mostrardetalle -> mostrardetalle: frame_detalle.pack()
+activate mostrardetalle
+deactivate mostrardetalle
+
+mostrardetalle -> mostrardetalle: mostrar "⏳ Cargando..."
+activate mostrardetalle
+deactivate mostrardetalle
+
+mostrardetalle -> mostrardetalle: update() para mostrar indicador
+activate mostrardetalle
+deactivate mostrardetalle
+
+== PASO 9: Obtener Detalle Completo ==
+
+mostrardetalle -> servicio: exito, detalle, mensaje = obtener_detalle_aspirante(id_aspirante)
+activate servicio
+
+servicio -> obtenerdetalle: self.obtener_detalle_aspirante(id_aspirante)
+activate obtenerdetalle
+
+note over obtenerdetalle
+  PASO 6 (continuación):
+  "Sistema obtiene información completa"
+  
+  Consulta:
+  1. Datos del aspirante
+  2. Datos del acudiente
+  3. Respuestas del formulario
+end note
+
+obtenerdetalle -> obtenerdetalle: session = SessionLocal()
+activate obtenerdetalle
+deactivate obtenerdetalle
+
+obtenerdetalle -> database: query aspirante + persona
+activate database
+
+note over database
+  Query SQL:
+  
+  SELECT 
+    a.id_aspirante,
+    a.grado_solicitado,
+    a.fecha_solicitud,
+    a.estado_proceso,
+    a.id_acudiente,
+    p.tipo_identificacion,
+    p.numero_identificacion,
+    p.primer_nombre,
+    p.segundo_nombre,
+    p.primer_apellido,
+    p.segundo_apellido,
+    p.fecha_nacimiento,
+    p.genero,
+    p.direccion,
+    p.telefono
+  FROM aspirante a
+  INNER JOIN persona p 
+    ON a.id_aspirante = p.id_persona
+  WHERE a.id_aspirante = :id_aspirante
+end note
+
+database --> obtenerdetalle: resultado_asp (Row)
+deactivate database
+
+obtenerdetalle -> obtenerdetalle: construir aspirante_info (dict)
+activate obtenerdetalle
+note right
+  Procesa datos:
+  - Construye nombre_completo
+  - Calcula edad
+  - Formatea fechas
+end note
+deactivate obtenerdetalle
+
+opt id_acudiente != None
+    obtenerdetalle -> database: query acudiente + persona
+    activate database
+    
+    note over database
+      Query SQL:
+      
+      SELECT 
+        ac.id_acudiente,
+        ac.parentesco,
+        ac.email,
+        p.primer_nombre,
+        p.segundo_nombre,
+        p.primer_apellido,
+        p.segundo_apellido,
+        p.numero_identificacion,
+        p.telefono,
+        p.direccion
+      FROM acudiente ac
+      INNER JOIN persona p 
+        ON ac.id_acudiente = p.id_persona
+      WHERE ac.id_acudiente = :id_acudiente
+    end note
+    
+    database --> obtenerdetalle: resultado_acu (Row)
+    deactivate database
+    
+    obtenerdetalle -> obtenerdetalle: construir acudiente_info (dict)
+    activate obtenerdetalle
+    note right
+      Procesa datos del acudiente:
+      - nombre_completo
+      - numero_identificacion
+      - parentesco
+      - email, telefono, direccion
+    end note
+    deactivate obtenerdetalle
+end
+
+obtenerdetalle -> obtenerdetalle: construir detalle_completo (dict)
+activate obtenerdetalle
+note right
+  Diccionario con:
+  {
+    'aspirante': aspirante_info,
+    'acudiente': acudiente_info,
+    'acciones_disponibles': [...]
+  }
+end note
+deactivate obtenerdetalle
+
+obtenerdetalle -> obtenerdetalle: session.close()
+activate obtenerdetalle
+deactivate obtenerdetalle
+
+obtenerdetalle --> servicio: return (True, detalle_completo, mensaje)
+deactivate obtenerdetalle
+
+servicio --> mostrardetalle: (exito, detalle, mensaje)
+deactivate servicio
+
+mostrardetalle -> mostrardetalle: limpiar indicador de carga
+activate mostrardetalle
+deactivate mostrardetalle
+
+opt exito == False
+    mostrardetalle -> mostrardetalle: mostrar error + botón volver
+    activate mostrardetalle
+    deactivate mostrardetalle
+    mostrardetalle --> verdetalle: return (error mostrado)
+end
+
+mostrardetalle -> mostrardetalle: self.detalle_actual = detalle
+activate mostrardetalle
+note right
+  Guarda detalle en variable de instancia
+end note
+deactivate mostrardetalle
+
+== PASO 10: Renderizar Detalle Completo ==
+
+mostrardetalle -> renderdetalle: self.renderizar_detalle_completo(detalle)
+activate renderdetalle
+
+note over renderdetalle
+  PASO 7 DEL DIAGRAMA:
+  "Desplegar información de aspirante y acciones"
+  
+  Renderiza:
+  - Datos personales del aspirante
+  - Información del acudiente
+  - Estado del proceso
+  - Acciones disponibles
+end note
+
+renderdetalle -> renderdetalle: crear Canvas + Scrollbar
+activate renderdetalle
+note right
+  Canvas scrollable para contenido largo
+end note
+deactivate renderdetalle
+
+renderdetalle -> renderdetalle: crear content_frame
+activate renderdetalle
+deactivate renderdetalle
+
+renderdetalle -> renderdetalle: crear header
+activate renderdetalle
+note right
+  Header con:
+  - Label "👤 Detalles del Aspirante"
+  - Button "← Volver al listado"
+end note
+deactivate renderdetalle
+
+renderdetalle -> renderdetalle: crear_seccion_informacion_aspirante()
+activate renderdetalle
+note right
+  Sección con:
+  - Nombre completo
+  - Tipo y número de identificación
+  - Fecha de nacimiento y edad
+  - Género
+  - Dirección y teléfono
+  - Grado solicitado
+  - Fecha de solicitud
+  - Estado del proceso
+end note
+deactivate renderdetalle
+
+opt detalle['acudiente'] != None
+    renderdetalle -> renderdetalle: crear_seccion_informacion_acudiente()
+    activate renderdetalle
+    note right
+      Sección con:
+      - Nombre del acudiente
+      - Identificación
+      - Parentesco
+      - Email
+      - Teléfono
+      - Dirección
+    end note
+    deactivate renderdetalle
+end
+
+renderdetalle -> renderdetalle: crear_seccion_acciones()
+activate renderdetalle
+note right
+  PASO 7 (acciones):
+  Botones según estado:
+  
+  - "Programar entrevista"
+  - "Aprobar aspirante"
+  - "Rechazar aspirante"
+  - "Cambiar a en proceso"
+  - etc.
+  
+  Acciones dependen del
+  estado_proceso actual
+end note
+deactivate renderdetalle
+
+renderdetalle -> renderdetalle: pack canvas y scrollbar
+activate renderdetalle
+deactivate renderdetalle
+
+renderdetalle --> mostrardetalle: detalle renderizado
+deactivate renderdetalle
+
+mostrardetalle -> mostrardetalle: self.frame_actual = self.frame_detalle
+activate mostrardetalle
+deactivate mostrardetalle
+
+mostrardetalle --> verdetalle: detalle mostrado
+deactivate mostrardetalle
+
+verdetalle --> btndetalle: navegación completada
+deactivate verdetalle
+
+btndetalle --> director: pantalla de detalle visible
+deactivate btndetalle
+
+note over director, renderdetalle
+  SISTEMA ESPERANDO INTERACCIÓN
+  
+  Pantalla de detalle visible:
+  ════════════════════════════════════════════════
+  │ 👤 Detalles del Aspirante    [← Volver]      │
+  ├────────────────────────────────────────────────┤
+  │ 📄 INFORMACIÓN DEL ASPIRANTE                  │
+  │ ─────────────────────────────────────────────│
+  │ Nombre completo: Juan Pérez García            │
+  │ Identificación: TI 123456789                  │
+  │ Fecha nacimiento: 15/05/2015 (9 años)        │
+  │ Género: Masculino                             │
+  │ Dirección: Calle 123 #45-67                   │
+  │ Teléfono: 3001234567                          │
+  │ Grado solicitado: Primero                     │
+  │ Fecha solicitud: 01/12/2025 15:30             │
+  │ Estado: ● Pendiente                           │
+  ├────────────────────────────────────────────────┤
+  │ 👨‍👩‍👧 INFORMACIÓN DEL ACUDIENTE                  │
+  │ ─────────────────────────────────────────────│
+  │ Nombre: María García Rodríguez                │
+  │ Identificación: CC 987654321                  │
+  │ Parentesco: Madre                             │
+  │ Email: maria.garcia@email.com                 │
+  │ Teléfono: 3009876543                          │
+  ├────────────────────────────────────────────────┤
+  │ ⚡ ACCIONES DISPONIBLES                        │
+  │ ─────────────────────────────────────────────│
+  │ [Programar entrevista]                        │
+  │ [Aprobar aspirante]                           │
+  │ [Rechazar aspirante]                          │
+  ════════════════════════════════════════════════
+  
+  Directivo puede:
+  1. Hacer clic en "← Volver" → volver a lista
+  2. Hacer clic en acciones → actualizar estado
+  3. Navegar con scroll → ver toda la información
+end note
+
+deactivate servicio
+deactivate btndetalle
+
+@enduml

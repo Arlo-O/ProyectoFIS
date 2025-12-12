@@ -83,6 +83,7 @@ usuario_table = Table(
     Column('activo', Boolean, default=True),
     Column('fecha_creacion', DateTime, default=lambda: datetime.now(timezone.utc)),
     Column('ultimo_ingreso', DateTime),
+    Column('justificacion_inhabilitacion', Text),
 )
 
 # ESTUDIANTE: hereda de Persona, NO tiene Usuario
@@ -125,6 +126,7 @@ aspirante_table = Table(
     Column('grado_solicitado', String(20)),
     Column('fecha_solicitud', DateTime),
     Column('estado_proceso', String(20)),
+    Column('justificacion_rechazo', Text, nullable=True),
 )
 
 # DIRECTIVO: hereda de Persona, tiene asociación con Usuario
@@ -214,6 +216,9 @@ hoja_vida_table = Table(
     Column('alergias', JSON),
     Column('tratamientos', JSON),
     Column('necesidades_educativas', JSON),
+    # NOTA: No se incluye promedio_general porque las calificaciones son cualitativas
+    Column('fecha_creacion', DateTime, default=datetime.now),
+    Column('usuario_creador', Integer, ForeignKey('usuario.id_usuario'), nullable=True),
 )
 
 observador_table = Table(

@@ -1,21 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-TEST AUTOMATIZADO: Validación del scroll en formulario
-Ejecuta pruebas para verificar que el sistema de scroll está funcionando correctamente
+Script de prueba completo para verificar todas las funcionalidades principales
 """
 
 import sys
-import json
+import os
 from pathlib import Path
-from datetime import datetime
 
-# Configurar encoding en Windows
-if sys.platform == 'win32':
-    sys.stdout.reconfigure(encoding='utf-8')
+# Configurar salida UTF-8
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
-# Setup
-sys.path.insert(0, str(Path(__file__).parent))
+# Agregar el directorio raíz al path
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
+from dotenv import load_dotenv
+load_dotenv()
+
+from app.data.db import engine, SessionLocal
+from sqlalchemy import text
 
 def print_header(title):
     """Imprime un encabezado"""

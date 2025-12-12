@@ -41,6 +41,7 @@ def create_dashboard_button(parent, text, icon, module_name, nav_commands):
     description_map = {
         'achievements_manager': 'Gestión completa de logros CRE',
         'student_manager': 'Registro y seguimiento de estudiantes',
+        'aspirantes_manager': 'Consultar y gestionar aspirantes',
         'groups_manager': 'Administración de grupos y asignaciones',
         'citation_generator': 'Generador de citaciones GCR'
     }
@@ -154,6 +155,7 @@ def create_director_dashboard(master, nav_commands):
     create_side_nav_button(sidebar, "Dashboard Principal", "🏠", None, is_active=True)
     create_side_nav_button(sidebar, "Gestión de Logros", "⭐", "achievements_manager")
     create_side_nav_button(sidebar, "Estudiantes", "👨‍🎓", "student_manager")
+    create_side_nav_button(sidebar, "Aspirantes", "📋", "aspirantes_manager")
     create_side_nav_button(sidebar, "Grupos", "👥", "groups_manager")
     create_side_nav_button(sidebar, "Citaciones", "📝", "citation_generator")
     
@@ -253,20 +255,20 @@ def create_director_dashboard(master, nav_commands):
     ).grid(row=0, column=1, sticky="nsew", padx=15, pady=15)
     
     create_dashboard_button(
-        modules_grid, "Gestión de Grupos", "👥", "groups_manager", nav_commands
+        modules_grid, "Gestión de Aspirantes", "📋", "aspirantes_manager", nav_commands
     ).grid(row=0, column=2, sticky="nsew", padx=15, pady=15)
     
     # Fila 2: Comunicación y Reportes
     create_dashboard_button(
-        modules_grid, "Citaciones (GCR)", "📝", "citation_generator", nav_commands
+        modules_grid, "Gestión de Grupos", "👥", "groups_manager", nav_commands
     ).grid(row=1, column=0, sticky="nsew", padx=15, pady=15)
     
     create_dashboard_button(
-        modules_grid, "Reportes y Estadísticas", "📈", "reports_manager", nav_commands
+        modules_grid, "Citaciones (GCR)", "📝", "citation_generator", nav_commands
     ).grid(row=1, column=1, sticky="nsew", padx=15, pady=15)
     
     create_dashboard_button(
-        modules_grid, "Notificaciones", "📧", "notifications_manager", nav_commands
+        modules_grid, "Reportes y Estadísticas", "📈", "reports_manager", nav_commands
     ).grid(row=1, column=2, sticky="nsew", padx=15, pady=15)
     
     return dashboard_frame
