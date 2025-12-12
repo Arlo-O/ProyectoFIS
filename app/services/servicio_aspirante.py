@@ -9,8 +9,10 @@ Pasos del diagrama:
 
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
+import traceback
 from sqlalchemy import text
 from app.data.db import SessionLocal
+from app.ui.components.session import get_user_id
 
 
 class ServicioAspirante:
@@ -115,7 +117,6 @@ class ServicioAspirante:
             return True, aspirantes, mensaje
             
         except Exception as e:
-            import traceback
             print(f"Error al obtener listado de aspirantes: {e}")
             print(traceback.format_exc())
             return False, [], f"Error al consultar aspirantes: {str(e)}"
@@ -288,7 +289,6 @@ class ServicioAspirante:
             return True, detalle_completo, "Información obtenida exitosamente."
             
         except Exception as e:
-            import traceback
             print(f"Error al obtener detalle del aspirante: {e}")
             print(traceback.format_exc())
             return False, None, f"Error al consultar detalle: {str(e)}"
@@ -397,7 +397,6 @@ class ServicioAspirante:
             
         except Exception as e:
             session.rollback()
-            import traceback
             print(f"Error al actualizar estado: {e}")
             print(traceback.format_exc())
             return False, f"Error al actualizar estado: {str(e)}"
@@ -443,7 +442,6 @@ class ServicioAspirante:
                 return False, f"No se puede programar entrevista. El aspirante está en estado '{estado_actual}'."
             
             # 2. Obtener el ID del directivo actual (desde la sesión)
-            from app.ui.components.session import get_user_id
             usuario_id = get_user_id()
             
             if not usuario_id:
@@ -533,7 +531,6 @@ class ServicioAspirante:
             
         except Exception as e:
             session.rollback()
-            import traceback
             print(f"Error al programar entrevista: {e}")
             print(traceback.format_exc())
             return False, f"Error al programar entrevista: {str(e)}"

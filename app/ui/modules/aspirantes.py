@@ -12,6 +12,8 @@ Pasos del diagrama:
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 from typing import Dict, Optional
+from datetime import datetime, timedelta
+from tkcalendar import DateEntry
 from app.services.servicio_aspirante import ServicioAspirante
 from app.ui.config import *
 
@@ -735,10 +737,6 @@ class GestionAspirantesView:
         Abre un diálogo para programar una entrevista con el aspirante.
         Permite seleccionar fecha, hora y lugar, y valida disponibilidad.
         """
-        from tkinter import ttk
-        from datetime import datetime, timedelta
-        from tkcalendar import DateEntry
-        
         # Crear ventana de diálogo
         dialogo = tk.Toplevel(self.frame_actual)
         dialogo.title("Programar Entrevista")
