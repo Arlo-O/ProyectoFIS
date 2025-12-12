@@ -16,12 +16,12 @@ load_dotenv()
 
 # Inicializar mapeos del ORM (necesario antes de importar módulos que usen el ORM)
 try:
-    from app.infraestructura.mappers import start_mappers
+    from app.data.mappers import start_mappers
     start_mappers()
 except Exception as e:
     print(f"Warning: no se pudieron inicializar los mapeos: {e}")
 
-from app.vista.app_gui import initialize_app
+from app.ui.main import initialize_app
 import tkinter as tk
 
 if __name__ == "__main__":

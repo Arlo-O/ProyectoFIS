@@ -13,6 +13,7 @@ import sys
 import os
 from datetime import datetime
 from pathlib import Path
+from sqlalchemy import select
 
 # Agregar la ruta del proyecto al path
 project_root = Path(__file__).parent.parent
@@ -21,10 +22,18 @@ sys.path.insert(0, str(project_root))
 from dotenv import load_dotenv
 load_dotenv()
 
-from app.infraestructura.uow import uow
-from app.modelos.usuarios.persona import Persona
-from app.modelos.usuarios.usuario import Usuario
-from app.modelos.usuarios.rol import Rol
+from app.data.uow import uow
+from app.core.usuarios.persona import Persona
+from app.core.usuarios.usuario import Usuario
+from app.core.usuarios.administrador import Administrador
+from app.core.usuarios.directivo import Directivo
+from app.core.usuarios.profesor import Profesor
+from app.core.usuarios.acudiente import Acudiente
+from app.core.usuarios.rol import Rol
+
+# ✅ Inicializar los mapeos de SQLAlchemy
+from app.data.mappers import start_mappers
+start_mappers()
 
 
 def get_or_create_role(unit_of_work, role_name: str, description: str) -> Rol:
@@ -39,10 +48,12 @@ def get_or_create_role(unit_of_work, role_name: str, description: str) -> Rol:
     Returns:
         Instancia de Rol
     """
-    role = unit_of_work.session.query(Rol).filter_by(nombre_rol=role_name).first()
+    stmt = select(Rol).where(Rol.nombre_rol == role_name)
+    role = unit_of_work.session.execute(stmt).scalar_one_or_none()
     if not role:
         role = Rol(nombre_rol=role_name, descripcion_rol=description)
         unit_of_work.session.add(role)
+        unit_of_work.session.flush()  # Flush para obtener el id_rol generado
     return role
 
 
@@ -97,14 +108,28 @@ def insert_test_users():
             for user_data in test_users:
                 rol_name = user_data["rol_name"]
                 if rol_name not in roles:
-                    roles[rol_name] = get_or_create_role(
-                        unit_of_work,
-                        rol_name,
-                        user_data["rol_desc"]
-                    )
-                    print(f"    ✓ Rol '{rol_name}' OK")
+                    try:
+                        roles[rol_name] = get_or_create_role(
+                            unit_of_work,
+                            rol_name,
+                            user_data["rol_desc"]
+                        )
+                        print(f"    ✓ Rol '{rol_name}' OK")
+                    except Exception as e:
+                        # Rol ya existe, obtenerlo
+                        stmt = select(Rol).where(Rol.nombre_rol == rol_name)
+                        roles[rol_name] = unit_of_work.session.execute(stmt).scalar_one_or_none()
+                        if roles[rol_name]:
+                            print(f"    ✓ Rol '{rol_name}' ya existe")
+                            unit_of_work.session.rollback()
+                        else:
+                            raise
             
-            unit_of_work.commit()
+            try:
+                unit_of_work.commit()
+            except Exception:
+                # Si hay error al hacer commit (roles duplicados), solo hacer rollback
+                unit_of_work.session.rollback()
             
             # Crear usuarios
             print("\n[*] Verificando/creando usuarios de prueba...")
@@ -117,34 +142,110 @@ def insert_test_users():
                     print(f"    ℹ Usuario {email} ya existe (saltando)")
                     continue
                 
-                # Crear Persona
-                persona = Persona(
-                    numero_identificacion=f"TEST{hash(email) % 10000:04d}",
-                    tipo_identificacion="CC",
-                    primer_nombre=user_data["nombre"],
-                    primer_apellido=user_data["apellido"],
-                    segundo_nombre="",
-                    segundo_apellido="",
-                    fecha_nacimiento=datetime(1990, 1, 1),
-                    telefono="",
-                    direccion="",
-                    genero="",
-                    type="Usuario"
-                )
+                rol_name = user_data["rol_name"]
+                rol = roles.get(rol_name)
+                if not rol:
+                    # Obtener el rol de la BD si no lo encontramos
+                    stmt = select(Rol).where(Rol.nombre_rol == rol_name)
+                    rol = unit_of_work.session.execute(stmt).scalar_one_or_none()
+                    if not rol:
+                        print(f"    ✗ Rol {rol_name} no encontrado")
+                        continue
+                    roles[rol_name] = rol
                 
                 # Crear Usuario
                 usuario = Usuario(
+                    id_usuario=None,  # Será asignado por la BD
                     correo_electronico=email,
                     contrasena=user_data["password"],  # ⚠️ En producción: bcrypt
-                    id_rol=roles[user_data["rol_name"]].id_rol,
+                    id_rol=rol.id_rol,
                     activo=True,
                     fecha_creacion=datetime.now(),
                     ultimo_ingreso=None
                 )
-                usuario.persona = persona
                 
                 unit_of_work.usuarios.add(usuario)
-                print(f"    ✓ Usuario {email} creado correctamente")
+                unit_of_work.session.flush()  # Flush para obtener el id_usuario generado
+                
+                # Crear la entidad de rol específica (Persona) con FK a Usuario
+                if rol_name == "administrador":
+                    persona = Administrador(
+                        id_administrador=None,
+                        id_persona=None,
+                        tipo_identificacion="CC",
+                        numero_identificacion=f"TEST{hash(email) % 10000:04d}",
+                        primer_nombre=user_data["nombre"],
+                        segundo_nombre="",
+                        primer_apellido=user_data["apellido"],
+                        segundo_apellido="",
+                        fecha_nacimiento=datetime(1990, 1, 1),
+                        telefono="",
+                        direccion="",
+                        genero="",
+                    )
+                    persona.usuario = usuario
+                    unit_of_work.session.add(persona)
+                    
+                elif rol_name == "director":
+                    persona = Directivo(
+                        id_directivo=None,
+                        id_persona=None,
+                        cargo="Director",
+                        area_responsable="Dirección",
+                        tipo_identificacion="CC",
+                        numero_identificacion=f"TEST{hash(email) % 10000:04d}",
+                        primer_nombre=user_data["nombre"],
+                        segundo_nombre="",
+                        primer_apellido=user_data["apellido"],
+                        segundo_apellido="",
+                        fecha_nacimiento=datetime(1990, 1, 1),
+                        telefono="",
+                        direccion="",
+                        genero="",
+                    )
+                    persona.usuario = usuario
+                    unit_of_work.session.add(persona)
+                    
+                elif rol_name == "profesor":
+                    persona = Profesor(
+                        id_profesor=None,
+                        id_persona=None,
+                        especialidad="Generalista",
+                        experiencia_anios=5,
+                        tipo_identificacion="CC",
+                        numero_identificacion=f"TEST{hash(email) % 10000:04d}",
+                        primer_nombre=user_data["nombre"],
+                        segundo_nombre="",
+                        primer_apellido=user_data["apellido"],
+                        segundo_apellido="",
+                        fecha_nacimiento=datetime(1990, 1, 1),
+                        telefono="",
+                        direccion="",
+                        genero="",
+                    )
+                    persona.usuario = usuario
+                    unit_of_work.session.add(persona)
+                    
+                elif rol_name == "acudiente":
+                    persona = Acudiente(
+                        id_acudiente=None,
+                        id_persona=None,
+                        parentesco="Padre",
+                        tipo_identificacion="CC",
+                        numero_identificacion=f"TEST{hash(email) % 10000:04d}",
+                        primer_nombre=user_data["nombre"],
+                        segundo_nombre="",
+                        primer_apellido=user_data["apellido"],
+                        segundo_apellido="",
+                        fecha_nacimiento=datetime(1990, 1, 1),
+                        telefono="",
+                        direccion="",
+                        genero="",
+                    )
+                    persona.usuario = usuario
+                    unit_of_work.session.add(persona)
+                
+                print(f"    ✓ Usuario {email} ({rol_name}) creado correctamente")
             
             unit_of_work.commit()
             print("\n" + "=" * 70)
