@@ -1,0 +1,114 @@
+@startuml Consulta_Aspirantes_Parte2
+!theme plain
+title CU-12: Consultar Aspirantes - Parte 2: Cargar y Mostrar Listado
+autonumber
+
+participant "Vista\nGestionAspirantes" as Vista
+participant "Servicio\nAspirante" as Servicio
+database "Base de Datos\nPostgreSQL" as DB
+participant "Método\ndesplegar_tabla" as Tabla
+actor Directivo
+
+== PASO 3: Cargar Listado de Aspirantes ==
+
+Vista -> Vista: cargar_listado_aspirantes()
+activate Vista
+
+Vista -> Vista: Mostrar indicador\n"⏳ Cargando..."
+activate Vista
+deactivate Vista
+
+Vista -> Servicio: obtener_listado_aspirantes()
+activate Servicio
+
+Servicio -> DB: SELECT aspirante JOIN persona\nORDER BY fecha_solicitud DESC
+activate DB
+
+note over DB
+  Query:
+  - id_aspirante
+  - nombre completo
+  - identificación
+  - grado solicitado
+  - fecha solicitud
+  - estado proceso
+end note
+
+DB --> Servicio: Lista de aspirantes
+deactivate DB
+
+loop Para cada aspirante
+  Servicio -> Servicio: Construir nombre_completo
+  activate Servicio
+  deactivate Servicio
+  
+  Servicio -> Servicio: Calcular edad
+  activate Servicio
+  deactivate Servicio
+  
+  Servicio -> Servicio: Formatear fechas
+  activate Servicio
+  deactivate Servicio
+end
+
+Servicio --> Vista: (True, aspirantes, mensaje)
+deactivate Servicio
+
+alt Si no hay aspirantes
+  Vista -> Vista: Mostrar\n"📭 No hay aspirantes"
+  activate Vista
+  deactivate Vista
+else Si hay aspirantes
+  Vista -> Vista: Guardar aspirantes_actuales
+  activate Vista
+  deactivate Vista
+  
+  == PASO 4: Renderizar Tabla ==
+  
+  Vista -> Tabla: desplegar_tabla_aspirantes()
+  activate Tabla
+  
+  Tabla -> Tabla: Crear Canvas + Scrollbar
+  activate Tabla
+  deactivate Tabla
+  
+  Tabla -> Tabla: Crear encabezados
+  activate Tabla
+  note right
+    # | Nombre | ID | Grado
+    Fecha | Estado | Acciones
+  end note
+  deactivate Tabla
+  
+  loop Para cada aspirante
+    Tabla -> Tabla: crear_fila_aspirante()
+    activate Tabla
+    
+    note over Tabla
+      Crea fila con:
+      - Labels de información
+      - Button "👁️ Ver detalles"
+      - Efectos hover
+    end note
+    
+    deactivate Tabla
+  end
+  
+  Tabla -> Tabla: Mostrar total de aspirantes
+  activate Tabla
+  deactivate Tabla
+  
+  Tabla --> Vista: Tabla renderizada
+  deactivate Tabla
+end
+
+deactivate Vista
+
+note over Directivo, DB
+  ✓ Listado de aspirantes visible
+  ✓ Botones "Ver detalles" disponibles
+  
+  Continúa en Parte 3 →
+end note
+
+@enduml

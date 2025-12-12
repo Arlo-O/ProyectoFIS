@@ -1,0 +1,175 @@
+@startuml Consulta_Aspirantes_Parte3
+!theme plain
+title CU-12: Consultar Aspirantes - Parte 3: Ver Detalle de Aspirante
+autonumber
+
+actor Directivo
+participant "Button\nVer Detalles" as Button
+participant "Vista\nGestionAspirantes" as Vista
+participant "Servicio\nAspirante" as Servicio
+database "Base de Datos\nPostgreSQL" as DB
+participant "Renderizar\nDetalle" as Render
+
+== PASO 5: Directivo Ve Detalles ==
+
+Directivo -> Button: Clic en "👁️ Ver detalles"
+activate Button
+
+Button -> Vista: ver_detalle_aspirante(id_aspirante)
+activate Vista
+
+Vista -> Vista: Ocultar frame_listado
+activate Vista
+deactivate Vista
+
+Vista -> Vista: mostrar_detalle_aspirante(id_aspirante)
+activate Vista
+
+Vista -> Vista: Crear/limpiar frame_detalle
+activate Vista
+deactivate Vista
+
+Vista -> Vista: Mostrar indicador\n"⏳ Cargando información..."
+activate Vista
+deactivate Vista
+
+== PASO 6: Consultar Información Completa ==
+
+Vista -> Servicio: obtener_detalle_aspirante(id_aspirante)
+activate Servicio
+
+Servicio -> DB: SELECT aspirante + persona\nWHERE id_aspirante = ?
+activate DB
+
+note over DB
+  Obtiene:
+  - Todos los datos personales
+  - Grado solicitado
+  - Fecha solicitud
+  - Estado proceso
+  - id_acudiente
+end note
+
+DB --> Servicio: Datos del aspirante
+deactivate DB
+
+Servicio -> Servicio: Procesar datos aspirante
+activate Servicio
+note right
+  - Construir nombre completo
+  - Calcular edad
+  - Formatear fechas
+end note
+deactivate Servicio
+
+opt Si tiene acudiente
+  Servicio -> DB: SELECT acudiente + persona\nWHERE id_acudiente = ?
+  activate DB
+  
+  note over DB
+    Obtiene:
+    - Nombre acudiente
+    - Parentesco
+    - Email, teléfono
+    - Dirección
+  end note
+  
+  DB --> Servicio: Datos del acudiente
+  deactivate DB
+  
+  Servicio -> Servicio: Procesar datos acudiente
+  activate Servicio
+  deactivate Servicio
+end
+
+Servicio -> Servicio: Construir detalle_completo
+activate Servicio
+
+note over Servicio
+  {
+    'aspirante': {...},
+    'acudiente': {...},
+    'acciones_disponibles': [...]
+  }
+end note
+
+deactivate Servicio
+
+Servicio --> Vista: (True, detalle_completo, mensaje)
+deactivate Servicio
+
+Vista -> Vista: Guardar detalle_actual
+activate Vista
+deactivate Vista
+
+== PASO 7: Renderizar Detalle Completo ==
+
+Vista -> Render: renderizar_detalle_completo(detalle)
+activate Render
+
+Render -> Render: Crear Canvas scrollable
+activate Render
+deactivate Render
+
+Render -> Render: Crear header\n"👤 Detalles del Aspirante"\n[← Volver]
+activate Render
+deactivate Render
+
+Render -> Render: crear_seccion_informacion_aspirante()
+activate Render
+
+note over Render
+  Card con:
+  - Nombre completo
+  - Identificación
+  - Fecha nacimiento y edad
+  - Género, dirección, teléfono
+  - Grado solicitado
+  - Fecha solicitud
+  - Estado proceso
+end note
+
+deactivate Render
+
+opt Si tiene acudiente
+  Render -> Render: crear_seccion_acudiente()
+  activate Render
+  
+  note over Render
+    Card con información
+    del acudiente
+  end note
+  
+  deactivate Render
+end
+
+Render -> Render: crear_seccion_acciones()
+activate Render
+
+note over Render
+  Botones según estado:
+  - Programar entrevista
+  - Aprobar aspirante
+  - Rechazar aspirante
+end note
+
+deactivate Render
+
+Render --> Vista: Detalle renderizado
+deactivate Render
+
+deactivate Vista
+deactivate Vista
+
+Button --> Directivo: Detalle completo visible
+deactivate Button
+
+note over Directivo, DB
+  ✓ Información completa del aspirante
+  ✓ Información del acudiente (si existe)
+  ✓ Acciones disponibles según estado
+  
+  FIN DEL CASO DE USO CU-12
+end note
+
+@enduml

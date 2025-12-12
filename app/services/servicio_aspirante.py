@@ -9,8 +9,10 @@ Pasos del diagrama:
 
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
+import traceback
 from sqlalchemy import text
 from app.data.db import SessionLocal
+from app.ui.components.session import get_user_id
 
 
 class ServicioAspirante:
@@ -115,7 +117,6 @@ class ServicioAspirante:
             return True, aspirantes, mensaje
             
         except Exception as e:
-            import traceback
             print(f"Error al obtener listado de aspirantes: {e}")
             print(traceback.format_exc())
             return False, [], f"Error al consultar aspirantes: {str(e)}"
@@ -288,7 +289,6 @@ class ServicioAspirante:
             return True, detalle_completo, "Información obtenida exitosamente."
             
         except Exception as e:
-            import traceback
             print(f"Error al obtener detalle del aspirante: {e}")
             print(traceback.format_exc())
             return False, None, f"Error al consultar detalle: {str(e)}"
@@ -397,10 +397,143 @@ class ServicioAspirante:
             
         except Exception as e:
             session.rollback()
-            import traceback
             print(f"Error al actualizar estado: {e}")
             print(traceback.format_exc())
             return False, f"Error al actualizar estado: {str(e)}"
+        
+        finally:
+            session.close()
+    
+    def programar_entrevista(self, id_aspirante: int, fecha_programada: datetime, 
+                           lugar: str) -> Tuple[bool, str]:
+        """
+        Programa una entrevista para un aspirante.
+        
+        Valida la disponibilidad y crea el registro de entrevista en la BD.
+        Si es exitoso, actualiza el estado del aspirante a 'en_proceso'.
+        
+        Args:
+            id_aspirante: ID del aspirante
+            fecha_programada: Fecha y hora programada para la entrevista
+            lugar: Lugar donde se realizará la entrevista
+            
+        Returns:
+            Tuple[bool, str]: (éxito, mensaje)
+        """
+        session = SessionLocal()
+        
+        try:
+            # 1. Validar que el aspirante existe y está en estado válido
+            query_aspirante = text("""
+                SELECT estado_proceso 
+                FROM aspirante 
+                WHERE id_aspirante = :id_aspirante
+            """)
+            
+            resultado = session.execute(query_aspirante, {"id_aspirante": id_aspirante}).fetchone()
+            
+            if not resultado:
+                return False, f"No se encontró el aspirante con ID {id_aspirante}"
+            
+            estado_actual = resultado.estado_proceso
+            
+            # Solo se puede programar entrevista si está en 'pendiente' o 'en_proceso'
+            if estado_actual not in ['pendiente', 'en_proceso']:
+                return False, f"No se puede programar entrevista. El aspirante está en estado '{estado_actual}'."
+            
+            # 2. Obtener el ID del directivo actual (desde la sesión)
+            usuario_id = get_user_id()
+            
+            if not usuario_id:
+                return False, "No se pudo identificar al usuario actual."
+            
+            # Obtener el id_directivo desde el id_usuario
+            query_directivo = text("""
+                SELECT id_directivo 
+                FROM directivo 
+                WHERE id_usuario = :id_usuario
+            """)
+            
+            resultado_dir = session.execute(query_directivo, {"id_usuario": usuario_id}).fetchone()
+            
+            if not resultado_dir:
+                return False, "No se pudo identificar al directivo actual."
+            
+            id_directivo = resultado_dir.id_directivo
+            
+            # 3. Validar disponibilidad: verificar que no haya otra entrevista 
+            #    en la misma fecha/hora/lugar
+            query_disponibilidad = text("""
+                SELECT COUNT(*) as count
+                FROM entrevista
+                WHERE fecha_programada = :fecha_programada
+                AND lugar = :lugar
+                AND estado != 'cancelada'
+            """)
+            
+            resultado_disp = session.execute(query_disponibilidad, {
+                "fecha_programada": fecha_programada,
+                "lugar": lugar
+            }).fetchone()
+            
+            if resultado_disp.count > 0:
+                return False, (
+                    f"El lugar '{lugar}' no está disponible para la fecha y hora seleccionadas. "
+                    f"Por favor elija otra hora o lugar."
+                )
+            
+            # 4. Verificar que el aspirante no tenga ya una entrevista programada
+            query_entrevista_existente = text("""
+                SELECT COUNT(*) as count
+                FROM entrevista
+                WHERE id_aspirante = :id_aspirante
+                AND estado IN ('programada', 'confirmada')
+            """)
+            
+            resultado_exist = session.execute(
+                query_entrevista_existente, 
+                {"id_aspirante": id_aspirante}
+            ).fetchone()
+            
+            if resultado_exist.count > 0:
+                return False, "El aspirante ya tiene una entrevista programada."
+            
+            # 5. Crear la entrevista
+            query_insert = text("""
+                INSERT INTO entrevista 
+                (id_aspirante, id_directivo_remitente, fecha_programada, lugar, estado, notas)
+                VALUES 
+                (:id_aspirante, :id_directivo, :fecha_programada, :lugar, :estado, :notas)
+            """)
+            
+            session.execute(query_insert, {
+                "id_aspirante": id_aspirante,
+                "id_directivo": id_directivo,
+                "fecha_programada": fecha_programada,
+                "lugar": lugar,
+                "estado": "programada",
+                "notas": f"Entrevista programada por directivo ID {id_directivo}"
+            })
+            
+            # 6. Actualizar el estado del aspirante a 'en_proceso' si estaba en 'pendiente'
+            if estado_actual == 'pendiente':
+                query_update = text("""
+                    UPDATE aspirante
+                    SET estado_proceso = 'en_proceso'
+                    WHERE id_aspirante = :id_aspirante
+                """)
+                
+                session.execute(query_update, {"id_aspirante": id_aspirante})
+            
+            session.commit()
+            
+            return True, "El estado del aspirante ha sido actualizado a 'en proceso'."
+            
+        except Exception as e:
+            session.rollback()
+            print(f"Error al programar entrevista: {e}")
+            print(traceback.format_exc())
+            return False, f"Error al programar entrevista: {str(e)}"
         
         finally:
             session.close()
